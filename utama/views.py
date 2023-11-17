@@ -1,7 +1,8 @@
 from django.shortcuts import render
-from django.views.generic import ListView, FormView
+from django.views.generic import ListView
+from django.views.generic.edit import FormView
 from .models import Info
-from .forms import InfoFilterForm
+from .forms import InfoFilterForm, InfoSelectForm
 # Create your views here.
 
 
@@ -25,3 +26,14 @@ class InfoFilterView(FormView):
     def form_valid(self, form):
         # Redirect ke halaman item_list dengan parameter query yang sesuai
         return self.redirect('item_list', **form.cleaned_data)
+
+# Pilihan Pilih Senarai Sekolah
+class InfoSelectView(FormView):
+    template_name="select_item.html"
+    form_class=InfoSelectForm
+    success_url="/success" # tentukan url mengikut keperluan
+    
+    def form_valid(self, form):
+        #Lakukan sesuatu item yang dipilih 
+        selected_item = form.cleaned_data['listsekolah']
+        return super().form_valid(form)

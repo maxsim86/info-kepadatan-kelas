@@ -28,6 +28,12 @@ class Info(models.Model):
         (TINGKATAN_5, "Tingkatan 5"),
     ]
     level_tingkatan = models.CharField(max_length=12, choices=PILIHAN_LEVEL_SEKOLAH,default=TINGKATAN_1)
+    
+class ListSekolah(models.Model):
+    name = models.CharField(max_length=255)
+
+
+
 
     
     def __str__(self):
