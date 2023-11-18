@@ -28,4 +28,7 @@ class StudentColorForm(forms.Form):
 
     sekolah = forms.ChoiceField(choices=SCHOOL_CHOICES)
     tahun = forms.ChoiceField(choices=YEAR_CHOICES)
+    jum_kelas = forms.IntegerField()
+    jum_murid = forms.IntegerField()
     purata = forms.IntegerField()
+    

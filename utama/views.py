@@ -42,24 +42,41 @@ class InfoSelectView(FormView):
 class StudentColorView(FormView):
     template_name = 'student_color.html'
     form_class = StudentColorForm
-    success_url = '/success/'
+    success_url = None
     
     def form_valid(self, form):
         sekolah = form.cleaned_data['sekolah']
         tahun = form.cleaned_data['tahun']
+        # untuk dapatkan Purata = jum_kelas / jumlah murid
+        jum_kelas = form.cleaned_data['jum_kelas']
+        jum_murid = form.cleaned_data['jum_murid']
         purata = form.cleaned_data['purata']
 
-        if sekolah == 'A' and 37 <= purata < 38:
+        if jum_murid >= 40:
             color = 'yellow'
+            message = f"The average ({purata}) does not exceed 40. Full class details:"
+                        
 
-        elif sekolah == 'B' and purata  == 40:
+        elif purata > 40:
             color = 'red'
+            message = f"The average ({purata}) exceeds 40. Class details:"
+            
 
         else:
             color = 'green'
-        #         # Add color data to the context    
-        self.extra_context = {'color':color}
-        return super().form_valid(form)
+            message = "Class Detail"
+        # Add color data to the context    
+        self.extra_context = {
+            'color':color,
+            'message': message,
+            'sekolah':sekolah,
+            'tahun':tahun,
+            'jum_kelas': jum_kelas,
+            'jum_murid': jum_murid,
+            'purata': purata,
+                              }
+        return self.render_to_response(self.get_context_data(form=form))
+       # return super().form_valid(form)
     
 class SuccessView(View):
     template_name = 'success.html'
