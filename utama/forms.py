@@ -8,8 +8,6 @@ class InfoFilterForm(forms.Form):
 class InfoSelectForm(forms.Form):
     listsekolah = forms.ModelChoiceField(queryset=ListSekolah.objects.all(), empty_label=None)
 
-
-
     
 class StudentColorForm(forms.Form):
     SCHOOL_CHOICES = [
