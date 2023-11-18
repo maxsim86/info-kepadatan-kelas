@@ -36,7 +36,7 @@ class Info(models.Model):
     level_tingkatan = models.CharField(max_length=12, choices=PILIHAN_LEVEL_SEKOLAH,default=TAHUN_1)
     
     def __str__(self):
-        return self.name
+        return f"{self.get_level_tingkatan_display()}"
     
 class ListSekolah(models.Model):
     name = models.CharField(max_length=255)

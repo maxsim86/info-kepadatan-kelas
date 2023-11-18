@@ -1,10 +1,13 @@
 <!-- templates/student_color.html -->
 
-<form method = "post">
+    
+
+    
+<form method = "post" id="student-color-form" hx-post="{% url 'student_color' %}">
     {% csrf_token %}
     {{ form.as_p }}
 
-   <button type="submit">Submit</button> 
+   <button type="submit" hx-post="{}">Hantar</button> 
 </form>
 
 {% if color %}
@@ -12,7 +15,7 @@
 <div style="color: {{color}};">
     {{ message }}
     <br>
-    Sekolah: {{ Sekolah }}
+    Sekolah: {{ sekolah }}
     <br>
     Tahun: {{ tahun }}
     <br>
@@ -20,7 +23,12 @@
     <br>
     Jumlah Murid: {{ jum_murid }}
     <br>
-    Purata: {{ purata }}
-
+    Catatan: {{ catatan }}
+    <br>
+    Purata: <span id="purata" hx-get="{% url 'calculate_average' %}?average={{ purata }}">{{ purata }}</span>
 </div>
  {% endif %}
+
+ <script>
+
+ </script>

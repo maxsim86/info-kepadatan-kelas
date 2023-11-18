@@ -4,6 +4,7 @@ from django.views.generic.edit import FormView
 from .models import Info
 from .forms import InfoFilterForm, InfoSelectForm, StudentColorForm
 from django.views import View
+from django.http import JsonResponse
 # Create your views here.
 
 
@@ -52,19 +53,19 @@ class StudentColorView(FormView):
         jum_murid = form.cleaned_data['jum_murid']
         purata = form.cleaned_data['purata']
 
-        if jum_murid >= 40:
-            color = 'yellow'
-            message = f"The average ({purata}) does not exceed 40. Full class details:"
-                        
-
-        elif purata > 40:
+        if purata >= 40:
             color = 'red'
-            message = f"The average ({purata}) exceeds 40. Class details:"
-            
+            message = f"Purata ({purata}) melebihi 40. Lihat Kelas Detail:"
+
+        
+        elif jum_kelas / jum_murid <= 40:
+            color = 'green'
+            message = f"Purata ({purata}). Penuh. Lihat Kelas Detail " 
 
         else:
-            color = 'green'
-            message = "Class Detail"
+            color = 'blue'
+            message = "Lihat Kelas Detail"
+            
         # Add color data to the context    
         self.extra_context = {
             'color':color,
@@ -75,11 +76,29 @@ class StudentColorView(FormView):
             'jum_murid': jum_murid,
             'purata': purata,
                               }
+        #return super().form_valid(form)
         return self.render_to_response(self.get_context_data(form=form))
-       # return super().form_valid(form)
+        
     
 class SuccessView(View):
     template_name = 'success.html'
 
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name)
+    
+    
+class CalculateAverageView(View):
+    def get(self, request, *args, **kwargs):
+        # Handle GET request to retrieve the initial value or for debugging
+        average = float(request.GET.get('average', 0.0))
+        return JsonResponse({'average': average})
+    
+    def post(self, request, *args, **kwargs):
+        jum_murid = float(request.POST.get('jum_murid', 0))
+        purata = float(request.POST.get('purata', 0))
+        
+        if jum_murid > 0:
+            average = purata / jum_murid
+        else:
+            average = 0.0
+        return JsonResponse({'average':average})
