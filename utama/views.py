@@ -39,25 +39,25 @@ class InfoSelectView(FormView):
         selected_item = form.cleaned_data['listsekolah']
         return super().form_valid(form)
     
-class StudentColorForm(FormView):
+class StudentColorView(FormView):
     template_name = 'student_color.html'
     form_class = StudentColorForm
     success_url = '/success/'
     
     def form_valid(self, form):
-        school = form.cleaned_data['school']
-        year = form.cleaned_data['year']
-        score = form.cleaned_data['score']
+        sekolah = form.cleaned_data['sekolah']
+        tahun = form.cleaned_data['tahun']
+        purata = form.cleaned_data['purata']
 
-        if school == 'A' and 37 <= score < 38:
+        if sekolah == 'A' and 37 <= purata < 38:
             color = 'yellow'
 
-        elif school == 'B' and score == 40:
+        elif sekolah == 'B' and purata  == 40:
             color = 'red'
 
         else:
             color = 'green'
-            
+        #         # Add color data to the context    
         self.extra_context = {'color':color}
         return super().form_valid(form)
     

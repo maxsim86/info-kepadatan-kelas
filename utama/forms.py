@@ -11,18 +11,21 @@ class InfoSelectForm(forms.Form):
     
 class StudentColorForm(forms.Form):
     SCHOOL_CHOICES = [
-        ('A', 'School A'),
-        ('B', 'School B'),
+        ('A', 'SMK TAMAN KLANG UTAMA'),
+        ('B', 'SK TOK MUDA'),
+        ('C', 'SK TELOK MENEGUN'),
+        ('D', 'SK SUNGAI BINJAI')
     ]
 
     YEAR_CHOICES = [
-        ('1', 'Year 1'),
-        ('2', 'Year 2'),
-        ('3', 'Year 3'),
-        ('4', 'Year 4'),
-        ('5', 'Year 5'),
+        ('0', 'Pra Sekolah'),
+        ('1', 'Tahun 1'),
+        ('2', 'Tahun 2'),
+        ('3', 'Tahun 3'),
+        ('4', 'Tahun 4'),
+        ('5', 'Tahun 5'),
     ]
 
-    school = forms.ChoiceField(choices=SCHOOL_CHOICES)
-    year = forms.ChoiceField(choices=YEAR_CHOICES)
-    score = forms.IntegerField()
+    sekolah = forms.ChoiceField(choices=SCHOOL_CHOICES)
+    tahun = forms.ChoiceField(choices=YEAR_CHOICES)
+    purata = forms.IntegerField()
