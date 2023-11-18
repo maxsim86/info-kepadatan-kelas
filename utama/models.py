@@ -14,20 +14,22 @@ class Info(models.Model):
     category = models.CharField(max_length=100)
     
     # Level tingkatan peringkat sekolah !
-    TINGKATAN_1 = "TINGKATAN 1"
-    TINGKTAN_2 = "TINGKATAN 2"
-    TINGKATAN_3 = "TINGKATAN 3" 
-    TINGKATAN_4 = "TINGKATAN 4"
-    TINGKATAN_5 = "TINGKATAN 5"
+    PPKI = "PPKI"
+    TAHUN_1 = "TAHUN 1"
+    TAHUN_2 = "TAHUN 2" 
+    TAHUN_3 = "TAHUN 3"
+    TAHUN_4 = "TAHUN 4"
+    TAHUN_5 = "TAHUN 5"
 
     PILIHAN_LEVEL_SEKOLAH =[
-        (TINGKATAN_1, "Tingkatan 1"),
-        (TINGKTAN_2, "Tingkatan 2"),
-        (TINGKATAN_3, "Tingkatan 3"),
-        (TINGKATAN_4, "Tingkatan 4"),
-        (TINGKATAN_5, "Tingkatan 5"),
+        (PPKI, "PPKI"),
+        (TAHUN_1, "Tahun 1"),
+        (TAHUN_2, "Tahun 2"),
+        (TAHUN_3, "Tahun 3"),
+        (TAHUN_4, "Tahun 4"),
+        (TAHUN_5, "Tahun 5"),
     ]
-    level_tingkatan = models.CharField(max_length=12, choices=PILIHAN_LEVEL_SEKOLAH,default=TINGKATAN_1)
+    level_tingkatan = models.CharField(max_length=12, choices=PILIHAN_LEVEL_SEKOLAH,default=TAHUN_1)
     
     def __str__(self):
         return self.name

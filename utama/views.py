@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views.generic import ListView
 from django.views.generic.edit import FormView
 from .models import Info
-from .forms import InfoFilterForm, InfoSelectForm
+from .forms import InfoFilterForm, InfoSelectForm, StudentForm
 # Create your views here.
 
 
@@ -37,3 +37,4 @@ class InfoSelectView(FormView):
         #Lakukan sesuatu item yang dipilih 
         selected_item = form.cleaned_data['listsekolah']
         return super().form_valid(form)
+    

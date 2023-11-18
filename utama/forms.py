@@ -7,3 +7,7 @@ class InfoFilterForm(forms.Form):
     
 class InfoSelectForm(forms.Form):
     listsekolah = forms.ModelChoiceField(queryset=ListSekolah.objects.all(), empty_label=None)
+
+
+class StudentForm(forms.Form):
+    score = forms.IntegerField()
