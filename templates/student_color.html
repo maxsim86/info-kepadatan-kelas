@@ -1,0 +1,16 @@
+<!-- templates/student_color.html -->
+
+<form method = "post">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+   <button type="submit">Submit</button> 
+</form>
+
+{% if color %}
+
+<div style="color: {{color}};">
+    Warna: {{ color }}
+
+</div>
+ {% endif %}

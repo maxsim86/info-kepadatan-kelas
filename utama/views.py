@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views.generic import ListView
 from django.views.generic.edit import FormView
 from .models import Info
-from .forms import InfoFilterForm, InfoSelectForm, StudentForm
+from .forms import InfoFilterForm, InfoSelectForm, StudentColorForm
 # Create your views here.
 
 
@@ -38,3 +38,24 @@ class InfoSelectView(FormView):
         selected_item = form.cleaned_data['listsekolah']
         return super().form_valid(form)
     
+class StudentColorForm(FormView):
+    template_name = 'student_color.html'
+    form_class = StudentColorForm
+    success_url = '/success'
+    
+    def form_valid(self, form):
+        school = form.cleaned_date['school']
+        year = form.cleaned_data['year']
+        score = form.cleaned_date['score']
+
+        if school == 'A' and 37 <= score < 38:
+            color = 'yellow'
+
+        elif school == 'B' and score == 40:
+            color = 'red'
+
+        else:
+            color = 'green'
+            
+        self.extra_context = {'color':color}
+        return super().form_valid(form)
