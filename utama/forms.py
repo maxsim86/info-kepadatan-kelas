@@ -51,6 +51,7 @@ class StudentColorForm(forms.ModelForm):
 # Register the new form for the admin
 class InfoAdmin(admin.ModelAdmin):
     form = AdminStudentColorForm
+    list_display = ('sekolah', 'tahun', 'jum_kelas', 'jum_murid', 'purata', 'catatan')
 
 admin.site.register(Info, InfoAdmin)
 #admin.site.register(ListSekolah)

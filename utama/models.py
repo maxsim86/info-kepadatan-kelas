@@ -30,14 +30,14 @@ class ListSekolah(models.Model):
     
 class TahunModel(models.Model):
     YEAR_CHOICES = [
-        ('0', 'Pra Sekolah'),
-        ('1', 'Tahun 1'),
-        ('2', 'Tahun 2'),
-        ('3', 'Tahun 3'),
-        ('4', 'Tahun 4'),
-        ('5', 'Tahun 5'),
+        ('Pra Sekolah', 'Pra Sekolah'),
+        ('Tahun 1', 'Tahun 1'),
+        ('Tahun 2', 'Tahun 2'),
+        ('Tahun 3', 'Tahun 3'),
+        ('Tahun 4', 'Tahun 4'),
+        ('Tahun 5', 'Tahun 5'),
     ]
-    tahun = models.CharField(max_length=1, choices=YEAR_CHOICES)
+    tahun = models.CharField(max_length=11, default='Tahun 1', choices=YEAR_CHOICES)
 
     def __str__(self):
         return self.tahun

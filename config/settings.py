@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'whitenoise.runserver_nostatic',
-    
+    'django_htmx',
+    'django_bootstrap5',
     
     'utama',
     
@@ -53,6 +54,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django_htmx.middleware.HtmxMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -122,6 +124,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATICFILES_DIRS = [str(BASE_DIR.joinpath('static'))]
 STATIC_ROOT = STATIC_ROOT = str(BASE_DIR.joinpath('staticfiles'))
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"

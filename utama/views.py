@@ -5,6 +5,7 @@ from .models import Info
 from .forms import InfoFilterForm, InfoSelectForm, StudentColorForm
 from django.views import View
 from django.http import JsonResponse
+from django.urls import reverse_lazy
 # Create your views here.
 
 
@@ -43,19 +44,37 @@ class InfoSelectView(FormView):
 class StudentColorView(FormView):
     template_name = 'student_color.html'
     form_class = StudentColorForm
-    success_url = None
+    #success_url = None
+    success_url = reverse_lazy('student_color')
     
     def form_valid(self, form):
-        sekolah = form.cleaned_data['sekolah']
-        tahun = form.cleaned_data['tahun']
-        # untuk dapatkan Purata = jum_kelas / jumlah murid
-        jum_kelas = form.cleaned_data['jum_kelas']
-        jum_murid = form.cleaned_data['jum_murid']
-        purata = form.cleaned_data['purata']
+        #Tangani permintaan normal (non-AJAX)
+        if self.request.headers.get('HX-Request'):
+            
+        # Tangani permintaan AJAX dan kembalikan data JSON yang diperlukan           
+            sekolah = form.cleaned_data['sekolah']
+            tahun = form.cleaned_data['tahun']
+            # untuk dapatkan Purata = jum_kelas / jumlah murid
+            jum_kelas = form.cleaned_data['jum_kelas']
+            jum_murid = form.cleaned_data['jum_murid']
+            purata = form.cleaned_data['purata']
 
-        color, message = self.calculate_color_and_message(purata, jum_kelas, jum_murid)
+            color, message = self.calculate_color_and_message(purata, jum_kelas, jum_murid)
 
-        return self.render_to_response(self.get_context_data(form=form, color=color, message=message, sekolah=sekolah, tahun=tahun, jum_kelas=jum_kelas, jum_murid=jum_murid, purata=purata))
+            data = {
+                'color': color,
+                'message': message,
+                'sekolah': sekolah,
+                'tahun': tahun,
+                'jum_kelas': jum_kelas,
+                'jum_murid': jum_murid,
+                'purata': purata,
+            }
+        
+            return JsonResponse(data)
+    
+        return super().form_valid(form)
+       # return self.render_to_response(self.get_context_data(form=form, color=color, message=message, sekolah=sekolah, tahun=tahun, jum_kelas=jum_kelas, jum_murid=jum_murid, purata=purata))
     
     
     def calculate_color_and_message(self, purata, jum_kelas, jum_murid):
@@ -72,6 +91,7 @@ class StudentColorView(FormView):
 
 class SuccessView(View):
     template_name = 'success.html'
+    #success_url = "/success/"
 
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name)
