@@ -1,5 +1,4 @@
-# info-kepadatan-kelas
-info kepadatan kelas,sekiranya kelas kurang 37 papar hijau,jika kurang 39 papar kuning dan jika 40 keatas papar merah
+# Info-kepadatan-kelas Bilik Darjah Sekolah
 
 Berfungsi sebagai carian data sekolah yang diklasifikasi kelas PADAD. 
 
