@@ -42,7 +42,6 @@ class StudentColorForm(forms.ModelForm):
     purata = forms.FloatField(widget=forms.HiddenInput(), required=False)
     catatan = forms.CharField(widget=forms.TextInput())
 
-    
     def clean(self):
         cleaned_data = super().clean()
         jum_kelas = cleaned_data.get('jum_kelas')
