@@ -50,10 +50,10 @@ class StudentColorForm(forms.ModelForm):
         
         # Lakukan calculator
         if jum_murid > 0:
-            purata = jum_kelas / jum_murid
+            purata = jum_murid / jum_kelas
             cleaned_data['purata'] = purata
         else:
-            # Set purta kepada 0 if jum_murid adalah 0
+            # Set purata kepada 0 if jum_murid adalah 0
             cleaned_data['purata'] = 0
         return cleaned_data
 
