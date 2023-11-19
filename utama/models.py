@@ -4,7 +4,6 @@ from django.core.validators import RegexValidator
 # Create your models here.
 
 
-
 class Info(models.Model):
     name = models.CharField(max_length=200)
     phone_no_regex = RegexValidator(regex=r"^\+?1?\d{8,15}$")
@@ -17,9 +16,22 @@ class Info(models.Model):
     purata = models.IntegerField(default=0)
     catatan = models.TextField(max_length=255)
     
-
-    
 class ListSekolah(models.Model):
     name = models.CharField(max_length=255)
     def __str__(self):
         return self.name
+
+    
+class TahunModel(models.Model):
+    YEAR_CHOICES = [
+        ('0', 'Pra Sekolah'),
+        ('1', 'Tahun 1'),
+        ('2', 'Tahun 2'),
+        ('3', 'Tahun 3'),
+        ('4', 'Tahun 4'),
+        ('5', 'Tahun 5'),
+    ]
+    tahun = models.CharField(max_length=1, choices=YEAR_CHOICES)
+
+    def __str__(self):
+        return self.tahun

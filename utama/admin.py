@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import ListSekolah
-from .forms import StudentColorForm, AdminStudentColorForm
-from .models import Info
+from .forms import StudentColorForm 
+from .models import Info, TahunModel
 #Unregister the existhing registration of Info
 admin.site.unregister(Info)
 
@@ -16,3 +16,4 @@ class StudentColorAdmin(admin.ModelAdmin):
 
 admin.site.register(Info, StudentColorAdmin)
 admin.site.register(ListSekolah)
+admin.site.register(TahunModel)

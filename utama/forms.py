@@ -1,6 +1,6 @@
 # forms.py
 from django import forms
-from .models import ListSekolah
+from .models import ListSekolah, TahunModel
 from .models import Info
 from django.contrib import admin
 
@@ -15,6 +15,7 @@ class AdminStudentColorForm(forms.ModelForm):
         model = Info
         fields = '__all__'
     
+
 class StudentColorForm(forms.ModelForm):
     class Meta:
         model = Info
@@ -26,17 +27,8 @@ class StudentColorForm(forms.ModelForm):
         }
         
 
-    YEAR_CHOICES = [
-        ('0', 'Pra Sekolah'),
-        ('1', 'Tahun 1'),
-        ('2', 'Tahun 2'),
-        ('3', 'Tahun 3'),
-        ('4', 'Tahun 4'),
-        ('5', 'Tahun 5'),
-    ]
-
     sekolah = forms.ModelChoiceField(queryset=ListSekolah.objects.all())
-    tahun = forms.ChoiceField(choices=YEAR_CHOICES)
+    tahun = forms.ModelChoiceField(queryset=TahunModel.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
     jum_kelas = forms.TypedChoiceField(coerce=int, choices=[(i, i) for i in range(1, 15)])
     jum_murid = forms.IntegerField()
     purata = forms.FloatField(widget=forms.HiddenInput(), required=False)
@@ -62,4 +54,3 @@ class InfoAdmin(admin.ModelAdmin):
 
 admin.site.register(Info, InfoAdmin)
 #admin.site.register(ListSekolah)
-
