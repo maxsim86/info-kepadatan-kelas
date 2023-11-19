@@ -39,9 +39,23 @@ class StudentColorForm(forms.ModelForm):
     tahun = forms.ChoiceField(choices=YEAR_CHOICES)
     jum_kelas = forms.TypedChoiceField(coerce=int, choices=[(i, i) for i in range(1, 15)])
     jum_murid = forms.IntegerField()
-    purata = forms.IntegerField()
+    purata = forms.FloatField(widget=forms.HiddenInput(), required=False)
     catatan = forms.CharField(widget=forms.TextInput())
 
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        jum_kelas = cleaned_data.get('jum_kelas')
+        jum_murid = cleaned_data.get('jum_murid')
+        
+        # Lakukan calculator
+        if jum_murid > 0:
+            purata = jum_kelas / jum_murid
+            cleaned_data['purata'] = purata
+        else:
+            # Set purta kepada 0 if jum_murid adalah 0
+            cleaned_data['purata'] = 0
+        return cleaned_data
 
 # Register the new form for the admin
 class InfoAdmin(admin.ModelAdmin):
