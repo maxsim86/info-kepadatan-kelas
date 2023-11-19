@@ -53,33 +53,23 @@ class StudentColorView(FormView):
         jum_murid = form.cleaned_data['jum_murid']
         purata = form.cleaned_data['purata']
 
+        color, message = self.calculate_color_and_message(purata, jum_kelas, jum_murid)
+
+        return self.render_to_response(self.get_context_data(form=form, color=color, message=message, sekolah=sekolah, tahun=tahun, jum_kelas=jum_kelas, jum_murid=jum_murid, purata=purata))
+    
+    
+    def calculate_color_and_message(self, purata, jum_kelas, jum_murid):
         if purata >= 40:
             color = 'red'
             message = f"Purata ({purata}) melebihi 40. Lihat Kelas Detail:"
-
-        
         elif jum_kelas / jum_murid <= 40:
             color = 'green'
-            message = f"Purata ({purata}). Penuh. Lihat Kelas Detail " 
-
+            message = f"Purata ({purata}). Penuh. Lihat Kelas Detail "
         else:
             color = 'blue'
             message = "Lihat Kelas Detail"
-            
-        # Add color data to the context    
-        self.extra_context = {
-            'color':color,
-            'message': message,
-            'sekolah':sekolah,
-            'tahun':tahun,
-            'jum_kelas': jum_kelas,
-            'jum_murid': jum_murid,
-            'purata': purata,
-                              }
-        #return super().form_valid(form)
-        return self.render_to_response(self.get_context_data(form=form))
-        
-    
+        return color, message
+
 class SuccessView(View):
     template_name = 'success.html'
 
