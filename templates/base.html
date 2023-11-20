@@ -4,17 +4,18 @@
 {% load static %}
 <html>
     <head>
+        <meta charset="utf-8">
         {% load django_bootstrap5 %}
         <script src="{% static 'htmx.js' %}" defer></script>
 
-        <meta charset="utf-8">
+        
         <title>
-            Maklumat Detail Sekolah 
+            {% block title %} Maklumat Detail Sekolah {% endblock title %}
         </title>
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     </head>
     <body>
-
+<main>
         <header>
             <h1><a href="{% url 'item_list' %}">Info Kepadatan Kelas</a></h1>
 
@@ -33,5 +34,6 @@
             event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
           })
         </script>
+    </main>
     </body>
 </html>

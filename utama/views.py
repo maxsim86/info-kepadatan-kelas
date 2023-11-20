@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.views.generic import ListView
+from django.views.generic import ListView, TemplateView
 from django.views.generic.edit import FormView
 from .models import Info
 from .forms import InfoFilterForm, InfoSelectForm, StudentColorForm
@@ -76,7 +76,7 @@ class StudentColorView(FormView):
         return super().form_valid(form)
        # return self.render_to_response(self.get_context_data(form=form, color=color, message=message, sekolah=sekolah, tahun=tahun, jum_kelas=jum_kelas, jum_murid=jum_murid, purata=purata))
     
-    
+    reverse_lazy
     def calculate_color_and_message(self, purata, jum_kelas, jum_murid):
         if purata >= 40:
             color = 'red'
@@ -112,3 +112,9 @@ class CalculateAverageView(View):
         else:
             average = 0.0
         return JsonResponse({'average':average})
+
+# Page Utama
+class HomePageView(TemplateView):
+    template_name = 'home.html'
+    
+    

@@ -1,0 +1,17 @@
+<!--templates/registration/signup.html-->
+
+{% extends "base.html" %}
+
+{% block title %}
+Log In
+{% endblock title %}
+
+{% block content %}
+
+<h2>Sign Up</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+</form>
+  
+{% endblock content %}

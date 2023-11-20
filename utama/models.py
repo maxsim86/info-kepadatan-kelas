@@ -1,11 +1,10 @@
 from django.db import models
 from django.core.validators import RegexValidator
 
-# Create your models here.
 
-
+# Maklumat info Pelajar
 class Info(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, help_text="sila masukkan nama penuh seperti dalam mykid", null=True, blank=False)
     phone_no_regex = RegexValidator(regex=r"^\+?1?\d{8,15}$")
     no_tel = models.CharField(validators=[phone_no_regex], max_length=16, unique=True)
     no_ic = models.CharField(max_length=12)
@@ -28,7 +27,7 @@ class ListSekolah(models.Model):
     def __str__(self):
         return self.name
 
-    
+# Maklumat pilihan sekolah mengikut tahun
 class TahunModel(models.Model):
     YEAR_CHOICES = [
         ('Pra Sekolah', 'Pra Sekolah'),
