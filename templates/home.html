@@ -2,13 +2,5 @@
 {% block title %} Utama {% endblock title %}
 
 {% block content %}
- {% if user.is_authenticated %}
- hi {{ user.username }}
- <p><a href="{% url 'logout' %}">Log Out</a></p>
- {% else %}
- <p>You are not logout</p>
- <a href="{% url 'login' %}">login</a>
- <a href="{% url 'signup' %}">Sign Up</a>
-
-{% endif %} 
+this is a menu>
 {% endblock content %}
