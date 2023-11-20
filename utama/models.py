@@ -16,6 +16,7 @@ class Info(models.Model):
     purata = models.IntegerField(default=0)
     catatan = models.TextField(max_length=255)
     
+    
     def __str__(self):
         return self.name
     
