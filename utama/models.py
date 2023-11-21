@@ -9,11 +9,9 @@ class Info(models.Model):
     no_tel = models.CharField(validators=[phone_no_regex], max_length=16, unique=True)
     no_ic = models.CharField(max_length=12)
     email = models.EmailField(max_length=255)
-    category = models.CharField(max_length=100)
     jum_kelas = models.IntegerField(default=0)
     jum_murid = models.IntegerField(default=0)
     purata = models.IntegerField(default=0)
-    catatan = models.TextField(max_length=255)
     
     
     def __str__(self):

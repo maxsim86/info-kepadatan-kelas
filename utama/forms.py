@@ -3,9 +3,6 @@ from django import forms
 from .models import ListSekolah, TahunModel
 from .models import Info
 from django.contrib import admin
-
-class InfoFilterForm(forms.Form):
-    category = forms.CharField(required=False)
     
 class InfoSelectForm(forms.Form):
     listsekolah = forms.ModelChoiceField(queryset=ListSekolah.objects.all(), empty_label=None)
@@ -32,7 +29,6 @@ class StudentColorForm(forms.ModelForm):
     jum_kelas = forms.TypedChoiceField(coerce=int, choices=[(i, i) for i in range(1, 15)])
     jum_murid = forms.IntegerField()
     purata = forms.FloatField(widget=forms.HiddenInput(), required=False)
-    catatan = forms.CharField(widget=forms.TextInput())
 
     def clean(self):
         cleaned_data = super().clean()
@@ -51,7 +47,7 @@ class StudentColorForm(forms.ModelForm):
 # Register the new form for the admin
 class InfoAdmin(admin.ModelAdmin):
     form = AdminStudentColorForm
-    list_display = ('sekolah', 'tahun', 'jum_kelas', 'jum_murid', 'purata', 'catatan')
+    list_display = ('sekolah', 'tahun', 'jum_kelas', 'jum_murid', 'purata')
 
 admin.site.register(Info, InfoAdmin)
 #admin.site.register(ListSekolah)
