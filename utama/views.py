@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import ListView, TemplateView
 from django.views.generic.edit import FormView
 from .models import Info
@@ -28,7 +28,7 @@ class InfoFilterView(FormView):
 
     def form_valid(self, form):
         # Redirect ke halaman item_list dengan parameter query yang sesuai
-        return self.redirect('item_list', **form.cleaned_data)
+        return redirect('item_list', **form.cleaned_data)
 
 # Pilihan Pilih Senarai Sekolah
 class InfoSelectView(FormView):
@@ -49,19 +49,22 @@ class StudentColorView(FormView):
     
     def form_valid(self, form):
         #Tangani permintaan normal (non-AJAX)
-        if self.request.headers.get('HX-Request'):
+        #if self.request.headers.get('HX-Request'):
             
         # Tangani permintaan AJAX dan kembalikan data JSON yang diperlukan           
-            sekolah = form.cleaned_data['sekolah']
-            tahun = form.cleaned_data['tahun']
-            # untuk dapatkan Purata = jum_kelas / jumlah murid
-            jum_kelas = form.cleaned_data['jum_kelas']
-            jum_murid = form.cleaned_data['jum_murid']
-            purata = form.cleaned_data['purata']
+        is_ajax = self.request.is_ajax()
+        
+        sekolah = form.cleaned_data['sekolah']
+        tahun = form.cleaned_data['tahun']
+        # untuk dapatkan Purata = jum_kelas / jumlah murid
+        jum_kelas = form.cleaned_data['jum_kelas']
+        jum_murid = form.cleaned_data['jum_murid']
+        purata = form.cleaned_data['purata']
 
-            color, message = self.calculate_color_and_message(purata, jum_kelas, jum_murid)
+        color, message = self.calculate_color_and_message(purata, jum_kelas, jum_murid)
 
-            data = {
+        data = {
+                
                 'color': color,
                 'message': message,
                 'sekolah': sekolah,
@@ -70,13 +73,12 @@ class StudentColorView(FormView):
                 'jum_murid': jum_murid,
                 'purata': purata,
             }
-        
+        if is_ajax:
             return JsonResponse(data)
     
         return super().form_valid(form)
        # return self.render_to_response(self.get_context_data(form=form, color=color, message=message, sekolah=sekolah, tahun=tahun, jum_kelas=jum_kelas, jum_murid=jum_murid, purata=purata))
     
-    reverse_lazy
     def calculate_color_and_message(self, purata, jum_kelas, jum_murid):
         if purata >= 40:
             color = 'red'

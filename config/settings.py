@@ -36,10 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'whitenoise.runserver_nostatic',
-    'django_htmx',
-    'django_bootstrap5',
-    
+    'whitenoise.runserver_nostatic',    
     'utama',
     
 ]
@@ -53,7 +50,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
+    
 ]
 
 ROOT_URLCONF = 'config.urls'

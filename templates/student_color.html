@@ -1,7 +1,8 @@
 <!-- templates/student_color.html -->
 {% load static %}
 
-<form method = "post" action="{% url 'student_color' %}" hx-post="true" hx-swap="outerHTML" id="my-form"> 
+
+<form method = "post" action="{% url 'student_color' %}" id="my-form"> 
     {% csrf_token %}
     {{ form.as_p }}
 
@@ -29,18 +30,3 @@
  {% endif %}
 
 
-<script>
-
-    var sekolahSelect = document.getElementById('id_sekolah');
-    var tahunSelect = document.getElementById('id_tahun');
-
-    [sekolahSelect, tahunSelect].forEach(function(select) {
-        select.addEventListener('change', function() {
-            // Memicu permintaan AJAX menggunakan HTMX
-            htmx.ajax('{% url 'student_color' %}', 'post', new FormData(document.getElementById('my-form')));
-        });
-    });
-
-</script>
-
-<script src="{% static 'htmx.js' %}"></script>
