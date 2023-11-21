@@ -23,21 +23,23 @@ class StudentColorView(FormView):
     template_name = 'student_color.html'
     form_class = StudentColorForm
     #success_url = None
-    success_url = reverse_lazy('student_color')
+    success_url = reverse_lazy('success')
     
     def form_valid(self, form):
-        #Tangani permintaan normal (non-AJAX)
-        #if self.request.headers.get('HX-Request'):
             
         is_ajax = self.request.headers.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
-        
+
         sekolah = form.cleaned_data['sekolah']
         tahun = form.cleaned_data['tahun']
-        # untuk dapatkan Purata = jum_kelas / jumlah murid
         jum_kelas = form.cleaned_data['jum_kelas']
         jum_murid = form.cleaned_data['jum_murid']
-        purata = form.cleaned_data['purata']
+        purata_str = form.cleaned_data['purata']
 
+        if purata_str:
+            purata = int(purata_str)
+        else:
+            purata = 0
+            
         color, message = self.calculate_color_and_message(purata, jum_kelas, jum_murid)
 
         data = {
@@ -54,7 +56,6 @@ class StudentColorView(FormView):
             return JsonResponse(data)
     
         return super().form_valid(form)
-       # return self.render_to_response(self.get_context_data(form=form, color=color, message=message, sekolah=sekolah, tahun=tahun, jum_kelas=jum_kelas, jum_murid=jum_murid, purata=purata))
     
     def calculate_color_and_message(self, purata, jum_kelas, jum_murid):
         if purata >= 40:
@@ -67,6 +68,28 @@ class StudentColorView(FormView):
             color = 'blue'
             message = "Lihat Kelas Detail"
         return color, message
+    
+    def get_success_url(self):
+        # Dynamically determine the success URL based on the form data
+        # Example: You can redirect to a different URL based on the purata value
+        if int(self.request.POST.get('purata', 0)) >= 40:
+            return reverse_lazy('high_purata_url')
+        else:
+            return reverse_lazy('low_purata_url')
+        
+
+class HighPurataView(View):
+    template_name = 'high_purata.html'
+    
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name)
+    
+class LowPurataView(View):
+    template_name = 'low_purata.html'
+    
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name)
+    
 
 class SuccessView(View):
     template_name = 'success.html'

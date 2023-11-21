@@ -1,7 +1,9 @@
 <!-- templates/student_color.html -->
+{% extends "base.html" %}
 {% load static %}
 
-
+{% block content %}
+  
 <form method = "post" action="{% url 'student_color' %}" id="my-form"> 
     {% csrf_token %}
     {{ form.as_p }}
@@ -11,7 +13,7 @@
 
 {% if color %}
 
-<div style="color: {{color}};">
+<div id="result-container" style="color: {{ color }};">
     {{ message }}
     <br>
     Sekolah: {{ sekolah }}
@@ -22,11 +24,10 @@
     <br>
     Jumlah Murid: {{ jum_murid }}
     <br>
-    Catatan: {{ catatan }}
-    <br>
-    Purata: <span id="purata" hx-get="{% url 'calculate_average' %}?average={{ purata }}">{{ purata }}</span>
+    Purata: <span id="purata">{{ purata }}</span>
 </div>
 
  {% endif %}
 
 
+{% endblock %}
