@@ -1,11 +1,10 @@
 # urls.py
 from django.urls import path
-from .views import InfoSelectView, SuccessView, StudentColorView, CalculateAverageView, HomePageView
+from .views import InfoSelectView, SuccessView, StudentColorView, CalculateAverageView
 
 urlpatterns = [
     path('items/select_info/', InfoSelectView.as_view(), name='select_view'),
-    path('items/student_color/', StudentColorView.as_view(), name='student_color'),
+    path('', StudentColorView.as_view(), name='student_color'),
     path('success/', SuccessView.as_view(), name='success'),
     path('calculate_average/', CalculateAverageView.as_view(), name='calculate_average'),
-    path('', HomePageView.as_view(), name='home'),
 ]

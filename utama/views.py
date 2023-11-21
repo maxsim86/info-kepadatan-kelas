@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, TemplateView
 from django.views.generic.edit import FormView
-from .models import Info
 from .forms import InfoSelectForm, StudentColorForm
 from django.views import View
 from django.http import JsonResponse
@@ -92,9 +91,3 @@ class CalculateAverageView(View):
         else:
             average = 0.0
         return JsonResponse({'average':average})
-
-# Page Utama
-class HomePageView(TemplateView):
-    template_name = 'home.html'
-    
-    
