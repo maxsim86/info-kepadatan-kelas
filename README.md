@@ -1,4 +1,4 @@
-# Info-Elert-kelas Bilik Darjah Sekolah
+# Info-Elert-Capacity
 
 Berfungsi sebagai carian data sekolah yang diklasifikasi kelas PADAD. 
 
