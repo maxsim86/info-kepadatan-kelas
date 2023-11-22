@@ -36,7 +36,10 @@ class StudentColorView(FormView):
         purata_str = form.cleaned_data['purata']
 
         if purata_str:
-            purata = int(purata_str)
+            try:
+                purata = int(purata_str)
+            except ValueError:
+                purata=0
         else:
             purata = 0
             
@@ -58,6 +61,8 @@ class StudentColorView(FormView):
         return super().form_valid(form)
     
     def calculate_color_and_message(self, purata, jum_kelas, jum_murid):
+
+        
         if purata >= 40:
             color = 'red'
             message = f"Purata ({purata}) melebihi 40. Lihat Kelas Detail:"
@@ -70,12 +75,17 @@ class StudentColorView(FormView):
         return color, message
     
     def get_success_url(self):
-        # Dynamically determine the success URL based on the form data
-        # Example: You can redirect to a different URL based on the purata value
-        if int(self.request.POST.get('purata', 0)) >= 40:
-            return reverse_lazy('high_purata_url')
+        purata_str = self.request.POST.get('purata', '0')
+        
+        if purata_str and purata_str.isdigit():
+            purata = int(purata_str)
         else:
-            return reverse_lazy('low_purata_url')
+            purata=0
+
+        if purata >=40:
+            return reverse_lazy('high_purata')
+        else:
+            return reverse_lazy('low_purata')
         
 
 class HighPurataView(View):

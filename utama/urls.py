@@ -7,7 +7,7 @@ urlpatterns = [
     path('', StudentColorView.as_view(), name='student_color'),
     path('success/', SuccessView.as_view(), name='success'),
     path('calculate_average/', CalculateAverageView.as_view(), name='calculate_average'),
-    path('high-purata/', HighPurataView.as_view(), name='high_purata_url'),
-    path('low-purata/', LowPurataView.as_view(), name='low_purata_url'),
+    path('high-purata/', HighPurataView.as_view(), name='high_purata'),
+    path('low-purata/', LowPurataView.as_view(), name='low_purata'),
 ]
-]
+
