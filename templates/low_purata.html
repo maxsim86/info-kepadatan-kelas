@@ -3,15 +3,22 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h2>Low Purata Information</h2>
+<h1 style="color: {{ color }}">Purata Kelas Masih Normal</h1>
+<p>This is the low purata view. Purata: {{ purata }}</p>
 
-  <p>Color: {{ color }}</p>
+<body>
+  <h1>paparan dashboard</h1>
+  <p>Purata: {{ purata }}</p>
+  <p>{{message}}</p>
+</body>
+
+  <p>Debug: Color: {{ color }}</p>
   <p>Message: {{ message }}</p>
   <p>Sekolah: {{ sekolah }}</p>
   <p>Tahun: {{ tahun }}</p>
   <p>Jumlah Kelas: {{ jum_kelas }}</p>
   <p>Jumlah Murid: {{ jum_murid }}</p>
-  <p>Purata: {{ purata }}</p>
-
+  <p>Debug: Purata - {{ purata }}</p>
+            
   <!-- Add any other details you want to display -->
 {% endblock %}

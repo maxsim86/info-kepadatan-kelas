@@ -35,12 +35,16 @@ class StudentColorView(FormView):
         jum_murid = form.cleaned_data['jum_murid']
         purata_str = form.cleaned_data['purata']
 
-        if jum_murid > 0 and jum_kelas > 0:
-            purata = jum_murid /jum_kelas
+        if purata_str:
+            try:
+                purata = int(purata_str)
+            except ValueError:
+                purata = 0 
         else:
-            purata = 0
+             purata = jum_murid / jum_kelas if jum_kelas > 0 else 0   
             
-        color, message = self.calculate_color_and_message(purata, jum_kelas, jum_murid)
+            
+        color, message, _ = self.calculate_color_and_message(purata, jum_kelas, jum_murid)
 
         data = {
                 
@@ -55,9 +59,24 @@ class StudentColorView(FormView):
         if is_ajax:
             return JsonResponse(data)
     
-        return super().form_valid(form)
+        return render(self.request, 'low_purata.html', data)
+        #return super().form_valid(form)
     
-    def calculate_color_and_message(self, purata, jum_kelas, jum_murid):
+    def calculate_color_and_message(self, purata_str, jum_kelas, jum_murid):
+        if purata_str:
+            try:
+                purata = int(purata_str)
+            except ValueError:
+                purata = 0
+        else:
+            purata = 0
+            
+        
+        return self.calculate_color(purata, jum_kelas, jum_murid)
+                
+    
+    
+    def calculate_color(self, purata, jum_kelas, jum_murid):
 
         
         if purata >= 40:
@@ -69,7 +88,10 @@ class StudentColorView(FormView):
         else:
             color = 'blue'
             message = "Lihat Kelas Detail"
-        return color, message
+            
+        return color, message, purata
+    
+
     
     def get_success_url(self):
         purata_str = self.request.POST.get('purata', 0)
@@ -99,10 +121,12 @@ class LowPurataView(View):
     template_name = 'low_purata.html'
     
     def get(self, request, *args, **kwargs):
-        color='green '
+        color='green'
         
         context ={
             'color':color,
+            'purata' : request.GET.get('purata',0),
+            'message': 'Here is your output value'
         }
         
         return render(request, self.template_name, context)
