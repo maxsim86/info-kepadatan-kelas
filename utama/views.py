@@ -23,7 +23,7 @@ class StudentColorView(FormView):
     template_name = 'student_color.html'
     form_class = StudentColorForm
     #success_url = None
-    success_url = reverse_lazy('success')
+    success_url = reverse_lazy('low_purata')
     
     def form_valid(self, form):
             
@@ -59,8 +59,8 @@ class StudentColorView(FormView):
         if is_ajax:
             return JsonResponse(data)
     
-        return render(self.request, 'low_purata.html', data)
-        #return super().form_valid(form)
+        #return render(self.request, 'low_purata.html', data)
+        return super().form_valid(form)
     
     def calculate_color_and_message(self, purata_str, jum_kelas, jum_murid):
         if purata_str:
@@ -131,12 +131,6 @@ class LowPurataView(View):
         
         return render(request, self.template_name, context)
 
-class SuccessView(View):
-    template_name = 'success.html'
-
-    def get(self, request, *args, **kwargs):
-        return render(request, self.template_name)
-    
     
 class CalculateAverageView(View):
     def get(self, request, *args, **kwargs):
