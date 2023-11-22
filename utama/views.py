@@ -35,11 +35,8 @@ class StudentColorView(FormView):
         jum_murid = form.cleaned_data['jum_murid']
         purata_str = form.cleaned_data['purata']
 
-        if purata_str:
-            try:
-                purata = int(purata_str)
-            except ValueError:
-                purata=0
+        if jum_murid > 0 and jum_kelas > 0:
+            purata = jum_murid /jum_kelas
         else:
             purata = 0
             
@@ -75,14 +72,12 @@ class StudentColorView(FormView):
         return color, message
     
     def get_success_url(self):
-        purata_str = self.request.POST.get('purata', '0')
-        
-        if purata_str and purata_str.isdigit():
+        purata_str = self.request.POST.get('purata', 0)
+        try:
             purata = int(purata_str)
-        else:
-            purata=0
-
-        if purata >=40:
+        except ValueError:
+            purata = 0
+        if purata >= 40:
             return reverse_lazy('high_purata')
         else:
             return reverse_lazy('low_purata')
@@ -92,18 +87,28 @@ class HighPurataView(View):
     template_name = 'high_purata.html'
     
     def get(self, request, *args, **kwargs):
-        return render(request, self.template_name)
+        
+        color='red'
+        
+        context = {
+            'color':color,
+        }
+        return render(request, self.template_name, context)
     
 class LowPurataView(View):
     template_name = 'low_purata.html'
     
     def get(self, request, *args, **kwargs):
-        return render(request, self.template_name)
-    
+        color='green '
+        
+        context ={
+            'color':color,
+        }
+        
+        return render(request, self.template_name, context)
 
 class SuccessView(View):
     template_name = 'success.html'
-    #success_url = "/success/"
 
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name)
