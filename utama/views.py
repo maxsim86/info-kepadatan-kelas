@@ -8,22 +8,12 @@ from django.urls import reverse_lazy
 # Create your views here.
 
 
-# Pilihan Pilih Senarai Sekolah
-class InfoSelectView(FormView):
-    template_name="select_item.html"
-    form_class=InfoSelectForm
-    success_url="/success" # tentukan url mengikut keperluan
-    
-    def form_valid(self, form):
-        #Lakukan sesuatu item yang dipilih 
-        selected_item = form.cleaned_data['listsekolah']
-        return super().form_valid(form)
     
 class StudentColorView(FormView):
     template_name = 'student_color.html'
     form_class = StudentColorForm
     #success_url = None
-    success_url = reverse_lazy('low_purata')
+    #success_url = reverse_lazy('high_purata')
     
     def form_valid(self, form):
             
@@ -59,8 +49,8 @@ class StudentColorView(FormView):
         if is_ajax:
             return JsonResponse(data)
     
-        #return render(self.request, 'low_purata.html', data)
-        return super().form_valid(form)
+        return render(self.request, 'low_purata.html', data)
+        #return super().form_valid(form)
     
     def calculate_color_and_message(self, purata_str, jum_kelas, jum_murid):
         if purata_str:
@@ -125,7 +115,6 @@ class LowPurataView(View):
         
         context ={
             'color':color,
-            'purata' : request.GET.get('purata',0),
             'message': 'Here is your output value'
         }
         
