@@ -51,3 +51,12 @@ class InfoAdmin(admin.ModelAdmin):
 
 admin.site.register(Info, InfoAdmin)
 #admin.site.register(ListSekolah)
+
+
+#class InfoCsvForm(forms.ModelForm):
+    #class Meta:
+        #model = Info
+        #fields = '__all__'
+        
+class SCVUploadForm(forms.Form):
+    csv_file = forms.FileField()

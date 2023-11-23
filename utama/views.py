@@ -1,9 +1,14 @@
 from django.shortcuts import render, redirect
 from django.views.generic.edit import FormView
-from .forms import StudentColorForm
+from .forms import StudentColorForm, SCVUploadForm
 from django.views import View
 from django.http import JsonResponse
 from django.urls import reverse_lazy
+#import csv module
+import csv
+from .models import Info
+from django.http import HttpResponse
+
 
 
 # Create your views here.
@@ -120,3 +125,26 @@ class CalculateAverageView(View):
         else:
             average = 0.0
         return JsonResponse({'average':average})
+
+
+class CSVUploadView(View):
+    template_name = 'upload_csv.html'
+
+    def get(self, request, *args, **kwargs):
+        form = SCVUploadForm()
+        return render(request, self.template_name, {'form':form})
+
+    def post(self, request):
+        form = SCVUploadForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            csv_file = request.FILES['csv_file']
+            decode_file = csv_file.read().decode('utf-8').splitlines()
+            reader = csv.DictReader(decode_file)
+            
+            for row in reader:
+                Info.objects.create(
+                    name=row['name'],
+                                    )
+        
+        return render(request, self.template_names, {'form':form})
