@@ -21,7 +21,7 @@ class StudentColorView(FormView):
         purata = self.calculate_purata(purata_str, jum_kelas, jum_murid )
 
 
-        color, message, _ = self.calculate_color_and_message(purata, jum_kelas,jum_murid)
+        color, message, purata = self.calculate_color_and_message(purata, jum_kelas,jum_murid)
 
         data = {
                 'color': color,
@@ -32,10 +32,12 @@ class StudentColorView(FormView):
                 'jum_murid': jum_murid,
                 'purata': purata,
             }
+        
+        if purata >= 40:
+            return render(self.request, 'high_purata.html', data)
+        else:
+            return render(self.request, 'low_purata.html', data)
 
-        if is_ajax:
-            return JsonResponse(data)
-        return super().form_valid(form)
     
     def calculate_purata(self, purata_str, jum_kelas, jum_murid):
         if purata_str:

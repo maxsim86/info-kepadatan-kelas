@@ -16,7 +16,7 @@ class AdminStudentColorForm(forms.ModelForm):
 class StudentColorForm(forms.ModelForm):
     class Meta:
         model = Info
-        fields = '__all__'
+        fields = ['name', 'no_tel', 'no_ic', 'email', 'purata', 'jum_kelas']
         widgets = {
             'purata': forms.HiddenInput(),
             'jum_kelas':forms.HiddenInput(),
