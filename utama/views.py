@@ -61,22 +61,7 @@ class StudentColorView(FormView):
         
         return color, message, purata
                 
-    
-    def calculate_color(self, purata, jum_kelas, jum_murid):
 
-        if purata >= 40:
-            color = 'red'
-            message = f"Purata ({purata}) melebihi 40. Lihat Kelas Detail:"
-        elif jum_kelas / jum_murid <= 40:
-            color = 'green'
-            message = f"Purata ({purata}). Penuh. Lihat Kelas Detail "
-        else:
-            color = 'blue'
-            message = "Lihat Kelas Detail"
-            
-        return color, message, purata
-
-    
     def get_success_url(self):
         purata_str = self.request.POST.get('purata', 0)
         try:
