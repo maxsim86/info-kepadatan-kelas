@@ -19,11 +19,11 @@ class Info(models.Model):
     
 # Nama Sekolah dan kod sekolah.
 class ListSekolah(models.Model):
-    name = models.CharField(max_length=255)
+    nama_sek = models.CharField(max_length=255, verbose_name='Nama Sekolah')
     kod_sekolah = models.CharField(max_length=8)
 
     def __str__(self):
-        return self.name
+        return self.nama_sek
 
 # Maklumat pilihan sekolah mengikut tahun
 class TahunModel(models.Model):

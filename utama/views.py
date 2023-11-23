@@ -52,15 +52,25 @@ class StudentColorView(FormView):
             except ValueError:
                 return 0
         else:
-            return jum_murid / jum_kelas if jum_kelas > 0 else 0
-    
+                
+                jum_kelas = int(jum_kelas) if jum_kelas else 0
+                jum_murid = int(jum_murid) if jum_murid else 0
+                
+                if jum_kelas > 0:
+                    return jum_murid / jum_kelas
+                
+                else:
+                    return 0
+                
+                
+          
     
     def calculate_color_and_message(self, purata, jum_kelas, jum_murid):
         if purata >= 40:
             color = 'red'
             message = f"Purata ({purata}) melebihi 40. Lihat Kelas Detail"
 
-        elif jum_kelas /jum_murid <= 40:
+        elif jum_murid and jum_kelas and jum_kelas / jum_murid <= 40:
             color = 'green'
             message = f"Purata ({purata}). Penuh. Lihat Kelas Detail "
         else:
@@ -144,7 +154,7 @@ class CSVUploadView(View):
             
             for row in reader:
                 Info.objects.create(
-                    name=row['name'],
+                    name=row['','tahun', 'jum_kelas', 'jum_murid', 'purata'],
                                     )
         
         return render(request, self.template_names, {'form':form})

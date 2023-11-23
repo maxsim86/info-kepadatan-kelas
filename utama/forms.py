@@ -26,14 +26,18 @@ class StudentColorForm(forms.ModelForm):
 
     sekolah = forms.ModelChoiceField(queryset=ListSekolah.objects.all())
     tahun = forms.ModelChoiceField(queryset=TahunModel.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
-    jum_kelas = forms.TypedChoiceField(coerce=int, choices=[(i, i) for i in range(1, 15)], widget=forms.HiddenInput())
-    jum_murid = forms.IntegerField(widget=forms.HiddenInput())
-    purata = forms.FloatField(widget=forms.HiddenInput(), required=False)
+    jum_kelas = forms.TypedChoiceField(coerce=int, choices=[(i, i) for i in range(1, 15)], required= False)
+    jum_murid = forms.IntegerField(required=False)
+    purata = forms.FloatField(required=False, widget=forms.HiddenInput())
 
     def clean(self):
         cleaned_data = super().clean()
-        jum_kelas = cleaned_data.get('jum_kelas')
-        jum_murid = cleaned_data.get('jum_murid')
+        jum_kelas = cleaned_data.get('jum_kelas', 0)
+        jum_murid = cleaned_data.get('jum_murid', 0)
+        # Convert to jum_kelas to integer
+        jum_kelas = int(jum_kelas) if jum_kelas else 0
+        # Convert to jum_murid to integer
+        jum_murid = int(jum_murid) if jum_murid else 0
         
         # Lakukan calculator
         if jum_murid > 0:
