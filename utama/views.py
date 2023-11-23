@@ -1,22 +1,15 @@
-from django.shortcuts import render, redirect
-from django.views.generic import ListView, TemplateView
+from django.shortcuts import render
 from django.views.generic.edit import FormView
-from .forms import InfoSelectForm, StudentColorForm
+from .forms import StudentColorForm
 from django.views import View
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 # Create your views here.
-
-
-    
 class StudentColorView(FormView):
     template_name = 'student_color.html'
     form_class = StudentColorForm
-    #success_url = None
-    #success_url = reverse_lazy('high_purata')
     
     def form_valid(self, form):
-            
         is_ajax = self.request.headers.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 
         sekolah = form.cleaned_data['sekolah']
@@ -24,20 +17,13 @@ class StudentColorView(FormView):
         jum_kelas = form.cleaned_data['jum_kelas']
         jum_murid = form.cleaned_data['jum_murid']
         purata_str = form.cleaned_data['purata']
+         
+        purata = self.calculate_purata(purata_str, jum_kelas, jum_murid )
 
-        if purata_str:
-            try:
-                purata = int(purata_str)
-            except ValueError:
-                purata = 0 
-        else:
-             purata = jum_murid / jum_kelas if jum_kelas > 0 else 0   
-            
-            
-        color, message, _ = self.calculate_color_and_message(purata, jum_kelas, jum_murid)
+
+        color, message, _ = self.calculate_color_and_message(purata, jum_kelas,jum_murid)
 
         data = {
-                
                 'color': color,
                 'message': message,
                 'sekolah': sekolah,
@@ -46,29 +32,38 @@ class StudentColorView(FormView):
                 'jum_murid': jum_murid,
                 'purata': purata,
             }
+
         if is_ajax:
             return JsonResponse(data)
+        return super().form_valid(form)
     
-        return render(self.request, 'low_purata.html', data)
-        #return super().form_valid(form)
-    
-    def calculate_color_and_message(self, purata_str, jum_kelas, jum_murid):
+    def calculate_purata(self, purata_str, jum_kelas, jum_murid):
         if purata_str:
             try:
-                purata = int(purata_str)
+                return int(purata_str)
             except ValueError:
-                purata = 0
+                return 0
         else:
-            purata = 0
-            
-        
-        return self.calculate_color(purata, jum_kelas, jum_murid)
-                
+            return jum_murid / jum_kelas if jum_kelas > 0 else 0
     
+    
+    def calculate_color_and_message(self, purata, jum_kelas, jum_murid):
+        if purata >= 40:
+            color = 'red'
+            message = f"Purata ({purata}) melebihi 40. Lihat Kelas Detail"
+
+        elif jum_kelas /jum_murid <= 40:
+            color = 'green'
+            message = f"Purata ({purata}). Penuh. Lihat Kelas Detail "
+        else:
+            color = 'blue'
+            message = "Lihat Kelas Detail"
+        
+        return color, message, purata
+                
     
     def calculate_color(self, purata, jum_kelas, jum_murid):
 
-        
         if purata >= 40:
             color = 'red'
             message = f"Purata ({purata}) melebihi 40. Lihat Kelas Detail:"
@@ -80,7 +75,6 @@ class StudentColorView(FormView):
             message = "Lihat Kelas Detail"
             
         return color, message, purata
-    
 
     
     def get_success_url(self):
@@ -89,6 +83,7 @@ class StudentColorView(FormView):
             purata = int(purata_str)
         except ValueError:
             purata = 0
+
         if purata >= 40:
             return reverse_lazy('high_purata')
         else:
@@ -109,13 +104,13 @@ class HighPurataView(View):
     
 class LowPurataView(View):
     template_name = 'low_purata.html'
-    
     def get(self, request, *args, **kwargs):
+
         color='green'
-        
         context ={
             'color':color,
             'message': 'Here is your output value'
+        
         }
         
         return render(request, self.template_name, context)
