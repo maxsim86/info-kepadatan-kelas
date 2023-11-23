@@ -1,25 +1,23 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic.edit import FormView
 from .forms import StudentColorForm
 from django.views import View
 from django.http import JsonResponse
 from django.urls import reverse_lazy
+
+
 # Create your views here.
 class StudentColorView(FormView):
     template_name = 'student_color.html'
     form_class = StudentColorForm
-    
     def form_valid(self, form):
-        is_ajax = self.request.headers.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 
         sekolah = form.cleaned_data['sekolah']
         tahun = form.cleaned_data['tahun']
         jum_kelas = form.cleaned_data['jum_kelas']
         jum_murid = form.cleaned_data['jum_murid']
         purata_str = form.cleaned_data['purata']
-         
-        purata = self.calculate_purata(purata_str, jum_kelas, jum_murid )
-
+        purata = self.calculate_purata(purata_str, jum_kelas, jum_murid)
 
         color, message, purata = self.calculate_color_and_message(purata, jum_kelas,jum_murid)
 
@@ -32,11 +30,14 @@ class StudentColorView(FormView):
                 'jum_murid': jum_murid,
                 'purata': purata,
             }
-        
         if purata >= 40:
+            #success_url = reverse_lazy('high_purata')
             return render(self.request, 'high_purata.html', data)
         else:
+            #success_url =reverse_lazy('low_purata')
             return render(self.request, 'low_purata.html', data)
+
+        return redirect(success_url)
 
     
     def calculate_purata(self, purata_str, jum_kelas, jum_murid):
@@ -77,30 +78,31 @@ class StudentColorView(FormView):
             return reverse_lazy('low_purata')
         
 
-class HighPurataView(View):
-    template_name = 'high_purata.html'
+#class HighPurataView(View):
+    #template_name = 'high_purata.html'
     
-    def get(self, request, *args, **kwargs):
+    #def get(self, request, *args, **kwargs):
         
-        color='red'
+        #color='red'
         
-        context = {
-            'color':color,
-        }
-        return render(request, self.template_name, context)
+        #context = {
+            #'color':color,
+            #'message': 'Penuh',
+        #}
+        #return render(request, self.template_name, context)
     
-class LowPurataView(View):
-    template_name = 'low_purata.html'
-    def get(self, request, *args, **kwargs):
+#class LowPurataView(View):
+    #template_name = 'low_purata.html'
+    #def get(self, request,*args, **kwargs):
 
-        color='green'
-        context ={
-            'color':color,
-            'message': 'Here is your output value'
+        #color='green'
+        #context ={
+            #'color':color,
+            #'message': 'Normal',
         
-        }
+        #}
         
-        return render(request, self.template_name, context)
+        #return render(request, self.template_name, context)
 
     
 class CalculateAverageView(View):
