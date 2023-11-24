@@ -16,7 +16,8 @@ class StudentColorView(FormView):
     template_name = 'student_color.html'
     form_class = StudentColorForm
     def form_valid(self, form):
-        form.save() # simpan form kedalam db
+        
+        
 
         sekolah = form.cleaned_data['sekolah']
         tahun = form.cleaned_data['tahun']
@@ -27,6 +28,11 @@ class StudentColorView(FormView):
 
         color, message, purata = self.calculate_color_and_message(purata, jum_kelas,jum_murid)
 
+        # simpan form kedalam db
+        form.save() 
+        # return the form_valid method of the parent class to ensure behavior 
+        return super().form_valid(form)
+    
         data = {
                 'color': color,
                 'message': message,
@@ -44,7 +50,8 @@ class StudentColorView(FormView):
             return render(self.request, 'low_purata.html', data)
 
         #return redirect(success_url)
-
+        
+        
     
     def calculate_purata(self, purata_str, jum_kelas, jum_murid):
         if purata_str:
