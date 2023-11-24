@@ -1,7 +1,6 @@
 from django.db import models
 from django.core.validators import RegexValidator
 
-
 # Maklumat info Pelajar
 class Info(models.Model):
     name = models.CharField(max_length=200, help_text="sila masukkan nama penuh seperti dalam mykid", null=True, blank=False, verbose_name='Nama')
@@ -12,7 +11,7 @@ class Info(models.Model):
     jum_kelas = models.IntegerField(default=0, verbose_name='jumlah kelas')
     jum_murid = models.IntegerField(default=0, verbose_name='Masukkan Jumlah Murid')
     purata = models.IntegerField(default=0)
-    
+    tahun = models.ForeignKey('TahunModel', on_delete=models.CASCADE, null=True, blank=True, verbose_name='Tahun')  
     
     def __str__(self):
         return self.name
@@ -24,8 +23,7 @@ class ListSekolah(models.Model):
 
     def __str__(self):
         return self.nama_sek
-
-# Maklumat pilihan sekolah mengikut tahun
+ #Maklumat pilihan sekolah mengikut tahun
 class TahunModel(models.Model):
     YEAR_CHOICES = [
         ('Pra Sekolah', 'Pra Sekolah'),
@@ -39,3 +37,5 @@ class TahunModel(models.Model):
 
     def __str__(self):
         return self.tahun
+choices = TahunModel.YEAR_CHOICES
+print(choices)

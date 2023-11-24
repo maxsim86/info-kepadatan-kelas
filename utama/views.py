@@ -25,13 +25,15 @@ class StudentColorView(FormView):
         jum_murid = form.cleaned_data['jum_murid']
         purata_str = form.cleaned_data['purata']
         purata = self.calculate_purata(purata_str, jum_kelas, jum_murid)
+        
+#        info_instance = form.save(commit=False)
 
         color, message, purata = self.calculate_color_and_message(purata, jum_kelas,jum_murid)
 
         # simpan form kedalam db
         form.save() 
         # return the form_valid method of the parent class to ensure behavior 
-        return super().form_valid(form)
+        #return super().form_valid(form)
     
         data = {
                 'color': color,
