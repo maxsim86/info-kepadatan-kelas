@@ -25,9 +25,22 @@ class StudentColorForm(forms.ModelForm):
 
     #sekolah = forms.ModelChoiceField(queryset=ListSekolah.objects.all())
     tahun = forms.ModelChoiceField(queryset=TahunModel.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
-    jum_kelas = forms.TypedChoiceField(coerce=int, choices=[(i, i) for i in range(1, 15)], required= False)
-    jum_murid = forms.IntegerField(required=True)
+    jum_kelas = forms.TypedChoiceField(coerce=int, choices=[], required= False)
+    jum_murid = forms.IntegerField(required=False)
     purata = forms.FloatField(required=False, widget=forms.HiddenInput())
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # implement bagi merujuk ke data yang diimport dari CSV merujuk pada jum_kelas dan jum_murid
+        
+        # Ambil data jum_kelas, jum_murid dari data yang diimport
+        imported_data = ListSekolah.objects.all()
+        
+        #Set pilihan jum_kelas, jum_murid berdasarkan data yang diimport
+        self.fields['jum_kelas'].choices = [(i, i) for i in range(1, 15)] 
+        
+        
 
     def clean(self):
         cleaned_data = super().clean()

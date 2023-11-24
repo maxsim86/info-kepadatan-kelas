@@ -3,13 +3,13 @@ from django.core.validators import RegexValidator
 
 # Maklumat info Pelajar
 class Info(models.Model):
-    name = models.CharField(max_length=200, help_text="sila masukkan nama penuh seperti dalam mykid", null=True, blank=False, verbose_name='Nama')
+    name = models.CharField(max_length=200, null=True, blank=False, verbose_name='Nama')
     phone_no_regex = RegexValidator(regex=r"^\+?1?\d{8,15}$")
     no_tel = models.CharField(validators=[phone_no_regex], max_length=16, unique=True, help_text='Masukkan No Telefon', verbose_name='Nombor Telefon')
     no_ic = models.CharField(max_length=12, help_text='Nombor mykid', verbose_name='No. My Kid')
     email = models.EmailField(max_length=255)
     jum_kelas = models.IntegerField(default=0, verbose_name='jumlah kelas')
-    jum_murid = models.IntegerField(default=0, verbose_name='Masukkan Jumlah Murid')
+    jum_murid = models.IntegerField(default=0, verbose_name='Jumlah Murid')
     purata = models.IntegerField(default=0)
     tahun = models.ForeignKey('TahunModel', on_delete=models.CASCADE, null=True, blank=True, verbose_name='Tahun')  
     list_sek = models.ForeignKey('ListSekolah', on_delete=models.CASCADE, null=True, blank=True, verbose_name='Senarai Sekolah')

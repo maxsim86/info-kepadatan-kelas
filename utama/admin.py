@@ -12,7 +12,7 @@ admin.site.unregister(Info)
     
 class StudentColorAdmin(admin.ModelAdmin):
     form = StudentColorForm
-    list_display = ('jum_kelas', 'jum_murid')
+    list_display = ('name','list_sek', 'no_ic', 'jum_kelas', 'jum_murid')
 
 admin.site.register(Info, StudentColorAdmin)
 admin.site.register(ListSekolah)
