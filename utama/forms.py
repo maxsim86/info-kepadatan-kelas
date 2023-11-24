@@ -25,8 +25,8 @@ class StudentColorForm(forms.ModelForm):
 
     #sekolah = forms.ModelChoiceField(queryset=ListSekolah.objects.all())
     tahun = forms.ModelChoiceField(queryset=TahunModel.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
-    jum_kelas = forms.TypedChoiceField(coerce=int, choices=[], required= False)
-    jum_murid = forms.IntegerField(required=False)
+    jum_kelas = forms.TypedChoiceField(coerce=int, choices=[], required= False, widget=forms.HiddenInput())
+    jum_murid = forms.IntegerField(required=False, widget=forms.HiddenInput())
     purata = forms.FloatField(required=False, widget=forms.HiddenInput())
     
     def __init__(self, *args, **kwargs):
