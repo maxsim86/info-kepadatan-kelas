@@ -19,7 +19,8 @@ class StudentColorView(FormView):
         
         
 
-        sekolah = form.cleaned_data['sekolah']
+        #sekolah = form.cleaned_data['sekolah']
+        list_sek = form.cleaned_data['list_sek']
         tahun = form.cleaned_data['tahun']
         jum_kelas = form.cleaned_data['jum_kelas']
         jum_murid = form.cleaned_data['jum_murid']
@@ -38,7 +39,7 @@ class StudentColorView(FormView):
         data = {
                 'color': color,
                 'message': message,
-                'sekolah': sekolah,
+                #'sekolah': sekolah,
                 'tahun': tahun,
                 'jum_kelas': jum_kelas,
                 'jum_murid': jum_murid,
@@ -51,10 +52,6 @@ class StudentColorView(FormView):
             #success_url =reverse_lazy('low_purata')
             return render(self.request, 'low_purata.html', data)
 
-        #return redirect(success_url)
-        
-        
-    
     def calculate_purata(self, purata_str, jum_kelas, jum_murid):
         if purata_str:
             try:

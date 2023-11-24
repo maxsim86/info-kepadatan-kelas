@@ -12,6 +12,7 @@ class Info(models.Model):
     jum_murid = models.IntegerField(default=0, verbose_name='Masukkan Jumlah Murid')
     purata = models.IntegerField(default=0)
     tahun = models.ForeignKey('TahunModel', on_delete=models.CASCADE, null=True, blank=True, verbose_name='Tahun')  
+    list_sek = models.ForeignKey('ListSekolah', on_delete=models.CASCADE, null=True, blank=True, verbose_name='Senarai Sekolah')
     
     def __str__(self):
         return self.name
@@ -33,9 +34,8 @@ class TahunModel(models.Model):
         ('Tahun 4', 'Tahun 4'),
         ('Tahun 5', 'Tahun 5'),
     ]
-    tahun = models.CharField(max_length=11, default='Tahun 1', choices=YEAR_CHOICES)
+    tahun = models.CharField(max_length=11, default='Tahun 1', choices=YEAR_CHOICES, verbose_name='Tingkatan Tahun')
 
     def __str__(self):
         return self.tahun
 choices = TahunModel.YEAR_CHOICES
-print(choices)

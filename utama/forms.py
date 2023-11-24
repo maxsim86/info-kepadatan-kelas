@@ -16,18 +16,17 @@ class AdminStudentColorForm(forms.ModelForm):
 class StudentColorForm(forms.ModelForm):
     class Meta:
         model = Info
-        fields = ['name', 'no_tel', 'no_ic', 'email', 'purata', 'jum_kelas', 'tahun']
+        fields = ['name', 'no_tel', 'no_ic', 'email', 'purata', 'jum_kelas', 'jum_murid', 'tahun','list_sek']
         widgets = {
             'purata': forms.HiddenInput(),
             'jum_kelas':forms.HiddenInput(),
             'jum_murid':forms.HiddenInput(),
         }
-        
 
-    sekolah = forms.ModelChoiceField(queryset=ListSekolah.objects.all())
+    #sekolah = forms.ModelChoiceField(queryset=ListSekolah.objects.all())
     tahun = forms.ModelChoiceField(queryset=TahunModel.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
     jum_kelas = forms.TypedChoiceField(coerce=int, choices=[(i, i) for i in range(1, 15)], required= False)
-    jum_murid = forms.IntegerField(required=False)
+    jum_murid = forms.IntegerField(required=True)
     purata = forms.FloatField(required=False, widget=forms.HiddenInput())
 
     def clean(self):
@@ -51,7 +50,7 @@ class StudentColorForm(forms.ModelForm):
 # Register the new form for the admin
 class InfoAdmin(admin.ModelAdmin):
     form = AdminStudentColorForm
-    list_display = ('sekolah', 'tahun', 'jum_kelas', 'jum_murid', 'purata')
+    list_display = ('tahun', 'jum_kelas', 'jum_murid', 'purata')
 
 admin.site.register(Info, InfoAdmin)
 #admin.site.register(ListSekolah)
