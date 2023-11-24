@@ -16,6 +16,7 @@ class StudentColorView(FormView):
     template_name = 'student_color.html'
     form_class = StudentColorForm
     def form_valid(self, form):
+        form.save() # simpan form kedalam db
 
         sekolah = form.cleaned_data['sekolah']
         tahun = form.cleaned_data['tahun']
@@ -42,7 +43,7 @@ class StudentColorView(FormView):
             #success_url =reverse_lazy('low_purata')
             return render(self.request, 'low_purata.html', data)
 
-        return redirect(success_url)
+        #return redirect(success_url)
 
     
     def calculate_purata(self, purata_str, jum_kelas, jum_murid):
