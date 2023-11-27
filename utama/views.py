@@ -160,13 +160,12 @@ class ImportCSVView(View):
             for row in reader:
                 # Get or create TahunModel instance based pon the 'tahun' value
                 tahun_instance, created = TahunModel.objects.get_or_create(tahun=row.get('tahun', ''))
-                
                 Info.objects.create(
-                    kod_sek = row.get('kod_sekolah', ''),
+                    kod_sek = row.get('list_kod_sekolah', ''),
                     tahun = tahun_instance,
                     jum_kelas = row.get('jum_kelas', ''),
                     jum_murid = row.get('jum_murid', ''),
-                                    )
+                )
         
         return render(request, self.template_names, {'form':form})
 
