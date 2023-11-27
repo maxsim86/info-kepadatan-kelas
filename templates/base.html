@@ -9,6 +9,7 @@
         
         <title>
             {% block title %} Maklumat Detail Sekolah {% endblock title %}
+
         </title>
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <!--bootstrap CSS-->
@@ -19,6 +20,7 @@
         
         <nav class="navbar navbar-expand-lg  navbar-dark bg-dark">
             <a class="navbar-brand" href="{% url 'home' %}">Analisis Kelas</a>
+                                    <a href="{% url 'export_csv' %}">Export CSV</a>
             <button class="navbar-toggler" type="button" data-toggler="collapse" 
             data-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false"

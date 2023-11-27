@@ -17,8 +17,6 @@ class StudentColorView(FormView):
     form_class = StudentColorForm
     def form_valid(self, form):
         
-        
-
         #sekolah = form.cleaned_data['sekolah']
         list_sek = form.cleaned_data['list_sek']
         tahun = form.cleaned_data['tahun']
@@ -144,7 +142,7 @@ class CalculateAverageView(View):
         return JsonResponse({'average':average})
 
 
-class CSVUploadView(View):
+class ImportCSVView(View):
     template_name = 'upload_csv.html'
 
     def get(self, request, *args, **kwargs):
@@ -161,7 +159,35 @@ class CSVUploadView(View):
             
             for row in reader:
                 Info.objects.create(
-                    name=row['','tahun', 'jum_kelas', 'jum_murid', 'purata'],
+                    kod_sek = row.get('kod_sekolah', ''),
+                    tahun = row.get('tahun', ''),
+                    jum_kelas = row.get('jum_kelas', ''),
+                    jum_murid = row.get('jum_murid', ''),
                                     )
         
         return render(request, self.template_names, {'form':form})
+
+        
+class ExportCSVView(View):
+    def get(self, request, *args, **kwargs):
+        response = HttpResponse(content_type='text/csv')
+        response['content-Disposition'] = 'attachment; filename="exported_data.svc"'
+        
+        writer = csv.writer(response)
+        writer.writerow(['Name', 'No Tel', 'No IC', 'Email', 'Tahun', 'Jum kelas', 'jumlah Murid', 'Purata', 'List Sekolah', 'kod Sekolah'])
+        
+        infos = Info.objects.all()
+        for info in infos:
+            writer.writerow([
+                info.name,
+                info.no_tel,
+                info.no_ic,
+                info.email,
+                info.list_kod_sekolah,
+                info.tahun,
+                info.jum_kelas,
+                info.jum_murid,
+                info.purata,
+            ])
+
+        return response

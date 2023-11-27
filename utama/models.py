@@ -12,7 +12,10 @@ class Info(models.Model):
     jum_murid = models.IntegerField(default=0, verbose_name='Jumlah Murid')
     purata = models.IntegerField(default=0)
     tahun = models.ForeignKey('TahunModel', on_delete=models.CASCADE, null=True, blank=True, verbose_name='Tahun')  
-    list_sek = models.ForeignKey('ListSekolah', on_delete=models.CASCADE, null=True, blank=True, verbose_name='Senarai Sekolah')
+    list_sek = models.ForeignKey('ListSekolah', on_delete=models.CASCADE, null=True, blank=True, verbose_name='Senarai Sekolah', related_name='info_list_sekolah')
+    list_kod_sekolah = models.ForeignKey('ListSekolah', on_delete=models.CASCADE, null=True, blank=True, related_name='info_list_kod_sekolah')
+
+
     class Meta:
         verbose_name = 'Info'
         verbose_name_plural = 'Info'
@@ -40,6 +43,7 @@ class TahunModel(models.Model):
         ('Tahun 3', 'Tahun 3'),
         ('Tahun 4', 'Tahun 4'),
         ('Tahun 5', 'Tahun 5'),
+        ('Tahun 6', 'Tahun 6'),
     ]
     tahun = models.CharField(max_length=11, default='Tahun 1', choices=YEAR_CHOICES, verbose_name='Tingkatan Tahun')
     
