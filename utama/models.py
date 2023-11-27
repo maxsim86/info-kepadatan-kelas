@@ -16,6 +16,7 @@ class Info(models.Model):
     list_kod_sekolah = models.ForeignKey('ListSekolah', on_delete=models.CASCADE, null=True, blank=True, related_name='info_list_kod_sekolah')
 
 
+
     class Meta:
         verbose_name = 'Info'
         verbose_name_plural = 'Info'
