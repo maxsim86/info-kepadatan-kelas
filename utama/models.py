@@ -37,15 +37,15 @@ class ListSekolah(models.Model):
  #Maklumat pilihan sekolah mengikut tahun
 class TahunModel(models.Model):
     YEAR_CHOICES = [
-        ('Pra Sekolah', 'Pra Sekolah'),
-        ('Tahun 1', 'Tahun 1'),
-        ('Tahun 2', 'Tahun 2'),
-        ('Tahun 3', 'Tahun 3'),
-        ('Tahun 4', 'Tahun 4'),
-        ('Tahun 5', 'Tahun 5'),
-        ('Tahun 6', 'Tahun 6'),
+        ('PPKI', 'PPKI'),
+        ('TAHUN SATU', 'TAHUN SATU'),
+        ('TAHUN DUA', 'TAHUN DUA'),
+        ('TAHUN TIGA', 'TAHUN TIGA'),
+        ('TAHUN EMPAT', 'TAHUN EMPAT'),
+        ('TAHUN LIMA', 'TAHUN LIMA'),
+        ('TAHUN ENAM', 'TAHUN ENAM'),
     ]
-    tahun = models.CharField(max_length=11, default='Tahun 1', choices=YEAR_CHOICES, verbose_name='Tingkatan Tahun')
+    tahun = models.CharField(max_length=11, default='TAHUN 1', choices=YEAR_CHOICES, verbose_name='Tingkatan Tahun')
     
     class Meta:
         verbose_name = 'Tahun'

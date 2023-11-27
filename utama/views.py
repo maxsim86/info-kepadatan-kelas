@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.urls import reverse_lazy
 #import csv module
 import csv
-from .models import Info
+from .models import Info, TahunModel
 from django.http import HttpResponse
 
 
@@ -158,9 +158,12 @@ class ImportCSVView(View):
             reader = csv.DictReader(decode_file)
             
             for row in reader:
+                # Get or create TahunModel instance based pon the 'tahun' value
+                tahun_instance, created = TahunModel.objects.get_or_create(tahun=row.get('tahun', ''))
+                
                 Info.objects.create(
                     kod_sek = row.get('kod_sekolah', ''),
-                    tahun = row.get('tahun', ''),
+                    tahun = tahun_instance,
                     jum_kelas = row.get('jum_kelas', ''),
                     jum_murid = row.get('jum_murid', ''),
                                     )
