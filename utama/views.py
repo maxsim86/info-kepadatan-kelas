@@ -158,15 +158,25 @@ class ImportCSVView(View):
             reader = csv.DictReader(decode_file)
             
             for row in reader:
-                # Get or create TahunModel instance based pon the 'tahun' value
                 tahun_instance, created = TahunModel.objects.get_or_create(tahun=row.get('tahun', ''))
                 list_sekolah_instance, created = ListSekolah.objects.get_or_create(kod_sekolah=row.get('list_kod_sekolah', ''))
 
                 jum_kelas = int(row['jum_kelas']if row.get('jum_kelas') else 0)
-                
-                # Ensure that 'jum _murid' is a valid integer or handle the case
-                
                 jum_murid = int(row['jum_murid']) if row.get('jum_murid') else 0
+                
+                 # Ensure that 'jum_kelas' is a valid integer or handle the case when it's not
+                try:
+                    jum_kelas = int(row['jum_kelas']) if row.get('jum_kelas') else 0
+                except ValueError:
+                    jum_kelas = 0
+
+                # Ensure that 'jum_murid' is a valid integer or handle the case when it's not
+                try:
+                    jum_murid = int(row['jum_murid']) if row.get('jum_murid') else 0
+                except ValueError:
+                    jum_murid = 0
+                
+                
                 
                 Info.objects.create(
                     list_kod_sekolah = list_sekolah_instance,
