@@ -9,15 +9,12 @@ import csv
 from .models import Info, TahunModel, ListSekolah
 from django.http import HttpResponse
 
-
-
 # Create your views here.
 class StudentColorView(FormView):
     template_name = 'student_color.html'
     form_class = StudentColorForm
     def form_valid(self, form):
         
-        #sekolah = form.cleaned_data['sekolah']
         list_sek = form.cleaned_data['list_sek']
         tahun = form.cleaned_data['tahun']
         jum_kelas = form.cleaned_data['jum_kelas']
@@ -25,14 +22,9 @@ class StudentColorView(FormView):
         purata_str = form.cleaned_data['purata']
         purata = self.calculate_purata(purata_str, jum_kelas, jum_murid)
         
-#        info_instance = form.save(commit=False)
-
         color, message, purata = self.calculate_color_and_message(purata, jum_kelas,jum_murid)
-
         # simpan form kedalam db
         form.save() 
-        # return the form_valid method of the parent class to ensure behavior 
-        #return super().form_valid(form)
     
         data = {
                 'color': color,
@@ -67,9 +59,6 @@ class StudentColorView(FormView):
                 else:
                     return 0
                 
-                
-          
-    
     def calculate_color_and_message(self, purata, jum_kelas, jum_murid):
         if purata >= 40:
             color = 'red'
@@ -96,35 +85,6 @@ class StudentColorView(FormView):
             return reverse_lazy('high_purata')
         else:
             return reverse_lazy('low_purata')
-        
-
-#class HighPurataView(View):
-    #template_name = 'high_purata.html'
-    
-    #def get(self, request, *args, **kwargs):
-        
-        #color='red'
-        
-        #context = {
-            #'color':color,
-            #'message': 'Penuh',
-        #}
-        #return render(request, self.template_name, context)
-    
-#class LowPurataView(View):
-    #template_name = 'low_purata.html'
-    #def get(self, request,*args, **kwargs):
-
-        #color='green'
-        #context ={
-            #'color':color,
-            #'message': 'Normal',
-        
-        #}
-        
-        #return render(request, self.template_name, context)
-
-    
 class CalculateAverageView(View):
     def get(self, request, *args, **kwargs):
         # Handle GET request to retrieve the initial value or for debugging
@@ -140,7 +100,6 @@ class CalculateAverageView(View):
         else:
             average = 0.0
         return JsonResponse({'average':average})
-
 
 class ImportCSVView(View):
     template_name = 'upload_csv.html'
@@ -164,30 +123,24 @@ class ImportCSVView(View):
                 jum_kelas = int(row['jum_kelas']if row.get('jum_kelas') else 0)
                 jum_murid = int(row['jum_murid']) if row.get('jum_murid') else 0
                 
-                 # Ensure that 'jum_kelas' is a valid integer or handle the case when it's not
                 try:
                     jum_kelas = int(row['jum_kelas']) if row.get('jum_kelas') else 0
                 except ValueError:
                     jum_kelas = 0
 
-                # Ensure that 'jum_murid' is a valid integer or handle the case when it's not
                 try:
                     jum_murid = int(row['jum_murid']) if row.get('jum_murid') else 0
                 except ValueError:
                     jum_murid = 0
                 
-                
-                
                 Info.objects.create(
                     list_kod_sekolah = list_sekolah_instance,
                     tahun = tahun_instance,
-                    jum_kelas = row.get('jum_kelas', ''),
-                    jum_murid = row.get('jum_murid', ''),
+                    jum_kelas = row.get('jum_kelas', 0),
+                    jum_murid = row.get('jum_murid', 0),
                 )
         
         return render(request, self.template_name, {'form':form})
-
-        
 class ExportCSVView(View):
     def get(self, request, *args, **kwargs):
         response = HttpResponse(content_type='text/csv')
@@ -208,6 +161,7 @@ class ExportCSVView(View):
                 info.jum_kelas,
                 info.jum_murid,
                 info.purata,
+                
             ])
 
         return response

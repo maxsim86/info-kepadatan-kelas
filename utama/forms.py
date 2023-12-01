@@ -11,37 +11,28 @@ class AdminStudentColorForm(forms.ModelForm):
     class Meta:
         model = Info
         fields = '__all__'
-    
-
 class StudentColorForm(forms.ModelForm):
     class Meta:
         model = Info
-        fields = ['name', 'no_tel', 'no_ic', 'email', 'purata', 'jum_kelas', 'jum_murid', 'tahun','list_sek']
+        # here this fields i remove fields jum
+        fields = ['name', 'no_tel', 'no_ic', 'email', 'purata', 'tahun','list_sek']
         widgets = {
             'purata': forms.HiddenInput(),
             'jum_kelas':forms.HiddenInput(),
             'jum_murid':forms.HiddenInput(),
         }
 
-    #sekolah = forms.ModelChoiceField(queryset=ListSekolah.objects.all())
-    tahun = forms.ModelChoiceField(queryset=TahunModel.objects.all(), widget=forms.Select(attrs={'class': 'form-control'}))
-    jum_kelas = forms.TypedChoiceField(coerce=int, choices=[], required= False) 
-    jum_murid = forms.IntegerField(required=False)
+    tahun = forms.ModelChoiceField(queryset=TahunModel.objects.all(),widget=forms.Select(attrs={'class': 'form-control'}))
+    jum_kelas = forms.TypedChoiceField(coerce=int, choices=[], required=False, widget=forms.HiddenInput())
+    jum_murid = forms.IntegerField(required=False, widget=forms.HiddenInput())
     purata = forms.FloatField(required=False, widget=forms.HiddenInput())
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
         # implement bagi merujuk ke data yang diimport dari CSV merujuk pada jum_kelas dan jum_murid
-        
-        # Ambil data jum_kelas, jum_murid dari data yang diimport
         imported_data = ListSekolah.objects.all()
+        self.fields['jum_kelas'].widget = forms.HiddenInput()
         
-        #Set pilihan jum_kelas, jum_murid berdasarkan data yang diimport
-        self.fields['jum_kelas'].choices = [(i, i) for i in range(1, 15)] 
-        
-        
-
     def clean(self):
         cleaned_data = super().clean()
         jum_kelas = cleaned_data.get('jum_kelas', 0)
@@ -67,12 +58,5 @@ class InfoAdmin(admin.ModelAdmin):
 
 admin.site.register(Info, InfoAdmin)
 #admin.site.register(ListSekolah)
-
-
-#class InfoCsvForm(forms.ModelForm):
-    #class Meta:
-        #model = Info
-        #fields = '__all__'
-        
 class SCVUploadForm(forms.Form):
     csv_file = forms.FileField()
