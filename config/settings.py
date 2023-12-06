@@ -39,8 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "whitenoise.runserver_nostatic",
     "utama",
-    "csvs",
-]
+ ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
