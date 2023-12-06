@@ -1,6 +1,15 @@
 <!-- upload_csv.html -->
-<form method="post" enctype="multipart/form-data">
+{% extends "base.html" %}
+
+{% block title %}
+  main page
+{% endblock title %}
+
+
+{% block content %}
+  <form action="" method="POST" class="ui form" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form }}
-    <button type="submit">Upload CSV</button>
-</form>
+    {{form}}
+
+    <button type="submit" class="ui button primary">Confirm</button>
+{% endblock content %}
