@@ -26,8 +26,8 @@ class StudentColorView(FormView):
         color, message, purata = self.calculate_color_and_message(
             purata, jum_kelas, jum_murid
         )
-        # simpan form kedalam db
-        form.save()
+#        simpan data form kedalam db
+#        form.save()
 
         data = {
             "color": color,
