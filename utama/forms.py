@@ -20,7 +20,6 @@ class AdminStudentColorForm(forms.ModelForm):
 class StudentColorForm(forms.ModelForm):
     class Meta:
         model = Info
-        # here this fields i remove fields jum
         fields = [
             "name",
             "no_tel",
@@ -34,7 +33,6 @@ class StudentColorForm(forms.ModelForm):
         ]
         widgets = {
             "purata": forms.HiddenInput(),
-            "jum_murid": forms.HiddenInput(),
         }
 
     tahun = forms.ModelChoiceField(
