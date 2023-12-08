@@ -45,8 +45,6 @@ class StudentColorForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # implement bagi merujuk ke data yang diimport dari CSV merujuk pada jum_kelas dan jum_murid
-        imported_data = ListSekolah.objects.all()
         self.fields["jum_kelas"]
 
     def clean(self):

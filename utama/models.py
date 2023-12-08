@@ -6,12 +6,12 @@ from django.core.validators import RegexValidator
 class TahunModel(models.Model):
     YEAR_CHOICES = [
         ("PPKI", "PPKI"),
-        ("TAHUN SATU", "TAHUN SATU"),
-        ("TAHUN DUA", "TAHUN DUA"),
-        ("TAHUN TIGA", "TAHUN TIGA"),
-        ("TAHUN EMPAT", "TAHUN EMPAT"),
-        ("TAHUN LIMA", "TAHUN LIMA"),
-        ("TAHUN ENAM", "TAHUN ENAM"),
+        ("TAHUN SATU", "TAHUN 1"),
+        ("TAHUN DUA", "TAHUN 2"),
+        ("TAHUN TIGA", "TAHUN 3"),
+        ("TAHUN EMPAT", "TAHUN 4"),
+        ("TAHUN LIMA", "TAHUN 5"),
+        ("TAHUN ENAM", "TAHUN 6"),
     ]
     tahun = models.CharField(
         max_length=11,
@@ -46,13 +46,7 @@ class Info(models.Model):
     email = models.EmailField(max_length=255)
     jum_kelas = models.IntegerField(default=0, verbose_name="jumlah kelas")
     jum_murid = models.IntegerField(default=0, verbose_name="Jumlah Murid")
-    tahun = models.ForeignKey(
-        "TahunModel",
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        verbose_name="Tahun",
-    )
+
     list_sek = models.ForeignKey(
         "ListSekolah",
         on_delete=models.CASCADE,
@@ -61,6 +55,15 @@ class Info(models.Model):
         verbose_name="Senarai Sekolah",
         related_name="info_list_sekolah",
     )
+
+    tahun = models.ForeignKey(
+        "TahunModel",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name="Tahun",
+    )
+
     list_kod_sekolah = models.ForeignKey(
         "ListSekolah",
         on_delete=models.CASCADE,
