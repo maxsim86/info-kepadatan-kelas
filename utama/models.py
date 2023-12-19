@@ -34,7 +34,7 @@ choices = TahunModel.YEAR_CHOICES
 
 # Maklumat info Pelajar
 class Info(models.Model):
-    name = models.CharField(max_length=200, null=True, blank=False, verbose_name="Nama")
+    name = models.CharField(max_length=150, null=True, blank=False, verbose_name="Nama")
     phone_no_regex = RegexValidator(regex=r"^\+?1?\d{8,15}$")
     no_tel = models.CharField(
         validators=[phone_no_regex],
