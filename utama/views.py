@@ -5,6 +5,8 @@ from django.views import View
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 
+from django.db.models import Sum
+
 # import csv module
 import csv
 from .models import Info, TahunModel, ListSekolah
@@ -43,6 +45,19 @@ class StudentColorView(FormView):
         else:
             # success_url =reverse_lazy('low_purata')
             return render(self.request, "low_purata.html", data)
+
+            
+    # baca data menggunakan aggregate
+    result=Info.objects.values('list_sek__nama_sek').annotate(total_jum_kelas=Sum('jum_kelas'),
+                                                              total_jum_murid=Sum('jum_murid'))
+    for entry in result:
+        nama_sek = entry['list_sek__nama_sek']
+        total_jum_kelas = entry['total_jum_kelas']
+        total_jum_murid = entry['total_jum_murid']
+        
+        print(f"School : {nama_sek}, Total Jum kelas: {total_jum_kelas}, Total Jum Murid: {total_jum_murid}")
+    
+            
 
     def calculate_purata(self, purata_str, jum_kelas, jum_murid):
         if purata_str:
@@ -103,7 +118,7 @@ class CalculateAverageView(View):
             average = 0.0
         return JsonResponse({"average": average})
 
-
+# Class function untuk import
 class ImportCSVView(View):
     template_name = "upload_csv.html"
 
@@ -149,7 +164,7 @@ class ImportCSVView(View):
 
         return render(request, self.template_name, {"form": form})
 
-
+# Buat Export Function untuk Export
 class ExportCSVView(View):
     def get(self, request, *args, **kwargs):
         response = HttpResponse(content_type="text/csv")
