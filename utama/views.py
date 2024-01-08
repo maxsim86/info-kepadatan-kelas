@@ -55,6 +55,8 @@ class StudentColorView(FormView):
         total_jum_kelas = entry['total_jum_kelas']
         total_jum_murid = entry['total_jum_murid']
         
+    #Pass the aggregate data to th template context
+    context = {'result':result}
     
             
 
