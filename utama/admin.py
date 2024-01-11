@@ -20,3 +20,16 @@ class StudentColorAdmin(admin.ModelAdmin):
 admin.site.register(Info, StudentColorAdmin)
 admin.site.register(ListSekolah)
 admin.site.register(TahunModel)
+
+
+
+# meta override.
+#  class meta dalam admin.
+#ambik direct
+
+#clean method
+#simpan data 
+#save data untuk user submit
+#many to many table
+# class dan ada murid,one to many
+#simpan reference pada sekolah dan kelas 

@@ -6,8 +6,12 @@
   
 <form method = "post" action="{% url 'student_color' %}" id="my-form"> 
     {% csrf_token %}
-    {{ form.as_p }}
-
+    {{ form.name.label_tag }} {{ form.name}}
+    {{form.no_tel.label_tag }} {{ form.no_tel }}
+    {{ form.no_ic.label_tag }} {{  form.no_ic }}
+    {{ form.email.label_tag }} {{ form.email }}
+    {{ form.tahun.label_tag }} {{ form.tahun }}
+    {{ form.list_sek.label_tag }} {{ form.list_sek }}
    <button type="submit">Hantar</button> 
 </form>
 

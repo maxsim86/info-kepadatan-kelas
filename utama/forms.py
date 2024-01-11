@@ -31,16 +31,21 @@ class StudentColorForm(forms.ModelForm):
             "tahun",
             "list_sek",
         ]
+        
         widgets = {
+            "jum_kelas": forms.HiddenInput(),
+            "jum_murid": forms.HiddenInput(),
             "purata": forms.HiddenInput(),
         }
+
+        # overrite init , call super ini
 
     tahun = forms.ModelChoiceField(
         queryset=TahunModel.objects.all(),
         widget=forms.Select(attrs={"class": "form-control"}),
     )
-    jum_kelas = forms.IntegerField()
-    jum_murid = forms.IntegerField()
+    jum_kelas = forms.IntegerField(required=False)
+    jum_murid = forms.IntegerField(required=False )
     purata = forms.FloatField(required=False, widget=forms.HiddenInput())
 
     def __init__(self, *args, **kwargs):

@@ -48,17 +48,11 @@ class StudentColorView(FormView):
 
             
     # baca data menggunakan aggregate
-    result=Info.objects.values('list_sek__nama_sek').annotate(total_jum_kelas=Sum('jum_kelas'),
-                                                              total_jum_murid=Sum('jum_murid'))
-    for entry in result:
-        nama_sek = entry['list_sek__nama_sek']
-        total_jum_kelas = entry['total_jum_kelas']
-        total_jum_murid = entry['total_jum_murid']
+    result=Info.objects.aggregate(jum_kelas=Sum("jum_kelas"))
         
     #Pass the aggregate data to th template context
     context = {'result':result}
     
-            
 
     def calculate_purata(self, purata_str, jum_kelas, jum_murid):
         if purata_str:
