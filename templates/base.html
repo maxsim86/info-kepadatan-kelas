@@ -19,7 +19,7 @@
     <body>
         
         <nav class="navbar navbar-expand-lg  navbar-dark bg-dark">
-            <a class="navbar-brand" href="{% url 'home' %}">Analisis Kelas</a>
+            <a class="navbar-brand" href="{% url 'home' %}">Analisis kepadatan Kelas</a>
                                     <a href="{% url 'export_csv' %}">Export CSV</a>
             <button class="navbar-toggler" type="button" data-toggler="collapse" 
             data-target="#navbarSupportedContent"
@@ -65,7 +65,7 @@
 </div>
             
         <header>
-            <h1><a href="{% url 'home' %}">Status Kepadatan Kelas</a></h1>
+            <h1><a href="{% url 'home' %}"></a></h1>
             {% block content %}
             {% endblock content %}
         </header>

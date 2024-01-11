@@ -3,17 +3,24 @@
 {% load static %}
 
 {% block content %}
-  
-<form method = "post" action="{% url 'student_color' %}" id="my-form"> 
-    {% csrf_token %}
-    {{ form.name.label_tag }} {{ form.name}}
-    {{form.no_tel.label_tag }} {{ form.no_tel }}
-    {{ form.no_ic.label_tag }} {{  form.no_ic }}
-    {{ form.email.label_tag }} {{ form.email }}
-    {{ form.tahun.label_tag }} {{ form.tahun }}
+  <div class="container">
+<form method = "POST" action="{% url 'student_color' %}" id="my-form"> 
+
+{% csrf_token %}
+
+<div class="mb-3">
+    {{ form.name.label_tag }} {{ form.name }} <br><br>
+    {{ form.no_tel.label_tag }} {{ form.no_tel }} <br> <br>
+    {{ form.no_ic.label_tag }} {{ form.no_ic }} <br> <br>
+    {{ form.email.label_tag }} {{ form.email }} <br> <br>
+    {{ form.tahun.label_tag }} {{ form.tahun }} <br> <br>
     {{ form.list_sek.label_tag }} {{ form.list_sek }}
+</div>
+<br>
    <button type="submit">Hantar</button> 
 </form>
+
+  </div>
 
 {% if color %}
 
