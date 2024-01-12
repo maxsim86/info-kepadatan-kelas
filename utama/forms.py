@@ -33,8 +33,8 @@ class StudentColorForm(forms.ModelForm):
         ]
         
         widgets = {
-            "jum_kelas": forms.HiddenInput(),
-            "jum_murid": forms.HiddenInput(),
+            #"jum_kelas": forms.HiddenInput(),
+            #"jum_murid": forms.HiddenInput(),
             "purata": forms.HiddenInput(),
         }
 
@@ -44,8 +44,8 @@ class StudentColorForm(forms.ModelForm):
         queryset=TahunModel.objects.all(),
         widget=forms.Select(attrs={"class": "form-control"}),
     )
-    jum_kelas = forms.IntegerField(required=False)
-    jum_murid = forms.IntegerField(required=False )
+    #jum_kelas = forms.IntegerField(required=False)
+    #jum_murid = forms.IntegerField(required=False )
     purata = forms.FloatField(required=False, widget=forms.HiddenInput())
 
     def __init__(self, *args, **kwargs):
