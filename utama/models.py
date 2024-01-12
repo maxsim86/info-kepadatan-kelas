@@ -42,8 +42,8 @@ class Info(models.Model):
         unique=True,
         verbose_name="Nombor Telefon",
     )
-    no_ic = models.CharField(max_length=12, verbose_name="No. My Kid")
-    email = models.EmailField(max_length=255)
+    no_ic = models.CharField(max_length=12, verbose_name="No. MYKID")
+    email = models.EmailField(max_length=255, verbose_name="E-Mail")
     jum_kelas = models.IntegerField(default=0, verbose_name="jumlah kelas")
     jum_murid = models.IntegerField(default=0, verbose_name="Jumlah Murid")
 

@@ -37,17 +37,16 @@ class StudentColorForm(forms.ModelForm):
             #"jum_murid": forms.HiddenInput(),
             "purata": forms.HiddenInput(),
             "name": forms.TextInput(attrs={'placeholder':'Nama Penuh', 'size':35, 'title':'Masukkan Nama Penuh Anda!'}),
-            "no_tel": forms.TextInput(attrs={'placeholder': 'Nomber Telefon', 'size': 35}),
+            "no_tel": forms.TextInput(attrs={'placeholder': 'Nomber Telefon', 'size': 26}),
             "email": forms.EmailInput(attrs={'placeholder':'E-mail','size':35, 'title': 'Masukkan Email cth : simbad@gmail.com'}),
-            "no_ic": forms.NumberInput(attrs={'placeholder':'Nombor MYKID', 'size':35}),
-
+            "no_ic": forms.TextInput(attrs={'placeholder':'Nombor MYKID', 'size':31, 'title':'Masukkan Nombor MYKID Tanpa Jarak'}),
         }
 
         # overrite init , call super ini
 
     tahun = forms.ModelChoiceField(
         queryset=TahunModel.objects.all(),
-        widget=forms.Select(attrs={"class": "form-control"}),
+        widget=forms.Select(attrs={"class": "form-control", "size":6, "title":"Masuukan Tahun Kelas"}),
     )
     
     jum_kelas = forms.IntegerField(label='jumlah kelas',required=False)

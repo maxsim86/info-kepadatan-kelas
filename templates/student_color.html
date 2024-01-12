@@ -9,13 +9,14 @@
 {% csrf_token %}
 
 <div class="mb-3">
-    <p>{{ form.name.label_tag }} {{ form.name }}<br><br>
+<p>
+    {{ form.name.label_tag }} {{ form.name }}<br><br>
     {{ form.no_tel.label_tag }} {{ form.no_tel }} <br> <br>
     {{ form.no_ic.label_tag }} {{ form.no_ic }} <br> <br>
     {{ form.email.label_tag }} {{ form.email }} <br> <br>
     {{ form.tahun.label_tag }} {{ form.tahun }} <br> <br>
     {{ form.list_sek.label_tag }} {{ form.list_sek }}
-    </p> 
+</p>
 </div>
 <br>
    <button type="submit">Hantar</button> 
