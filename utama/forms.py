@@ -31,11 +31,16 @@ class StudentColorForm(forms.ModelForm):
             "tahun",
             "list_sek",
         ]
-        
+
         widgets = {
             #"jum_kelas": forms.HiddenInput(),
             #"jum_murid": forms.HiddenInput(),
             "purata": forms.HiddenInput(),
+            "name": forms.TextInput(attrs={'placeholder':'Nama Penuh', 'size':35, 'title':'Masukkan Nama Penuh Anda!'}),
+            "no_tel": forms.TextInput(attrs={'placeholder': 'Nomber Telefon', 'size': 35}),
+            "email": forms.EmailInput(attrs={'placeholder':'E-mail','size':35, 'title': 'Masukkan Email cth : simbad@gmail.com'}),
+            "no_ic": forms.NumberInput(attrs={'placeholder':'Nombor MYKID', 'size':35}),
+
         }
 
         # overrite init , call super ini
@@ -44,8 +49,11 @@ class StudentColorForm(forms.ModelForm):
         queryset=TahunModel.objects.all(),
         widget=forms.Select(attrs={"class": "form-control"}),
     )
-    jum_kelas = forms.IntegerField(required=False)
-    jum_murid = forms.IntegerField(required=False )
+    
+    jum_kelas = forms.IntegerField(label='jumlah kelas',required=False)
+    
+    jum_murid = forms.IntegerField(label='jumlah murid', required=False )
+    
     purata = forms.FloatField(required=False, widget=forms.HiddenInput())
 
     def __init__(self, *args, **kwargs):
