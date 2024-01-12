@@ -20,6 +20,7 @@ class StudentColorView(FormView):
 
     def form_valid(self, form):
         tahun = form.cleaned_data["tahun"]
+        sekolah = form.cleaned_data["list_sek"]
         jum_kelas = form.cleaned_data["jum_kelas"]
         jum_murid = form.cleaned_data["jum_murid"]
         purata_str = form.cleaned_data["purata"]
@@ -38,6 +39,7 @@ class StudentColorView(FormView):
             "jum_kelas": jum_kelas,
             "jum_murid": jum_murid,
             "purata": purata,
+            "sekolah": sekolah,
         }
         if purata >= 40:
             # success_url = reverse_lazy('high_purata')
