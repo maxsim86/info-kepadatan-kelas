@@ -46,25 +46,25 @@ class StudentColorForm(forms.ModelForm):
 
     tahun = forms.ModelChoiceField(
         queryset=TahunModel.objects.all(),
-        widget=forms.Select(attrs={"class": "form-control", "size":6, "title":"Masuukan Tahun Kelas"}),
+        widget=forms.Select(attrs={"class": "form-control", "size":6, "title":"Masukkan Tahun Kelas"}),
     )
     
-    jum_kelas = forms.IntegerField(label='jumlah kelas',required=False)
+    #jum_kelas = forms.IntegerField(label='jumlah kelas',required=False)
     
     jum_murid = forms.IntegerField(label='jumlah murid', required=False )
     
     purata = forms.FloatField(required=False, widget=forms.HiddenInput())
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["jum_kelas"]
+    #def __init__(self, *args, **kwargs):
+    #    super().__init__(*args, **kwargs)
+    #    self.fields["jum_kelas"]
 
     def clean(self):
         cleaned_data = super().clean()
-        jum_kelas = cleaned_data.get("jum_kelas", 0)
+        #jum_kelas = cleaned_data.get("jum_kelas", 0)
         jum_murid = cleaned_data.get("jum_murid", 0)
         # Convert to jum_kelas to integer
-        jum_kelas = int(jum_kelas) if jum_kelas else 0
+        #jum_kelas = int(jum_kelas) if jum_kelas else 0
         # Convert to jum_murid to integer
         jum_murid = int(jum_murid) if jum_murid else 0
 

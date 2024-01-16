@@ -32,6 +32,15 @@ class TahunModel(models.Model):
 choices = TahunModel.YEAR_CHOICES
 
 
+# models untuk listkan available sekolah
+class Classroom(models.Model):
+    name_school = models.CharField(max_length=50)
+    capacity = models.IntegerField()
+
+    def __str__(self):
+        return self.name_school
+
+
 # Maklumat info Pelajar
 class Info(models.Model):
     name = models.CharField(max_length=150, null=True, blank=False, verbose_name="Nama")
@@ -61,7 +70,7 @@ class Info(models.Model):
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        verbose_name="Tahun",
+        verbose_name="Tahun(Darjah)",
     )
 
     list_kod_sekolah = models.ForeignKey(

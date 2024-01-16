@@ -4,8 +4,8 @@ from .forms import StudentColorForm, SCVUploadForm
 from django.views import View
 from django.http import JsonResponse
 from django.urls import reverse_lazy
-
 from django.db.models import Sum
+from .models import Classroom
 
 # import csv module
 import csv
@@ -14,6 +14,15 @@ from django.http import HttpResponse
 
 
 # Create your views here.
+
+
+def check_availlability(request):
+    classrooms = Classroom.objects.all()
+
+    context = {"classrooms": classrooms}
+    return render(request, "check_availlability.html", context)
+
+
 class StudentColorView(FormView):
     template_name = "student_color.html"
     form_class = StudentColorForm
@@ -48,13 +57,11 @@ class StudentColorView(FormView):
             # success_url =reverse_lazy('low_purata')
             return render(self.request, "low_purata.html", data)
 
-            
     # baca data menggunakan aggregate
-    result=Info.objects.aggregate(jum_kelas=Sum("jum_kelas"))
-        
-    #Pass the aggregate data to th template context
-    context = {'result':result}
-    
+    result = Info.objects.aggregate(jum_kelas=Sum("jum_kelas"))
+
+    # Pass the aggregate data to th template context
+    context = {"result": result}
 
     def calculate_purata(self, purata_str, jum_kelas, jum_murid):
         if purata_str:
@@ -115,6 +122,7 @@ class CalculateAverageView(View):
             average = 0.0
         return JsonResponse({"average": average})
 
+
 # Class function untuk import
 class ImportCSVView(View):
     template_name = "upload_csv.html"
@@ -160,6 +168,7 @@ class ImportCSVView(View):
                 )
 
         return render(request, self.template_name, {"form": form})
+
 
 # Buat Export Function untuk Export
 class ExportCSVView(View):

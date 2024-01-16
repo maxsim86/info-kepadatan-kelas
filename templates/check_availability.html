@@ -1,0 +1,18 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Availability</title>
+</head>
+<body>
+   <h1>Class Availability</h1> 
+   <ul>
+
+    {% for classroom in classrooms %}
+    <li>{{ classroom.name_school }} - {% classroom.capacity < 37 %}Available {% else %}Full {% endif  %} </li>
+    {% endfor %}
+
+
+   </ul>
+</body>
+</html>
