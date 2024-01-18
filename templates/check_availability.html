@@ -2,17 +2,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Check Availability</title>
+    <title>Status Kekosongan Kelas</title>
 </head>
 <body>
-   <h1>Class Availability</h1> 
+   <h1>Status Kekosongan Kelas</h1> 
+   <form method="get" action="{% url 'check_availability' %}">
+
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <label for="year">Pilih Tahun</label>
+    <select name="year" id="year">
+        <option value="PPKI" {% if selected_year == 'PPKI' %}selected{% endif %}>PPKI</option>
+        <option value="TAHUN1" {% if selected_year == 'TAHUN1' %}selected{% endif %}>Tahun 1</option>
+        <option value="TAHUN2" {% if selected_year == 'TAHUN2' %}selected{% endif %}>Tahun 2</option>
+        <option value="TAHUN3" {% if selected_year == 'TAHUN3' %}selected{% endif %}>Tahun 3</option>
+        <option value="TAHUN4" {% if selected_year == 'TAHUN4' %}selected{% endif %}>Tahun 4</option>
+        <option value="TAHUN5" {% if selected_year == 'TAHUN5' %}selected{% endif %}>Tahun 5</option>
+        <option value="TAHUN6" {% if selected_year == 'TAHUN6' %}selected{% endif %}>Tahun 6</option>
+    </select>
+    <label for="class_name">Filter by class Name</label>
+    <input type="text" name="class_name" id="class_name" value="{{ class_name_filter }}">
+    <button type="submit">Hantar</button>
+   </form>
    <ul>
-
+    
     {% for classroom in classrooms %}
-    <li>{{ classroom.name_school }} - {% classroom.capacity < 37 %}Available {% else %}Full {% endif  %} </li>
+    <li>{{ classroom.school}} - {% if classroom.purata < 39 %}MASIH MEMPUNYAI KEKOSONGAN{% else %}PENUH{% endif %}</li>
+        
     {% endfor %}
-
-
+        
    </ul>
 </body>
 </html>
