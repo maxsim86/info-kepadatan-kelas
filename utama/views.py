@@ -2,6 +2,14 @@ from django.shortcuts import render, redirect
 from .forms import ClassroomForm
 from .models import Classroom
 
+def search_school(request):
+    query = request.GET.get('query','')
+    classrooms = Classroom.objects.search_by_school(query)
+    
+    context = {'classrooms': classrooms, 'query':query}
+    return render(request, 'search_school.html', context)
+
+
 def check_availability(request):
     form = ClassroomForm()
 
@@ -13,6 +21,9 @@ def check_availability(request):
             return redirect('check_availability')
 
     classrooms = Classroom.objects.all()
+    
+    
+
 
     # Filter berdasarkan sekolah dan tahun
     year = request.GET.get('year', 'PPKI')
@@ -20,6 +31,6 @@ def check_availability(request):
     class_name_filter = request.GET.get('class_name', '')
     classrooms = Classroom.objects.filter(year=year, school__icontains=school_name)
     
-    context = {'form':form, 'classrooms':classrooms, 'selected_year':year, 'class_name_filter':class_name_filter, 'school':school_name}
+    context = {'form':form, 'classrooms':classrooms, 'selected_year':year, 'class_name_filter':class_name_filter, 'school':school_name, 'query':''}
     return render(request, 'check_availability.html', context)
     

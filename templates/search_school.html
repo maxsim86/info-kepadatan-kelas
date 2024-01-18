@@ -1,0 +1,28 @@
+<!-- search_school.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Search</title>
+</head>
+<body>
+    <h1>School Search</h1>
+    
+    <form method="get" action="{% url 'search_school' %}">
+        <label for="query">Search School:</label>
+        <input type="text" name="query" id="query" value="{{ query }}">
+        <button type="submit">Search</button>
+    </form>
+
+    <h2>Search Results:</h2>
+    <ul>
+        {% for classroom in classrooms %}
+            <li>{{ classroom.school }} - {{ classroom.purata }} - {{ classroom.year }}</li>
+        {% empty %}
+            <li>No results found</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

@@ -8,6 +8,8 @@
    <h1>Status Kekosongan Kelas</h1> 
    <form method="get" action="{% url 'check_availability' %}">
 
+
+
     {% csrf_token %}
     {{ form.as_p }}
 
@@ -31,7 +33,6 @@
     <li>{{ classroom.school}} - {% if classroom.purata < 39 %}MASIH MEMPUNYAI KEKOSONGAN{% else %}PENUH{% endif %}</li>
         
     {% endfor %}
-        
    </ul>
 </body>
 </html>

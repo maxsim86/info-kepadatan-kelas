@@ -1,4 +1,9 @@
 from django.db import models
+from django.db.models import Q
+
+class ClassroomManager(models.Manager):
+    def search_by_school(self, query):
+        return self.get_queryset().filter(Q(school__icontains=query))
 
 class Classroom(models.Model):
     SCHOOL_CHOICES = [
@@ -20,6 +25,7 @@ class Classroom(models.Model):
     school = models.CharField(max_length=50, choices=SCHOOL_CHOICES)
     year = models.CharField(max_length=10, choices= YEAR_CHOICES)
     purata = models.IntegerField()
+    objects = ClassroomManager()
     
     def __str__(self):
         return f"{self.school} - {self.purata} - {self.year}"
