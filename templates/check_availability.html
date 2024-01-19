@@ -24,7 +24,7 @@
    <ul>
     
     {% for classroom in classrooms %}
-    <li>{{ classroom.school}} - {% if classroom.purata < 39 %}MASIH MEMPUNYAI KEKOSONGAN{% else %}PENUH{% endif %}</li>
+    <li>{{ classroom.school}} - {% if classroom.average < 39 %}MASIH MEMPUNYAI KEKOSONGAN{% else %}PENUH{% endif %}</li>
         
     {% endfor %}
         

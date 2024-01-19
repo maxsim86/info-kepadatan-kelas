@@ -19,9 +19,9 @@ class Classroom(models.Model):
 
     school = models.CharField(max_length=50, choices=SCHOOL_CHOICES)
     year = models.CharField(max_length=10, choices= YEAR_CHOICES)
-    purata = models.IntegerField()
+    average = models.IntegerField()
     
     def __str__(self):
-        return f"{self.school} - {self.purata} - {self.year}"
+        return f"{self.school} - {self.average} - {self.year}"
     
     
