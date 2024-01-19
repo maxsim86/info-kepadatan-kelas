@@ -4,8 +4,10 @@
 <body>
     {% block content %}
    <h1>Status Kekosongan Kelas</h1> 
-   <form method="get" hx-post="{% url 'check_availability' %}" hx-target="#availability-list">
 
+   <form method="post" action="{% url 'check_availability' %}">
+
+    {% csrf_token %}
     {{ form.as_p }}
 
     <label for="year">Pilih Tahun</label>
@@ -20,8 +22,12 @@
     </select>
     <label for="class_name">Filter by class Name</label>
     <input type="text" name="class_name" id="class_name" value="{{ class_name_filter }}">
-    <button type="submit" value="save">Hantar</button>
+    <button type="submit" value="Save">Hantar</button>
    </form>
+    
+        <!-- List of classrooms will be updated here -->
+
+     </div>
    <ul>
     
     {% for classroom in classrooms %}
@@ -30,5 +36,5 @@
     {% endfor %}
    </ul>
    {% endblock %}
-</body>
+</body> 
 </html>
