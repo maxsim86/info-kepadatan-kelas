@@ -2,13 +2,6 @@ from django.shortcuts import render, redirect
 from .forms import ClassroomForm
 from .models import Classroom
 
-def search_school(request):
-    query = request.GET.get('query','')
-    classrooms = Classroom.objects.search_by_school(query)
-    
-    context = {'classrooms': classrooms, 'query':query}
-    return render(request, 'search_school.html', context)
-
 
 def check_availability(request):
     form = ClassroomForm()
