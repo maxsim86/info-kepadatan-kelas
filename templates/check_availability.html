@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 
+{% block content %}
+  
 <body>
-    {% block content %}
    <h1>Status Kekosongan Kelas</h1> 
-
-   <form method="post" action="{% url 'check_availability' %}">
+   <form method="get" action="{% url 'check_availability' %}">
 
     {% csrf_token %}
     {{ form.as_p }}
@@ -19,20 +19,17 @@
         <option value="TAHUN5" {% if selected_year == 'TAHUN5' %}selected{% endif %}>Tahun 5</option>
         <option value="TAHUN6" {% if selected_year == 'TAHUN6' %}selected{% endif %}>Tahun 6</option>
     </select>
-    <label for="class_name">Filter by class Name</label>
-    <input type="text" name="class_name" id="class_name" value="{{ class_name_filter }}">
-    <button type="submit" >Hantar</button>
+    <button type="submit">Hantar</button>
    </form>
-    
-
-     </div>
    <ul>
     
     {% for classroom in classrooms %}
-    <li>{{ classroom.school}} - {% if classroom.average < 39 %}MASIH MEMPUNYAI KEKOSONGAN{% else %}PENUH{% endif %}</li>
+    <li>{{ classroom.school}} - {% if classroom.purata < 39 %}MASIH MEMPUNYAI KEKOSONGAN{% else %}PENUH{% endif %}</li>
         
     {% endfor %}
+        
    </ul>
-   {% endblock %}
-</body> 
+
+</body>
+   {% endblock content %}
 </html>
