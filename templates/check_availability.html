@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 
-
 <body>
     {% block content %}
    <h1>Status Kekosongan Kelas</h1> 
@@ -22,16 +21,15 @@
     </select>
     <label for="class_name">Filter by class Name</label>
     <input type="text" name="class_name" id="class_name" value="{{ class_name_filter }}">
-    <button type="submit" value="Save">Hantar</button>
+    <button type="submit" >Hantar</button>
    </form>
     
-        <!-- List of classrooms will be updated here -->
 
      </div>
    <ul>
     
     {% for classroom in classrooms %}
-    <li>{{ classroom.school}} - {% if classroom.purata < 39 %}MASIH MEMPUNYAI KEKOSONGAN{% else %}PENUH{% endif %}</li>
+    <li>{{ classroom.school}} - {% if classroom.average < 39 %}MASIH MEMPUNYAI KEKOSONGAN{% else %}PENUH{% endif %}</li>
         
     {% endfor %}
    </ul>
