@@ -1,18 +1,11 @@
 {% extends 'base.html' %}
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Status Kekosongan Kelas</title>
-</head>
+
+
 <body>
     {% block content %}
    <h1>Status Kekosongan Kelas</h1> 
-   <form method="get" action="{% url 'check_availability' %}">
+   <form method="get" hx-post="{% url 'check_availability' %}" hx-target="#availability-list">
 
-
-
-    {% csrf_token %}
     {{ form.as_p }}
 
     <label for="year">Pilih Tahun</label>
@@ -27,7 +20,7 @@
     </select>
     <label for="class_name">Filter by class Name</label>
     <input type="text" name="class_name" id="class_name" value="{{ class_name_filter }}">
-    <button type="submit">Hantar</button>
+    <button type="submit" value="save">Hantar</button>
    </form>
    <ul>
     
