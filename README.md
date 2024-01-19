@@ -9,5 +9,5 @@ sekolah yang mempunyai <= 38, akan papar warna Kuning
 sekolah yang mempunyai == 40 akan papar merah
 selain dari atas, defaultnya Hijau
 
-![image](https://github.com/maxsim86/info-kepadatan-kelas/assets/309479/e5e6012f-e2b7-446a-9841-2cfd38a6b3f7)
+![image](https://github.com/maxsim86/info-kepadatan-kelas/assets/309479/bd6b630d-dddd-4269-b7df-cb1c42205fd1)
 
