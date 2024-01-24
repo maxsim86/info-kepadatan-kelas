@@ -21,7 +21,8 @@ from utama.views import check_availability
 # domain.com/cars/
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', check_availability, name='check_availability'),
+    #path('', check_availability, name='check_availability'),
+    path('utama/', include('utama.urls'))
 ]
 
 

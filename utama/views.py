@@ -1,9 +1,23 @@
 from django.shortcuts import render, redirect
-from .forms import ClassroomForm
+from .forms import ClassroomForm, ContactForm
 from .models import Classroom
 
 import csv
 from django.http import HttpResponse
+
+def process_csv(csv_file):
+    decoded_file = csv_file.read().decode('utf-8').splitlines()
+    reader = csv.DictReader(decoded_file, delimiter='\t')
+    
+    for row in reader:
+        print(f"School: {row.get('school', '')}, Year: {row.get('year', '')}, Average: {row.get('average', '')}")
+        school = row.get('school', '')
+        year = row.get('year', '')
+        average = row.get('average', '')
+        
+        if school and year and average:
+            Classroom.objects.create(school=school, year=year, average=average)
+            
 
 def check_availability(request):
     form = ClassroomForm()
@@ -43,3 +57,24 @@ def export_csv(request):
         writer.writerow([classroom.school, classroom.year, classroom.average ])
     return response
     
+
+            
+def import_csv(request):
+    if request.method == 'POST' and request.FILES.get('csv_file'):
+        csv_file = request.FILES['csv_file']
+        process_csv(csv_file)
+        return redirect('check_availability')
+
+    return render(request, 'import_csv.html')
+
+
+def contact_us(request):
+    form = ContactForm()
+
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            # Lakukan sesuatu dengan data formulir yang valid
+            pass
+
+    return render(request, 'contact_us.html', {'form': form})
