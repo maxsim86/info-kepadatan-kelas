@@ -4,8 +4,10 @@
 
 {% block content %}
   
-<body class="container mt-5">
-   <h1 class="mb-4">Enrolment Traffic Scanning </h1> 
+<link rel="stylesheet" href="{% static 'utama/check_availability.css' %}">
+
+
+<body class="container availlability mt-5">
    <form method="get" action="{% url 'check_availability' %}" class="mb-4">
 
     {% csrf_token %}
@@ -26,7 +28,7 @@
 
 
 
-    <button type="submit" class="btn btn-primary col-span-full ">Hantar</button>
+    <button type="submit" class="btn btn-primary col-span-full ">Papar</button>
 </div>
    </form>
    

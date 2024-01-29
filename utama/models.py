@@ -24,4 +24,10 @@ class Classroom(models.Model):
     def __str__(self):
         return f"{self.school} - {self.average} - {self.year}"
     
-    
+class Contact_us(models.Model):
+    name = models.CharField(max_length=200) 
+    email = models.EmailField()
+    message = models.CharField(max_length=300)
+
+    def __str__(self):
+        return f"{self.name} - {self.message}"

@@ -75,7 +75,8 @@ def contact_us(request):
         form = ContactForm(request.POST)
         
         if form.is_valid():
-            print(form.cleaned_data)
+            # simpan di DB admin
+            form.save()
             return redirect(reverse('thank_you'))
     # ELSE, RENDER FORM
     else:

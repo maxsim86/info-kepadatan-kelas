@@ -1,12 +1,15 @@
 from django import forms
-from .models import Classroom
+from .models import Classroom, Contact_us
+from django.forms import ModelForm
 
 class ClassroomForm(forms.ModelForm):
     class Meta:
         model = Classroom
         fields = ['school']
-        
-class ContactForm(forms.Form):
-    name = forms.CharField(label='Nama', max_length=200, required=False)
-    email = forms.EmailField(label='Email', required=False)
-    message = forms.CharField(label='Mesej Anda', max_length=300, widget=forms.Textarea)
+
+
+class ContactForm(forms.ModelForm):
+    class Meta:
+        model = Contact_us
+        fields = ['name', 'email', 'message']
+        widgets = {'message': forms.Textarea(attrs={"cols": 80, "row": 20})}
