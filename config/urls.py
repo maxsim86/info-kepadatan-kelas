@@ -22,7 +22,7 @@ from utama.views import check_availability
 urlpatterns = [
     path('admin/', admin.site.urls),
     #path('', check_availability, name='check_availability'),
-    path('utama/', include('utama.urls'))
+    path('', include('utama.urls'))
 ]
 
 

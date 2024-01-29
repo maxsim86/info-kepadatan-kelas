@@ -3,22 +3,31 @@ from .forms import ClassroomForm, ContactForm
 from .models import Classroom
 from django.urls import reverse
 
-import csv
+import pandas as pd
 from django.http import HttpResponse
 
-def process_csv(csv_file):
-    decoded_file = csv_file.read().decode('utf-8').splitlines()
-    reader = csv.DictReader(decoded_file, delimiter='\t')
-    
-    for row in reader:
-        print(f"School: {row.get('school', '')}, Year: {row.get('year', '')}, Average: {row.get('average', '')}")
+
+def process_csv_pandas(csv_file):
+    # Read CSV file using Pandas
+    df = pd.read_csv(csv_file, delimiter='\t')
+
+    # Iterate through rows and create or update Classroom objects
+    for index, row in df.iterrows():
         school = row.get('school', '')
         year = row.get('year', '')
         average = row.get('average', '')
-        
+
         if school and year and average:
-            Classroom.objects.create(school=school, year=year, average=average)
-            
+            try:
+                # Try to get an existing Classroom object
+                classroom_object = Classroom.objects.get(school=school, year=year)
+                # If it exists, update its values
+                classroom_object.average = average
+                classroom_object.save()
+            except Classroom.DoesNotExist:
+                # If it doesn't exist, create a new Classroom object
+                Classroom.objects.create(school=school, year=year, average=average)
+                     
 
 def check_availability(request):
     form = ClassroomForm()
@@ -37,26 +46,25 @@ def check_availability(request):
     school_name = request.GET.get('school', 'SMK TAMAN KLANG UTAMA')
     class_name_filter = request.GET.get('class_name', '')
     classrooms = Classroom.objects.filter(year=year, school__icontains=school_name)
-    last_update = Classroom.objects.latest('last_update').last_update
+
     
-    context = {'form':form, 'classrooms':classrooms, 'selected_year':year, 'class_name_filter':class_name_filter, 'school':school_name, 'last_update':last_update}
+    context = {'form':form, 'classrooms':classrooms, 'selected_year':year, 'class_name_filter':class_name_filter, 'school':school_name,}
     return render(request, 'check_availability.html', context)
     
-
 def export_csv(request):
-    # Ambil data dari database
+    # Fetch data from the database
     classrooms = Classroom.objects.all()
 
-    # Membuat object HttpResponse dengan content CSV
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition']= 'attachment'; filename="classroom.csv"
-    #Membuat object writer CSV dan menulis header
-    writer = csv.writer(response)
-    writer.writerow(['Nama Sekolah', 'Tahun', 'Purata'])
+    # Create a DataFrame using Pandas
+    df = pd.DataFrame(list(classrooms.values('school', 'year', 'average')))
 
-    # Menulis setiap baris data ke file CSV
-    for classroom in classrooms:
-        writer.writerow([classroom.school, classroom.year, classroom.average ])
+    # Create a response with CSV content
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="classroom.csv"'
+
+    # Write DataFrame to CSV
+    df.to_csv(path_or_buf=response, index=False, sep='\t')
+
     return response
     
 
@@ -64,7 +72,7 @@ def export_csv(request):
 def import_csv(request):
     if request.method == 'POST' and request.FILES.get('csv_file'):
         csv_file = request.FILES['csv_file']
-        process_csv(csv_file)
+        process_csv_pandas(csv_file)
         return redirect('check_availability')
 
     return render(request, 'import_csv.html')

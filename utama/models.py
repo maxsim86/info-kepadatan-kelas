@@ -21,7 +21,7 @@ class Classroom(models.Model):
     school = models.CharField(max_length=50, choices=SCHOOL_CHOICES, verbose_name='Pilihan Sekolah')
     year = models.CharField(max_length=10, choices= YEAR_CHOICES)
     average = models.IntegerField()
-    last_update = models.DateTimeField(default=timezone.now)
+    last_update = models.DateTimeField(auto_now=True)
     
     def __str__(self):
         return f"{self.school} - {self.average} - {self.year}"
