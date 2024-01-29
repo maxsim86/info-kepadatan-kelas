@@ -11,5 +11,10 @@ class ClassroomForm(forms.ModelForm):
 class ContactForm(forms.ModelForm):
     class Meta:
         model = Contact_us
-        fields = ['name', 'email', 'message']
+        fields = '__all__'
         widgets = {'message': forms.Textarea(attrs={"cols": 80, "row": 20})}
+        labels = {
+            'name':'Nama',
+            'email':'E-mail',
+            'message':'Mesej'
+        }
