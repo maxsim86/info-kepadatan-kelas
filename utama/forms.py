@@ -6,8 +6,7 @@ class ClassroomForm(forms.ModelForm):
         model = Classroom
         fields = ['school']
         
-        
 class ContactForm(forms.Form):
-    name = forms.CharField(label='Your Name', max_length=100)
-    email = forms.EmailField(label='Your Email')
-    message = forms.CharField(label='Your Message', widget=forms.Textarea)
+    name = forms.CharField(label='Nama', max_length=200, required=False)
+    email = forms.EmailField(label='Email', required=False)
+    message = forms.CharField(label='Mesej Anda', max_length=300, widget=forms.Textarea)

@@ -1,24 +1,21 @@
 <!-- contactus/templates/contactus/contact_us.html -->
 {% extends 'base.html' %}
 {% load static %}
+
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/styles.css' %}">
-<div class="container mt-5">
-    <h1 class="mb-4">Contact Us</h1>
+
+<link rel="stylesheet" href="{% static 'utama/custom.css' %}">
+<div class="container mt-5 myform">
     <form method="post" class="mb-4">
         {% csrf_token %}
+        
+        {% for field in form %}
         <div class="mb-3">
-            {{ form.name.label_tag }}
-            {{ form.name }}
+            <label class="form-label">{{ field.label_tag }}</label>
+            {{ field }}
         </div>
-        <div class="mb-3">
-            {{ form.email.label_tag }}
-            {{ form.email }}
-        </div>
-        <div class="mb-3">
-            {{ form.message.label_tag }}
-            {{ form.message }}
-        </div>
+        {% endfor %}
+
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 </div>

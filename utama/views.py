@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from .forms import ClassroomForm, ContactForm
 from .models import Classroom
+from django.urls import reverse
 
 import csv
 from django.http import HttpResponse
@@ -69,12 +70,17 @@ def import_csv(request):
 
 
 def contact_us(request):
-    form = ContactForm()
-
-    if request.method == 'POST':
+    # POST REQUEST --> FORM CONTENTS --> THANK YOU
+    if request.method == 'POST': 
         form = ContactForm(request.POST)
+        
         if form.is_valid():
-            # Lakukan sesuatu dengan data formulir yang valid
-            pass
+            print(form.cleaned_data)
+            return redirect(reverse('thank_you'))
+    # ELSE, RENDER FORM
+    else:
+        form = ContactForm()
+    return render(request, 'contact_us.html', context={'form':form})
 
-    return render(request, 'contact_us.html', {'form': form})
+def thank_you(request):
+    return render(request, 'thank_you.html')
