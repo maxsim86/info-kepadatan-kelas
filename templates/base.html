@@ -39,6 +39,9 @@
     <div class="container mt-5">
         {% block content %}
         {% endblock %}
+        <p>Last Update: {{ last_update|date:"F j, Y H:i:s" }}</p>
+
+
     </div>
 
     <!-- Your additional content here -->

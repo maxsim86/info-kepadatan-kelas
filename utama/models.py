@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone   
 
 class Classroom(models.Model):
     SCHOOL_CHOICES = [
@@ -20,6 +21,7 @@ class Classroom(models.Model):
     school = models.CharField(max_length=50, choices=SCHOOL_CHOICES, verbose_name='Pilihan Sekolah')
     year = models.CharField(max_length=10, choices= YEAR_CHOICES)
     average = models.IntegerField()
+    last_update = models.DateTimeField(default=timezone.now)
     
     def __str__(self):
         return f"{self.school} - {self.average} - {self.year}"

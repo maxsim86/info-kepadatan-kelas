@@ -37,8 +37,9 @@ def check_availability(request):
     school_name = request.GET.get('school', 'SMK TAMAN KLANG UTAMA')
     class_name_filter = request.GET.get('class_name', '')
     classrooms = Classroom.objects.filter(year=year, school__icontains=school_name)
+    last_update = Classroom.objects.latest('last_update').last_update
     
-    context = {'form':form, 'classrooms':classrooms, 'selected_year':year, 'class_name_filter':class_name_filter, 'school':school_name}
+    context = {'form':form, 'classrooms':classrooms, 'selected_year':year, 'class_name_filter':class_name_filter, 'school':school_name, 'last_update':last_update}
     return render(request, 'check_availability.html', context)
     
 
