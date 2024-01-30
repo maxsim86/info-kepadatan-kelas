@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from .forms import ClassroomForm, ContactForm
-from .models import Classroom
+from .models import Classroom, SearchLog
 from django.urls import reverse
 from .resources import ClassroomResource
 from django.http import HttpResponse
@@ -8,7 +8,6 @@ import pandas as pd
 from .forms import ImportForm
 from django.http import JsonResponse
 import chardet, tempfile, os
-from .models import SearchLog
 import json 
 
 def school_hits_chart(request):
