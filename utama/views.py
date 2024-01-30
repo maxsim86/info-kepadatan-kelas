@@ -2,31 +2,13 @@ from django.shortcuts import render, redirect
 from .forms import ClassroomForm, ContactForm
 from .models import Classroom
 from django.urls import reverse
-
-import pandas as pd
+from .resources import ClassroomResource
 from django.http import HttpResponse
+import pandas as pd
+from .forms import ImportForm
+from django.http import JsonResponse
+import chardet, tempfile, os, openpyxl
 
-
-def process_csv_pandas(csv_file):
-    # Read CSV file using Pandas
-    df = pd.read_csv(csv_file, delimiter='\t')
-
-    # Iterate through rows and create or update Classroom objects
-    for index, row in df.iterrows():
-        school = row.get('school', '')
-        year = row.get('year', '')
-        average = row.get('average', '')
-
-        if school and year and average:
-            try:
-                # Try to get an existing Classroom object
-                classroom_object = Classroom.objects.get(school=school, year=year)
-                # If it exists, update its values
-                classroom_object.average = average
-                classroom_object.save()
-            except Classroom.DoesNotExist:
-                # If it doesn't exist, create a new Classroom object
-                Classroom.objects.create(school=school, year=year, average=average)
                      
 
 def check_availability(request):
@@ -48,34 +30,74 @@ def check_availability(request):
     classrooms = Classroom.objects.filter(year=year, school__icontains=school_name)
 
     
-    context = {'form':form, 'classrooms':classrooms, 'selected_year':year, 'class_name_filter':class_name_filter, 'school':school_name,}
+    context = {'form':form, 'classrooms':classrooms, 'selected_year':year, 'class_name_filter':class_name_filter, 'school':school_name}
     return render(request, 'check_availability.html', context)
     
-def export_csv(request):
-    # Fetch data from the database
+def export_data(request, file_format):
     classrooms = Classroom.objects.all()
 
-    # Create a DataFrame using Pandas
-    df = pd.DataFrame(list(classrooms.values('school', 'year', 'average')))
+    # Create a resource instance
+    classroom_resource = ClassroomResource()
 
-    # Create a response with CSV content
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="classroom.csv"'
+    # Export data to a DataFrame using pandas
+    dataset = classroom_resource.export(queryset=classrooms)
+    df = pd.DataFrame(dataset.dict)
 
-    # Write DataFrame to CSV
-    df.to_csv(path_or_buf=response, index=False, sep='\t')
-
-    return response
+    if file_format == 'csv':
+        response = HttpResponse(df.to_csv(index=False), content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="classrooms.csv"'
+        return response
+    elif file_format == 'xls':
+        response = HttpResponse(content_type='application/vnd.ms-excel')
+        response['Content-Disposition'] = 'attachment; filename="classrooms.xls"'
+        df.to_excel(response, index=False)
+        return response
+    elif file_format == 'json':
+        response = HttpResponse(df.to_json(orient='records'), content_type='application/json')
+        response['Content-Disposition'] = 'attachment; filename="classrooms.json"'
+        return response
+    else:
+        return HttpResponse("Invalid file format")
     
 
-            
-def import_csv(request):
-    if request.method == 'POST' and request.FILES.get('csv_file'):
-        csv_file = request.FILES['csv_file']
-        process_csv_pandas(csv_file)
-        return redirect('check_availability')
+def import_data(request):
+    if request.method == 'POST':
+        form = ImportForm(request.POST, request.FILES)
+        if form.is_valid():
+            file = request.FILES['file']
 
-    return render(request, 'import_csv.html')
+            # Create a temporary file and write the content of the InMemoryUploadedFile to it
+            with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+                temp_file.write(file.read())
+
+            try:
+                # Re-open the temporary file and read the Excel file
+                df = pd.read_excel(temp_file.name, engine='openpyxl')
+
+                # Perform further processing or save to the database
+                Classroom.objects.bulk_create([
+                    Classroom(**row) for row in df.to_dict(orient='records')
+                ])
+
+                return redirect('success_page')
+
+            except Exception as e:
+                return JsonResponse({'error': str(e)}, status=400)
+
+            finally:
+                # Clean up: remove the temporary file
+                temp_file.close()
+                os.remove(temp_file.name)
+
+    else:
+        form = ImportForm()
+
+    return render(request, 'import.html', {'form': form})
+
+#success url
+def success_page(request):
+    return render(request, 'success_page.html')
+            
 
 
 def contact_us(request):

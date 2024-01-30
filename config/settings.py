@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
     "utama",
     "tailwind",
+    "import_export",
  
 
  ]
@@ -111,7 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "Asia/Kuala_Lumpur"
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 

@@ -18,3 +18,8 @@ class ContactForm(forms.ModelForm):
             'email':'E-mail',
             'message':'Mesej'
         }
+
+
+class ImportForm(forms.Form):
+    file = forms.FileField()
+    
