@@ -21,8 +21,8 @@ from utama.views import check_availability
 # domain.com/cars/
 urlpatterns = [
     path('admin/', admin.site.urls),
-    #path('', check_availability, name='check_availability'),
-    path('', include('utama.urls'))
+    path('', include('utama.urls')),
+    path('accounts/', include('django.contrib.auth.urls'))
 ]
 
 

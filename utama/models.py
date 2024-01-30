@@ -1,5 +1,6 @@
 from django.db import models
-from django.utils import timezone   
+from django.utils import timezone
+from django.contrib.auth.models import User 
 
 class Classroom(models.Model):
     SCHOOL_CHOICES = [
@@ -41,11 +42,3 @@ class Contact_us(models.Model):
     def __str__(self):
         return f"{self.name} - {self.message}"
 
-    
-
-        
-class SearchLog(models.Model):
-    school = models.CharField(max_length=100)
-    
-    def __str__(self):
-        return f"{self.school}"

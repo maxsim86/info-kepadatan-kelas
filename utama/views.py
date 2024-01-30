@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from .forms import ClassroomForm, ContactForm
-from .models import Classroom, SearchLog
+from .models import Classroom
 from django.urls import reverse
 from .resources import ClassroomResource
 from django.http import HttpResponse
@@ -9,21 +9,8 @@ from .forms import ImportForm
 from django.http import JsonResponse
 import chardet, tempfile, os
 import json 
-
-def school_hits_chart(request):
-    # Query the database to get the counts for each school
-    school_hits = SearchLog.objects.values('school').annotate(hit_count=models.Count('school')).order_by('-hit_count')
-
-    # Prepare data for Chart.js
-    labels = [entry['school'] for entry in school_hits]
-    data = [entry['hit_count'] for entry in school_hits]
-
-    # Convert data to JSON format for embedding in HTML
-    chart_data = json.dumps({'labels': labels, 'data': data})
-
-    context = {'chart_data': chart_data}
-    return render(request, 'school_hits_chart.html', context)
-
+from django.db.models import Count
+from django.contrib.auth.decorators import login_required
 
 
 def check_availability(request):
@@ -47,7 +34,8 @@ def check_availability(request):
     
     context = {'form':form, 'classrooms':classrooms, 'selected_year':year, 'class_name_filter':class_name_filter, 'school':school_name}
     return render(request, 'check_availability.html', context)
-    
+
+@login_required    
 def export_data(request, file_format):
     classrooms = Classroom.objects.all()
 
@@ -74,7 +62,7 @@ def export_data(request, file_format):
     else:
         return HttpResponse("Invalid file format")
     
-
+@login_required
 def import_data(request):
     if request.method == 'POST':
         form = ImportForm(request.POST, request.FILES)

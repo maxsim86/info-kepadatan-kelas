@@ -1,10 +1,8 @@
 <!-- myapp/templates/success_page.html -->
+{% extends 'base.html' %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+{% block content %}
     <title>Success Page</title>
     <style>
         body {
@@ -12,7 +10,6 @@
             background-color: #f8f9fa;
             margin: 0;
             padding: 0;
-            display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
@@ -23,9 +20,12 @@
             color: #3498db;
         }
     </style>
-</head>
+    
 <body>
-    <h1>Import Successful!</h1>
+    <h1>Import Data Berjaya !</h1>
     <!-- Your success message or any content you want to display -->
 </body>
-</html>
+{% endblock content %}
+    
+    
+
