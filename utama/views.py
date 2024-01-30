@@ -7,9 +7,25 @@ from django.http import HttpResponse
 import pandas as pd
 from .forms import ImportForm
 from django.http import JsonResponse
-import chardet, tempfile, os, openpyxl
+import chardet, tempfile, os
+from .models import SearchLog
+import json 
 
-                     
+def school_hits_chart(request):
+    # Query the database to get the counts for each school
+    school_hits = SearchLog.objects.values('school').annotate(hit_count=models.Count('school')).order_by('-hit_count')
+
+    # Prepare data for Chart.js
+    labels = [entry['school'] for entry in school_hits]
+    data = [entry['hit_count'] for entry in school_hits]
+
+    # Convert data to JSON format for embedding in HTML
+    chart_data = json.dumps({'labels': labels, 'data': data})
+
+    context = {'chart_data': chart_data}
+    return render(request, 'school_hits_chart.html', context)
+
+
 
 def check_availability(request):
     form = ClassroomForm()

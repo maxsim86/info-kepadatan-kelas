@@ -33,3 +33,7 @@ class Contact_us(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.message}"
+
+        
+class SearchLog(models.Model):
+    school = models.CharField(max_length=100)
