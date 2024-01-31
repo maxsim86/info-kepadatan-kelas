@@ -1,17 +1,14 @@
-<!-- contactus/templates/contactus/thank_you.html -->
+<!-- templates/thank_you.html -->
 {% extends 'base.html' %}
 {% load static %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'utama/thank_you.css' %}">
-
+    <link rel="stylesheet" href="{% static 'utama/thank_you.css' %}">
     <title>Terima Kasih</title>
 
-    <body>
-        <div class="thank-you-container">
-            <h3>Terima Kasih, kami sudah terima maklum balas</h3>
+    <div class="container mt-5">
+        <div class="alert alert-success" role="alert">
+            Terima Kasih, maklum balas diterima 
         </div>
-     </body>
-
+    </div>
 {% endblock content %}
-

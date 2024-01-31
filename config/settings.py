@@ -39,8 +39,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "whitenoise.runserver_nostatic",
     "utama",
-    "tailwind",
-    "import_export",
  
 
  ]

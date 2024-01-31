@@ -5,4 +5,3 @@ class ClassroomResource(resources.ModelResource):
     class Meta:
         model = Classroom
         fields = ('school', 'year', 'average')
-        

@@ -1,6 +1,4 @@
 from django.db import models
-from django.utils import timezone
-from django.contrib.auth.models import User 
 
 class Classroom(models.Model):
     SCHOOL_CHOICES = [
@@ -22,7 +20,6 @@ class Classroom(models.Model):
     school = models.CharField(max_length=50, choices=SCHOOL_CHOICES, verbose_name='Pilihan Sekolah')
     year = models.CharField(max_length=10, choices= YEAR_CHOICES, verbose_name='tahun kelas')
     average = models.IntegerField(verbose_name='purata')
-    last_update = models.DateTimeField(auto_now=True)
     
     class Meta:
         verbose_name = 'Enrolmen Sekolah'

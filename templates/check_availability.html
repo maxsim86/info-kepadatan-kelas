@@ -7,12 +7,11 @@
 <link rel="stylesheet" href="{% static 'utama/check_availability.css' %}">
 
 
-<body class="container availlability mt-5">
-   <form method="get" action="{% url 'check_availability' %}" class="mb-4">
+<body class="container availlability mt-3">
+   <form method="get" action="{% url 'check_availability' %}" class="mb-5">
 
     {% csrf_token %}
-    {{ form.as_p }}
-
+    {{ form }}
     
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
     <label for="year" class="mr-2">Pilihan Tahun</label><br>
@@ -25,7 +24,6 @@
         <option value="TAHUN5" {% if selected_year == 'TAHUN5' %}selected{% endif %}>Tahun 5</option>
         <option value="TAHUN6" {% if selected_year == 'TAHUN6' %}selected{% endif %}>Tahun 6</option>
     </select><br>
-
 
 
     <button type="submit" class="btn btn-primary col-span-full ">Papar</button>
@@ -46,7 +44,6 @@
     </li>
     {% endfor %}
    </ul>
-
 
 
 </body>
