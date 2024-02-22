@@ -5,6 +5,8 @@ class Classroom(models.Model):
         ('SK KLANG', 'SK KLANG'),
         ('SK TELOK GADONG', 'SK TELOK GADONG'),
         ('SK PELABUHAN KLANG', 'SK PELABUHAN KLANG'),
+        ('SK BUKIT KAPAR', 'SK BUKIT KAPAR')
+        
 
     ]
     YEAR_CHOICES = [
@@ -38,4 +40,3 @@ class Contact_us(models.Model):
         verbose_name_plural = 'Maklum Balas'
     def __str__(self):
         return f"{self.name} - {self.message}"
-

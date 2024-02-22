@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "whitenoise.runserver_nostatic",
     "utama",
+    'import_export',
  
 
  ]
@@ -137,3 +138,5 @@ LOGOUT_REDIRECT_URL = "home"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "media")
+
+IMPORT_EXPORT_USE_TRANSACTIONS = True

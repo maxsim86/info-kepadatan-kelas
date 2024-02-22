@@ -6,7 +6,7 @@ class ClassroomForm(forms.ModelForm):
     class Meta:
         model = Classroom
         fields = ['school']
-
+        
 
 class ContactForm(forms.ModelForm):
     class Meta:
@@ -18,7 +18,6 @@ class ContactForm(forms.ModelForm):
             'email':'E-mail',
             'message':'Mesej'
         }
-
 
 class ImportForm(forms.Form):
     file = forms.FileField()

@@ -15,7 +15,7 @@
     
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
     <label for="year" class="mr-2">Pilihan Tahun</label><br>
-    <select name="year" id="year" class="form-select mr-2" style="max-width : 150px">
+    <select name="year" id="year" class="form-select mr-2" style="max-width : 150px" >
         <option value="PPKI" {% if selected_year == 'PPKI' %}selected{% endif %}>PPKI</option>
         <option value="TAHUN1" {% if selected_year == 'TAHUN1' %}selected{% endif %}>Tahun 1</option>
         <option value="TAHUN2" {% if selected_year == 'TAHUN2' %}selected{% endif %}>Tahun 2</option>
