@@ -19,9 +19,9 @@ class Classroom(models.Model):
             ('TAHUN6', 'TAHUN6'),
     ]
 
-    school = models.CharField(max_length=50, choices=SCHOOL_CHOICES, verbose_name='Pilihan Sekolah')
-    year = models.CharField(max_length=10, choices= YEAR_CHOICES, verbose_name='tahun kelas')
-    average = models.IntegerField(verbose_name='purata')
+    school = models.CharField(max_length=50, choices=SCHOOL_CHOICES, verbose_name='Pilihan Sekolah', null=True)
+    year = models.CharField(max_length=10, choices= YEAR_CHOICES, verbose_name='tahun kelas', null=True)
+    average = models.IntegerField(verbose_name='purata', null=True)
     
     class Meta:
         verbose_name = 'Enrolmen Sekolah'
