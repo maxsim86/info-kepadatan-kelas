@@ -5,23 +5,26 @@ class Classroom(models.Model):
         ('SK KLANG', 'SK KLANG'),
         ('SK TELOK GADONG', 'SK TELOK GADONG'),
         ('SK PELABUHAN KLANG', 'SK PELABUHAN KLANG'),
-        ('SK BUKIT KAPAR', 'SK BUKIT KAPAR')
+        ('SK TELOK MENEGON', 'SK TELOK MENEGON'),
+        ('SK BUKIT NAGA ', 'SK BUKIT NAGA' ),
+        ('SK JALAN KEBUN', 'SK JALAN KEBUN'  ),
+        ('SK BATU BELAH', 'SK BATU BELAH'),
         
 
     ]
     YEAR_CHOICES = [
             ('PPKI', 'PPKI'),
-            ('TAHUN1', 'TAHUN1'),
-            ('TAHUN2', 'TAHUN2'),
-            ('TAHUN3', 'TAHUN3'),
-            ('TAHUN4', 'TAHUN4'),
-            ('TAHUN5', 'TAHUN5'),
-            ('TAHUN6', 'TAHUN6'),
+            ('TAHUN SATU', 'TAHUN SATU'),
+            ('TAHUN DUA', 'TAHUN DUA'),
+            ('TAHUN TIGA', 'TAHUN TIGA'),
+            ('TAHUN EMPAT', 'TAHUN EMPAT'),
+            ('TAHUN LIMA', 'TAHUN LIMA'),
+            ('TAHUN ENAM', 'TAHUN ENAM'),
     ]
 
-    school = models.CharField(max_length=50, choices=SCHOOL_CHOICES, verbose_name='Pilihan Sekolah', null=True)
-    year = models.CharField(max_length=10, choices= YEAR_CHOICES, verbose_name='tahun kelas', null=True)
-    average = models.IntegerField(verbose_name='purata', null=True)
+    school = models.CharField(max_length=50, choices=SCHOOL_CHOICES, verbose_name='Pilihan Sekolah')
+    year = models.CharField(max_length=50, choices= YEAR_CHOICES, verbose_name='tahun kelas')
+    average = models.IntegerField(verbose_name='purata')
     
     class Meta:
         verbose_name = 'Enrolmen Sekolah'
