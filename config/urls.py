@@ -22,7 +22,9 @@ from utama.views import check_availability
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('utama.urls')),
-    path('accounts/', include('django.contrib.auth.urls'))
+    path('accounts/', include('django.contrib.auth.urls')),
+
+    path('api/', include('api.urls')),
 ]
 
 
