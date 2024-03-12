@@ -1,4 +1,4 @@
-# Info-Elert-Capacity
+# Info Kapasiti Kelas
 
 Berfungsi sebagai carian data sekolah yang diklasifikasi kelas PADAD. 
 
