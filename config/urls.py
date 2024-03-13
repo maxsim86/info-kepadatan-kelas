@@ -23,8 +23,14 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('utama.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
+    path('kuiz/', include('profilpersonaliti.urls')),
 
     path('api/', include('api.urls')),
+
+    
+    
+
+
 ]
 
 
