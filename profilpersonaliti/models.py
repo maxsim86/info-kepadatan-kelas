@@ -11,7 +11,7 @@ class Quiz(models.Model):
     
 
 class Question(models.Model):
-    title = models.CharField(max_length=255)
+    text = models.CharField(max_length=255)
     quiz = models.ForeignKey(Quiz, related_name='questions', on_delete= models.CASCADE)
     
     def __str__(self):
@@ -32,7 +32,7 @@ class UserResponse(models.Model):
     selected_choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
     
     def __str__(self) -> str:
-        return f"{self.user.username}'s response to {self.question.text} in {self.quiz.title} is {self.choice.txt}"
+        return f"{self.user.username}'s response to {self.question.text} in {self.quiz.title} is {self.choice.text}"
 
     def calculate_score(self):
         total_score = sum(choice.score for choice in self.question.choice.all())

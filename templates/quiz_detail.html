@@ -9,7 +9,8 @@
 
 
 {% for question in questions %}
-<h2>{{question}}</h2>
+<h2>{{question.text }}</h2>
+
 {% for choice in question.choices.all %}
 <input type="radio" id="choice_{{choice.id}}" name="question_{{question.id}}" value="{{choice.id}}" />
 <label for="choice_{{choice.id}}">{{choice.text}}</label>

@@ -1,7 +1,8 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from .models import *
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+
 
 # Create your views here.
 def indexKuiz(request):
@@ -37,8 +38,8 @@ def quiz_submit(request, quiz_id):
                 )
             else:
                 error_message = 'Select a choice for each questions'
+                
         if error_message:
-            
                 messages.error(request, error_message)
                 context={'quiz':quiz, 'questions':questions}
                 return render(request, 'quiz_detail.html', context)

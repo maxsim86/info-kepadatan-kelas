@@ -2,6 +2,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,7 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
   </head>
   <body>
-
+<nav>
     <div class="nav-left">
         <a href="{% url 'index_kuiz' %}">Quiz</a>
     </div>
@@ -24,21 +25,20 @@
         </form>
 
         {% else %}
-        <a href="{% url 'login' %}">Login</a>
+        <a href="{% url 'login' %}">login</a>
         {% endif %}
     </div>
-	{% block content %}
-     {% if message  %}
+  </nav>
+    
+	{% block content %}{% endblock content %}
+     {% if messages  %}
      <ul class="messages">
       {% for message in messages %}
       <li>
-      {% if message.tags %} class="{{message.tags}}"{% endif %} > { {message }}
+      {% if message.tags %} class="{{ message.tags }}"{% endif %} > {{message }}
       </li>
-        
       {% endfor %}
      </ul>
-       
      {% endif %} 
-    {% endblock content %}
   </body>
 </html>
