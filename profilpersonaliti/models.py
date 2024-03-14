@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.contrib.auth.models import User
 # Create your models here.
 
 class Quiz(models.Model):
@@ -24,3 +24,16 @@ class Choice(models.Model):
 
     def __str__(self) -> str:
         return self.text
+
+class UserResponse(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
+    selected_choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
+    
+    def __str__(self) -> str:
+        return f"{self.user.username}'s response to {self.question.text} in {self.quiz.title} is {self.choice.txt}"
+
+    def calculate_score(self):
+        total_score = sum(choice.score for choice in self.question.choice.all())
+        return total_score
