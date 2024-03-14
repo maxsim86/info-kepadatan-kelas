@@ -13,24 +13,26 @@
   <body>
 <nav>
     <div class="nav-left">
-        <a href="{% url 'index_kuiz' %}">Quiz</a>
+        <a href="{% url 'index_kuiz' %}">Quizzes</a>
     </div>
 
     <div class="nav-right">
         {% if user.is_authenticated %}
-
         <form method="post" action="{% url 'logout' %}">
             {% csrf_token %}
-            <button method="submit" >Logout</button>
+            <button method="submit">Logout</button>
         </form>
-
         {% else %}
         <a href="{% url 'login' %}">login</a>
         {% endif %}
     </div>
   </nav>
     
+
 	{% block content %}{% endblock content %}
+  <div class="parent-div">
+    <div class="parent-div">
+
      {% if messages  %}
      <ul class="messages">
       {% for message in messages %}
@@ -40,5 +42,8 @@
       {% endfor %}
      </ul>
      {% endif %} 
+     
+    </div>
+  </div>
   </body>
 </html>

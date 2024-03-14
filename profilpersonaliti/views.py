@@ -34,15 +34,15 @@ def quiz_submit(request, quiz_id):
                     user=request.user,
                     quiz=quiz,
                     question= question,
-                    selected_choice =choice
+                    selected_choice =choice,
                 )
             else:
                 error_message = 'Select a choice for each questions'
                 
         if error_message:
                 messages.error(request, error_message)
-                context={'quiz':quiz, 'questions':questions}
-                return render(request, 'quiz_detail.html', context)
+                context={"quiz":quiz, "questions":questions}
+                return render(request, "quiz_detail.html", context)
         messages.success(request, "Quiz submitted!")
-        return redirect('index')
-    return redirect('quiz_detail', quiz_id=quiz_id)
+        return redirect("index")
+    return redirect("quiz_detail", quiz_id=quiz_id)
