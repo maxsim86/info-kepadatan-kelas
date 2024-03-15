@@ -44,5 +44,5 @@ def quiz_submit(request, quiz_id):
                 context={"quiz":quiz, "questions":questions}
                 return render(request, "quiz_detail.html", context)
         messages.success(request, "Quiz submitted!")
-        return redirect("index")
+        return redirect("index_kuiz")
     return redirect("quiz_detail", quiz_id=quiz_id)

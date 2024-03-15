@@ -2,48 +2,46 @@
 
 <!DOCTYPE html>
 <html lang="en">
-
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>{% block title %} Are you sure you are sorry {%  endblock title %}</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>{% block title %} Kuiz Tajma consulting {% endblock title %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
   </head>
   <body>
-<nav>
-    <div class="nav-left">
-        <a href="{% url 'index_kuiz' %}">Quizzes</a>
-    </div>
+    <nav>
+      <div class="nav-left">
+        <a href="{% url 'index_kuiz' %}">Profil Personaliti </a>
+      </div>
 
-    <div class="nav-right">
+      <div class="nav-right">
         {% if user.is_authenticated %}
-        <form method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button method="submit">Logout</button>
+        <form method="POST" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button method="submit">Log Keluar</button>
         </form>
+
         {% else %}
-        <a href="{% url 'login' %}">login</a>
+        <a href="{% url 'login' %} ">log Masuk</a>
         {% endif %}
-    </div>
-  </nav>
-    
+      </div>
+    </nav>
 
-	{% block content %}{% endblock content %}
-  <div class="parent-div">
+    {% block content %}{% endblock content %}
     <div class="parent-div">
-
-     {% if messages  %}
-     <ul class="messages">
-      {% for message in messages %}
-      <li>
-      {% if message.tags %} class="{{ message.tags }}"{% endif %} > {{message }}
-      </li>
-      {% endfor %}
-     </ul>
-     {% endif %} 
-     
+      <div class="parent-div">
+        {% if messages %}
+        <ul class="messages">
+          {% for message in messages %}
+          <li>
+            {% if message.tags %} class="{{ message.tags }}"{% endif %} > {{
+            message }}
+          </li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
     </div>
-  </div>
   </body>
 </html>

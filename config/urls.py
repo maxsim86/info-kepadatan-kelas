@@ -25,9 +25,7 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('kuiz/', include('profilpersonaliti.urls')),
 
-    path('api/', include('api.urls')),
-
-    
+    path('api/', include('api.urls')), 
     
 
 

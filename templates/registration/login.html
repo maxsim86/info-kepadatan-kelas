@@ -3,11 +3,11 @@
 {% block content %}
  <div class="parent-div">
     <div class="centered-div">
-        <form method="post" action="{% url 'login' %}"></form>
+        <form method="POST" action="{% url 'login' %}"></form>
         {% csrf_token %}
-        
         {{form.as_p }}
-        <button type="submit">Login</button>
+
+        <button type="submit">Log Masuk</button>
     </div>
  </div> 
 {% endblock content %}
