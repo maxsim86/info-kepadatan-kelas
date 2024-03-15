@@ -22,9 +22,9 @@ class UserResponseAdmin(admin.ModelAdmin):
     def score(self, obj):
         return obj.selected_choice.score if obj.selected_choice else 0
     
-    def quiz_total_score (self, obj):
+    def quiz_total_score(self, obj):
         user_responses = UserResponse.objects.filter(user=obj.user, quiz=obj.quiz)
-        total = user_responses.aggregate(total_score=sum('selected_choice__score'))['total_score']
+        total = user_responses.aggregate(total_score=Sum('selected_choice__score'))['total_score']
         return total if total is not None else 0
     
 admin.site.register(UserResponse, UserResponseAdmin)
