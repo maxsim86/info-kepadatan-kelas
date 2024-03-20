@@ -11,6 +11,7 @@ class ChoiceInline(admin.TabularInline):
 class QuestionAdmin(admin.ModelAdmin):
     inlines = [ChoiceInline]
     list_filter = ('quiz',)
+
 class UserResponseAdmin(admin.ModelAdmin):
     list_display = ('user', 'question', 'selected_choice', 'score', 'quiz_title', 'quiz_total_score')
     search_fields = ('user__username',)

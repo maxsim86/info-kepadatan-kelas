@@ -5,10 +5,10 @@ from django.contrib import messages
 
 
 # Create your views here.
-def indexKuiz(request):
+def indexQuiz(request):
     quizzes = Quiz.objects.filter(is_ready_to_publish = True)
     context = {"quizzes":quizzes}
-    return render(request, 'index_kuiz.html', context=context)
+    return render(request, 'index_quiz.html', context=context)
 
 
 @login_required(login_url='login')
@@ -44,5 +44,5 @@ def quiz_submit(request, quiz_id):
                 context={"quiz":quiz, "questions":questions}
                 return render(request, "quiz_detail.html", context)
         messages.success(request, "Quiz submitted!")
-        return redirect("index_kuiz")
+        return redirect("index_quiz")
     return redirect("quiz_detail", quiz_id=quiz_id)

@@ -45,3 +45,20 @@ a{
 .error {
     color:red;
 }
+ button {
+    display: block;
+    width: 100%;
+
+    font-size: large;
+    text-align: center;
+    background-color: black;
+    color: var(--font-color);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+ }
+
+ .submit{
+    padding: 15px;
+    margin-top: 3rem;
+ }
