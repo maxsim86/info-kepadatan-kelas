@@ -1,4 +1,5 @@
-{% extends "base_quiz.html" %} {% block content %}
+{% extends "base_quiz.html" %} 
+{% block content %}
 <div class="parent-div">
   <div class="centered-div">
     <h3 class="title">{{quiz.title}}</h3>
@@ -12,11 +13,13 @@
       <input type="radio" id="choice_{{choice.id}}" name="question_{{question.id}}" value="{{choice.id}}" />
       <label for="choice_{{choice.id}}">{{choice.text}}</label>
       <br />
-      <br>
       {% endfor %}
+
+          {%endfor%}
+          <br><br>
+
       <button type="submit">Submit Quiz</button>
     </form>
-    {%endfor%}
   </div>
 </div>
 
