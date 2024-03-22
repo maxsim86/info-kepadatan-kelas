@@ -16,7 +16,7 @@ class ChoiceInline(admin.TabularInline):
     extra = 1
 
 
-class QuestionDashboardAdmin(admin.ModelAdmin):
+class QuestionDashboardAdmin(ImportExportModelAdmin):
     inlines = [ChoiceInline]
     list_filter = ("quiz",)
 
@@ -48,6 +48,5 @@ class UserResponseAdmin(admin.ModelAdmin):
 
 
 admin.site.register(UserResponse, UserResponseAdmin)
-
 admin.site.register(Quiz)
 admin.site.register(Question, QuestionDashboardAdmin)
