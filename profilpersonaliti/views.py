@@ -1,31 +1,31 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import *
+from profilpersonaliti.models import Quiz, Choice, UserResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 
 # Create your views here.
 def indexQuiz(request):
-    quizzes = Quiz.objects.filter(is_ready_to_publish = True)
-    context = {"quizzes":quizzes}
-    return render(request, 'index_quiz.html', context=context)
+    quizzes = Quiz.objects.filter(is_ready_to_publish=True)
+    context = {"quizzes": quizzes}
+    return render(request, "index_quiz.html", context=context)
 
 
-@login_required(login_url='login')
+@login_required(login_url="login")
 def quizDetail(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     questions = quiz.questions.all()
-    context = {"quiz":quiz, "questions":questions}
-    return render(request, 'quiz_detail.html',  context)
+    context = {"quiz": quiz, "questions": questions}
+    return render(request, "quiz_detail.html", context)
 
-    
-@login_required(login_url='login')
+
+@login_required(login_url="login")
 def quiz_submit(request, quiz_id):
-    if request.method == 'POST':
+    if request.method == "POST":
         quiz = get_object_or_404(Quiz, id=quiz_id)
         questions = quiz.questions.all()
         error_message = None
-        
+
         for question in questions:
             choice_id = request.POST.get(f"question_{question.id}", None)
             if choice_id:
@@ -33,16 +33,16 @@ def quiz_submit(request, quiz_id):
                 UserResponse.objects.create(
                     user=request.user,
                     quiz=quiz,
-                    question= question,
-                    selected_choice =choice,
+                    question=question,
+                    selected_choice=choice,
                 )
             else:
-                error_message = 'Select a choice for each questions'
-                
+                error_message = "Select a choice for each questions"
+
         if error_message:
-                messages.error(request, error_message)
-                context={"quiz":quiz, "questions":questions}
-                return render(request, "quiz_detail.html", context)
+            messages.error(request, error_message)
+            context = {"quiz": quiz, "questions": questions}
+            return render(request, "quiz_detail.html", context)
         messages.success(request, "Quiz submitted!")
         return redirect("index_quiz")
     return redirect("quiz_detail", quiz_id=quiz_id)

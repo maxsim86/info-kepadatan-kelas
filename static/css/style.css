@@ -51,7 +51,7 @@ a{
 
     font-size: large;
     text-align: center;
-    background-color: black;
+    background-color: rgb(121, 117, 234);
     color: var(--font-color);
     border: none;
     border-radius: 5px;
