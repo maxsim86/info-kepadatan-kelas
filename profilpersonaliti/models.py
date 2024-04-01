@@ -40,6 +40,7 @@ class UserResponse(models.Model):
     def __str__(self) -> str:
         return f"{self.user.username}'s response to {self.question.text} in {self.quiz.title} is {self.selected_choice.text}"
 
+    # mengira jumlah score
     def calculate_score(self):
         total_score = sum(choice.score for choice in self.question.choice.all())
         return total_score

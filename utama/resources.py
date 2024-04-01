@@ -14,3 +14,4 @@ class QuestionResource(resources.ModelResource):
     class Meta:
         model = Question
         fields = ("text", "quiz")
+        exclude = ("id",)

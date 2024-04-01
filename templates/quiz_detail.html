@@ -7,7 +7,8 @@
       {% csrf_token %}
 
       {% for question in questions %}
-      <h2>{{ question.text }}</h2>
+      <p>Soalan {{ forloop.counter }}</p>
+      <h2>{{forloop.counter}}. {{ question.text }}</h2>
 
       {% for choice in question.choices.all %}
       <input type="radio" id="choice_{{choice.id}}" name="question_{{question.id}}" value="{{choice.id}}" />
@@ -16,7 +17,7 @@
       {% endfor %}
 
           {%endfor%}
-          <br><br><br><br><br>
+          <br><br><br><br>
 
       <button type="submit">Submit Quiz</button>
     </form>
