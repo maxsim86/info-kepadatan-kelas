@@ -6,7 +6,6 @@ from django.db.models import Count
 from django.db.models import Sum
 
 
-
 # Create your views here.
 def indexQuiz(request):
     quizzes = Quiz.objects.filter(is_ready_to_publish=True)
@@ -27,6 +26,7 @@ def quizDetail(request, quiz_id):
 # submit quiz and calculate total score  base on AS, AN, KD, KP, JD, PT, SB,
 # PN,PN, IG, PM, KC, KS
 
+
 def count_choices(request, quiz_id):
     question_numbers = [1, 13, 25, 37, 49, 61, 73]
 
@@ -37,24 +37,20 @@ def count_choices(request, quiz_id):
                 quiz_id=quiz_id, question__question_number=number
             )
             .values("selected_choice")
-            .annotate(total=Count("selected_choice"))
+            .annotate(total_score=Sum("selected_choice__score"))
             .order_by("selected_choice")
         )
 
-    user_responses = UserResponse.objects.filter(quiz_id=quiz_id, selected_choice__text='Choice 1')
-    for user_response in user_responses:
-        total_score = user_response.calculate_score()
-        user_response.total_score = total_score
-        total_sum += total_score
-    
-    total_sum = sum(choice['total'] for choices in count_per_question.values() for choice in choices)
-    context = {"count_per_question": count_per_question, "total_sum":total_sum, 'user_responses':user_responses}
+        total_sum = sum(choice["total_score"] for choices in count_per_question.values() for choice in choices)
+
+    context = {
+        "count_per_question": count_per_question,
+        "total_sum": total_sum,
+    }
     return context
 
-    
 
-
-
+# Quiz submit
 @login_required(login_url="login")
 def quiz_submit(request, quiz_id):
     if request.method == "POST":
@@ -81,12 +77,11 @@ def quiz_submit(request, quiz_id):
             context = {"quiz": quiz, "questions": questions}
             return render(request, "quiz_detail.html", context)
 
+        # menampilkan hasil di result.html
         count_context = count_choices(request, quiz_id)
-        #menampilkan hasil di template result.html
-        return render(request, 'result.html', count_context)
+        return render(request, "result.html", count_context)
 
-
-        #messages.success(request, "Quiz submitted!")
+        # messages.success(request, "Quiz submitted!")
         # return redirect("index_quiz")
 
     # If method is not POST, redirect to quiz_detail

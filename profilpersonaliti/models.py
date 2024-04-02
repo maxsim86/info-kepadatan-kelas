@@ -15,7 +15,7 @@ class Quiz(models.Model):
 class Question(models.Model):
     text = models.CharField(max_length=255)
     quiz = models.ForeignKey(Quiz, related_name="questions", on_delete=models.CASCADE)
-    question_number = models.IntegerField(blank=True,null=True)
+    question_number = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
         return self.text

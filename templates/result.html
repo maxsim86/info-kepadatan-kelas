@@ -2,47 +2,39 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Result</title>
+    <title>Quiz Result</title>
 </head>
 <body>
     <h1>Quiz Result</h1>
-    <div>
-        <!-- Display total sum -->
-        <p>Total Sum: {{ total_sum }}</p>
-    </div>
-    <hr>
-    <h2>MARKAH AS (ASERTIF)</h2>
-    <div>
-        <!-- Display count per question -->
-        {% for question_number, choices in count_per_question.items %}
-            <p>Soalan {{ question_number }}:</p>
-            <ul>
-                {% for choice in choices %}
-                    <li>Choice: {{ choice.selected_choice }}, Count: {{ choice.total }}{{ choice.score }}</li>
-                {% endfor %}
-            </ul>
-        {% endfor %}
-    </div>
-    <hr>
-    <div>
-        <!-- Display UserResponse scores for choice 1 -->
-        <h2>UserResponse Scores for Choice 1</h2>
-        <ul>
-            {% for user_response in user_responses %}
-                <li>User: {{ user_response.user.username }}, Score: {{ user_response.selected_choice.score }}</li>
-                <p>
-                    User: {{ user_response.user.username}}<br>
-                    User: {{ user_response.user.username }}<br>
-                    Question: {{ user_response.question.text }}<br>
-                    Quiz: {{ user_response.quiz.title }}<br>
-                    Selected Choice: {{ user_response.selected_choice.text }}<br>
-                    Total Score: {{ user_response.calculate_score }}
 
-                </p>
-            {% endfor %}
-        </ul>
-    </div>
+    <h2>Quiz Total Score: {{ quiz_total_score }}</h2>
+
+    <h3>User Responses:</h3>
+    <ul>
+        {% for user_response in user_responses %}
+            <li>
+                <strong>User:</strong> {{ user_response.user.username }} <br>
+                <strong>Question:</strong> {{ user_response.question.text }} <br>
+                <strong>Selected Choice:</strong> {{ user_response.selected_choice.text }} <br>
+                <strong>Score:</strong> {{ user_response.selected_choice.score }}
+            </li>
+        {% endfor %}
+    </ul>
+
+    <h3>Count Per Question:</h3>
+    <ul>
+        {% for question_number, choices in count_per_question.items %}
+            <li>
+                <strong>Question {{ question_number }}:</strong>
+                <ul>
+                    {% for choice in choices %}
+                        <li>{{ choice.selected_choice.text }} - {{ choice.total }}</li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
 </body>
 </html>
+
