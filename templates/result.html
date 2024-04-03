@@ -1,3 +1,4 @@
+<!-- result.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,34 +8,20 @@
 </head>
 <body>
     <h1>Quiz Result</h1>
-
-    <h2>Quiz Total Score: {{ quiz_total_score }}</h2>
-
-    <h3>User Responses:</h3>
-    <ul>
-        {% for user_response in user_responses %}
-            <li>
-                <strong>User:</strong> {{ user_response.user.username }} <br>
-                <strong>Question:</strong> {{ user_response.question.text }} <br>
-                <strong>Selected Choice:</strong> {{ user_response.selected_choice.text }} <br>
-                <strong>Score:</strong> {{ user_response.selected_choice.score }}
-            </li>
-        {% endfor %}
-    </ul>
-
-    <h3>Count Per Question:</h3>
-    <ul>
-        {% for question_number, choices in count_per_question.items %}
-            <li>
-                <strong>Question {{ question_number }}:</strong>
+    <div>
+        <h2>User Responses:</h2>
+        <ul>
+            {% for number, data in count_per_question.items %}
+                <h3>Question {{ number }}</h3>
                 <ul>
-                    {% for choice in choices %}
-                        <li>{{ choice.selected_choice.text }} - {{ choice.total }}</li>
+                    {% for user_response in data.user_responses %}
+                        <li>{{ user_response.user.username }} - Score: {{ user_response.score }}</li>
                     {% endfor %}
                 </ul>
-            </li>
-        {% endfor %}
-    </ul>
+                <p>Total Score: {{ data.score_sum }}</p>
+            {% endfor %}
+        </ul>
+    </div>
+    <p>Total Score: {{ total_sum }}</p>
 </body>
 </html>
-

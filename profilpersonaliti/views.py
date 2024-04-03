@@ -2,8 +2,9 @@ from django.shortcuts import render, get_object_or_404, redirect
 from profilpersonaliti.models import Quiz, Question, Choice, UserResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Count
-from django.db.models import Sum
+
+# from django.db.models import Count
+# from django.db.models import Sum
 
 
 # Create your views here.
@@ -31,17 +32,21 @@ def count_choices(request, quiz_id):
     question_numbers = [1, 13, 25, 37, 49, 61, 73]
 
     count_per_question = {}
+    total_sum = 0
+
     for number in question_numbers:
-        count_per_question[number] = (
-            UserResponse.objects.filter(
-                quiz_id=quiz_id, question__question_number=number
-            )
-            .values("selected_choice")
-            .annotate(total_score=Sum("selected_choice__score"))
-            .order_by("selected_choice")
+
+        user_responses = UserResponse.objects.filter(
+            quiz_id=quiz_id, question__question_number=number
         )
 
-        total_sum = sum(choice["total_score"] for choices in count_per_question.values() for choice in choices)
+        score_sum = sum(user_response.score() for user_response in user_responses)
+
+        count_per_question[number] = {
+            "user_responses": user_responses,
+            "score_sum": score_sum,
+        }
+        total_sum += score_sum
 
     context = {
         "count_per_question": count_per_question,
@@ -70,7 +75,7 @@ def quiz_submit(request, quiz_id):
                     selected_choice=choice,
                 )
             else:
-                error_message = "Select a choice for each questions"
+                error_message = "Pilih satu untuk setiap satu pertanyaan"
 
         if error_message:
             messages.error(request, error_message)
