@@ -1,27 +1,50 @@
-<!-- result.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz Result</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
 <body>
     <h1>Quiz Result</h1>
-    <div>
-        <h2>User Responses:</h2>
-        <ul>
+    <table>
+        <thead>
+            <tr>
+                <th>Question Number</th>
+                <th>User Responses</th>
+                <th>Total Score</th>
+            </tr>
+        </thead>
+        <tbody>
             {% for number, data in count_per_question.items %}
-                <h3>Question {{ number }}</h3>
-                <ul>
-                    {% for user_response in data.user_responses %}
-                        <li>{{ user_response.user.username }} - Score: {{ user_response.score }}</li>
-                    {% endfor %}
-                </ul>
-                <p>Total Score: {{ data.score_sum }}</p>
+                <tr>
+                    <td>{{ number }}</td>
+                    <td>
+                        <ul>
+                            {% for user_response in data.user_responses %}
+                                <li>{{ user_response.user.username }} - Score: {{ user_response.score }}</li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                    <td>{{ data.score_sum }}</td>
+                </tr>
             {% endfor %}
-        </ul>
-    </div>
+        </tbody>
+    </table>
     <p>Total Score: {{ total_sum }}</p>
 </body>
 </html>
