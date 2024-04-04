@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from profilpersonaliti.models import Quiz, Question, Choice, UserResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db.models import Sum    
 
 # from django.db.models import Count
 # from django.db.models import Sum
@@ -76,7 +77,7 @@ def count_choices(request, quiz_id):
     return context
 
 
-def score_percentage(request):
+def score_percentage(request, quiz_id):
     pointer_JN = [
         0,
         1,
@@ -218,14 +219,20 @@ def score_percentage(request):
     score_percentages = {}
 
     for group_name, percentages in percentage_numbers.items():
-        score_percentages[group_name] = []
-        for i, percent in enumerate(percentages):
-            if i in pointer_JN:
-                score_percentages[group_name].append(percent)
+        total_score = 0
+        max_score = len(percentages)
+        for i, percentage in enumerate(percentages):
+            score_sum = UserResponse.objects.filter(
+                question__question_number=pointer_JN[i],
+                quiz_id=quiz_id
+            ).aggregate(Sum('score'))['score__sum'] or 0
+            total_score += score_sum * percentage / 100
+        score_percentages[group_name] = total_score
 
-    return render(
-        request, "score_percentage.html", {"score_percentages": score_percentages}
-    )
+    context = {
+        'score_percentages': score_percentages
+    }
+    return context
 
 
 # Quiz submit
@@ -257,7 +264,8 @@ def quiz_submit(request, quiz_id):
 
         # menampilkan hasil di result.html
         count_context = count_choices(request, quiz_id)
-        return render(request, "result.html", count_context)
+        score_percentage_context = score_percentage(request, quiz_id)
+        return render(request, "result.html", {**count_context, **score_percentage_context})
 
         # messages.success(request, "Quiz submitted!")
         # return redirect("index_quiz")
