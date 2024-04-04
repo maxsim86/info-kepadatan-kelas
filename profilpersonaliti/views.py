@@ -29,30 +29,57 @@ def quizDetail(request, quiz_id):
 
 
 def count_choices(request, quiz_id):
-    question_numbers = [1, 13, 25, 37, 49, 61, 73]
+    question_numbers = {
+        "AS": [1, 13, 25, 37, 49, 61, 73],
+        "AN": [2, 14, 26, 38, 50, 62, 74, 85],
+        "KD": [3, 15, 27, 39, 51, 63, 75, 86],
+        "KP": [4, 16, 28, 40, 52, 64, 76, 87],
+        "JD": [5, 17, 29, 41, 53, 65, 77],
+        "PT": [6, 18, 30, 42, 54, 66, 78, 88],
+        "SB": [7, 19, 31, 43, 55, 67, 79, 89],
+        "PN": [8, 20, 32, 44, 56, 68, 80, 90],
+        "IG": [9, 21, 33, 45, 57, 69, 81],
+        "PM": [10, 22, 34, 46, 58, 70, 82],
+        "KC": [11, 23, 35, 47, 59, 71, 83, 91, 93],
+        "KS": [12, 24, 36, 48, 60, 72, 84, 92],
+    }
 
     count_per_question = {}
     total_sum = 0
 
-    for number in question_numbers:
+    for group_name, numbers in question_numbers.items():
 
-        user_responses = UserResponse.objects.filter(
-            quiz_id=quiz_id, question__question_number=number
-        )
+        group_data = {}
+        total_group_score = 0
 
-        score_sum = sum(user_response.score() for user_response in user_responses)
+        for number in numbers:
+            user_responses = UserResponse.objects.filter(
+                quiz_id=quiz_id, question__question_number=number
+            )
+            score_sum = sum(user_response.score() for user_response in user_responses)
 
-        count_per_question[number] = {
-            "user_responses": user_responses,
-            "score_sum": score_sum,
+            group_data[number] = {
+                "user_responses": user_responses,
+                "score_sum": score_sum,
+            }
+            total_sum += score_sum
+            total_group_score += score_sum
+            
+        group_data['total_group_score'] = total_group_score
+        count_per_question[group_name] = group_data
+        
+        
+        context = {
+            "count_per_question": count_per_question,
+            "total_sum": total_sum,
         }
-        total_sum += score_sum
 
-    context = {
-        "count_per_question": count_per_question,
-        "total_sum": total_sum,
-    }
     return context
+
+
+
+
+
 
 
 # Quiz submit

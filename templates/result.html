@@ -17,6 +17,12 @@
         th {
             background-color: #f2f2f2;
         }
+        .highest-score {
+            background-color: lightgreen;
+        }
+        .lowest-score {
+            background-color: lightcoral;
+        }
     </style>
 </head>
 <body>
@@ -24,23 +30,33 @@
     <table>
         <thead>
             <tr>
+                <th>Question Group</th>
                 <th>Question Number</th>
                 <th>User Responses</th>
                 <th>Total Score</th>
             </tr>
         </thead>
         <tbody>
-            {% for number, data in count_per_question.items %}
+            {% for group_name, group_data in count_per_question.items %}
+                {% for number, data in group_data.items %}
+                    <tr {% if data.score_sum == group_data.highest_score %}class="highest-score"{% elif data.score_sum == group_data.lowest_score %}class="lowest-score"{% endif %}>
+                        {% if forloop.first %}
+                            <td rowspan="{{ group_data|length }}">{{ group_name }}</td>
+                        {% endif %}
+                        <td>{{ number }}</td>
+                        <td>
+                            <ul>
+                                {% for user_response in data.user_responses %}
+                                    <li>{{ user_response.user.username }} - Score: {{ user_response.score }}</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td>{{ data.score_sum }}</td>
+                    </tr>
+                {% endfor %}
                 <tr>
-                    <td>{{ number }}</td>
-                    <td>
-                        <ul>
-                            {% for user_response in data.user_responses %}
-                                <li>{{ user_response.user.username }} - Score: {{ user_response.score }}</li>
-                            {% endfor %}
-                        </ul>
-                    </td>
-                    <td>{{ data.score_sum }}</td>
+                    <td colspan="3" style="text-align: right;"><strong>Total Score for {{ group_name }}:</strong></td>
+                    <td><strong>{{ group_data.total_group_score }}</strong></td>
                 </tr>
             {% endfor %}
         </tbody>
