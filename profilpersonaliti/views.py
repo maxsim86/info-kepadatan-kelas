@@ -64,11 +64,10 @@ def count_choices(request, quiz_id):
             }
             total_sum += score_sum
             total_group_score += score_sum
-            
-        group_data['total_group_score'] = total_group_score
+
+        group_data["total_group_score"] = total_group_score
         count_per_question[group_name] = group_data
-        
-        
+
         context = {
             "count_per_question": count_per_question,
             "total_sum": total_sum,
@@ -77,9 +76,156 @@ def count_choices(request, quiz_id):
     return context
 
 
+def score_percentage(request):
+    pointer_JN = [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+    ]
+    percentage_numbers = {
+        "AS": [
+            0.1,
+            5,
+            9,
+            14,
+            19,
+            24,
+            28,
+            33,
+            38,
+            43,
+            48,
+            55,
+            57,
+            62,
+            67,
+            71,
+            76,
+            81,
+            86,
+            90,
+            95,
+            99,
+        ],
+        "AN": [
+            0.1,
+            4,
+            8,
+            12,
+            17,
+            21,
+            25,
+            29,
+            33,
+            37,
+            42,
+            46,
+            50,
+            54,
+            58,
+            62,
+            67,
+            71,
+            75,
+            79,
+            83,
+            87,
+            92,
+            96,
+            99,
+        ],
+        "KD": [
+            0.1,
+            4,
+            8,
+            12,
+            17,
+            21,
+            25,
+            29,
+            33,
+            37,
+            42,
+            46,
+            50,
+            54,
+            58,
+            62,
+            67,
+            71,
+            75,
+            79,
+            83,
+            87,
+            92,
+            96,
+            99,
+        ],
+        "KP": [
+            0.1,
+            4,
+            8,
+            12,
+            17,
+            21,
+            25,
+            29,
+            33,
+            37,
+            42,
+            46,
+            50,
+            54,
+            58,
+            62,
+            67,
+            71,
+            75,
+            79,
+            83,
+            87,
+            92,
+            96,
+            99,
+        ],
+    }
 
+    score_percentages = {}
 
+    for group_name, percentages in percentage_numbers.items():
+        score_percentages[group_name] = []
+        for i, percent in enumerate(percentages):
+            if i in pointer_JN:
+                score_percentages[group_name].append(percent)
 
+    return render(
+        request, "score_percentage.html", {"score_percentages": score_percentages}
+    )
 
 
 # Quiz submit
