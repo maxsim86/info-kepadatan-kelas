@@ -8,7 +8,6 @@
         {% for quiz in quizzes %}
 
         <a href="{% url 'quiz_detail' quiz.id %}">
-            
             <li>{{quiz}}</li></a>
 
 
@@ -18,3 +17,5 @@
 
 </div>
 {% endblock content %}
+
+

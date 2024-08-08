@@ -12,6 +12,7 @@ class Quiz(models.Model):
         return self.title
 
 
+# Soalan untuk kuiz
 class Question(models.Model):
     text = models.CharField(max_length=255)
     quiz = models.ForeignKey(Quiz, related_name="questions", on_delete=models.CASCADE)

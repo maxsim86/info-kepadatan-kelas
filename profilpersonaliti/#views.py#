@@ -3,7 +3,6 @@ from profilpersonaliti.models import Quiz, Question, Choice, UserResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Sum
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # from django.db.models import Count
 
@@ -15,30 +14,13 @@ def indexQuiz(request):
     return render(request, "index_quiz.html", context=context)
 
 
-# quiz detail(soalan quiz)
+# detail quiz
 @login_required(login_url="login")
 def quizDetail(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     questions = quiz.questions.all()
 
-    # setup pagination
-    paginator = Paginator(questions, 40)  # show 5 question for question
-    page_number = request.GET.get("page")
-    page_obj: paginator.get_page(page_number)
-
-    try:
-        page_obj = paginator.page(page_number)
-    except PageNotAnInteger:
-        page_obj = paginator.page(1)
-    except:
-        page_obj = paginator.page(paginator.num_pages)
-
-    context = {
-        "quiz": quiz,
-        # "questions": questions,
-        "question": page_obj,
-        "page_obj": page_obj,
-    }
+    context = {"quiz": quiz, "questions": questions}
     return render(request, "quiz_detail.html", context)
 
 

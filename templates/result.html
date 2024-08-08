@@ -39,7 +39,7 @@
         <tbody>
             {% for group_name, group_data in count_per_question.items %}
                 {% for number, data in group_data.items %}
-                    <tr {% if data.score_sum == group_data.highest_score %}class="highest-score"{% elif data.score_sum == group_data.lowest_score %}class="lowest-score"{% endif %}>
+                    <tr {% if data.score_sum == group_data.highest_score %}class="highest-score" {% elif data.score_sum == group_data.lowest_score %}class="lowest-score"{% endif %}>
                         {% if forloop.first %}
                             <td rowspan="{{ group_data|length }}">{{ group_name }}</td>
                         {% endif %}

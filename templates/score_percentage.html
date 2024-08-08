@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Score Percentages</title>
+</head>
+<body>
+    <h1>Score Percentages</h1>
+    <ul>
+        {% for group_name, percentage in score_percentages.items %}
+
+
+        
+            <li>{{ group_name }}: {{ percentage }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
+

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Score Percentage Table</title>
+</head>
+<body>
+    <h1>Score Percentage Table</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Group Name</th>
+                <th>Percentage</th>
+                <th>Category</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for group_name, data in percentage_dict.items %}
+            <tr>
+                <td>{{ group_name }}</td>
+                <td>{{ data.percentage }}</td>
+                <td>{{ data.category }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
