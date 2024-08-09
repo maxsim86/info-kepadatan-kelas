@@ -22,22 +22,23 @@ def quizDetail(request, quiz_id):
     questions = quiz.questions.all()
 
     # setup pagination
-    paginator = Paginator(questions, 40)  # show 5 question for question
-    page_number = request.GET.get("page")
-    page_obj: paginator.get_page(page_number)
+    page = request.GET.get("page")
+    num_of_items = 10
+    paginator = Paginator(questions, num_of_items)  # show 5 question for question
 
     try:
-        page_obj = paginator.page(page_number)
+        questions = paginator.page(page)
     except PageNotAnInteger:
-        page_obj = paginator.page(1)
-    except:
-        page_obj = paginator.page(paginator.num_pages)
+        page = 1
+        questions = paginator.page(page)
+    except EmptyPage:
+        page = paginator.num_pages
+        questions = paginator.page(page)
 
     context = {
         "quiz": quiz,
-        # "questions": questions,
-        "question": page_obj,
-        "page_obj": page_obj,
+        "questions": questions,
+        "Paginator": paginator,
     }
     return render(request, "quiz_detail.html", context)
 

@@ -1,4 +1,5 @@
-{% extends "base_quiz.html" %} 
+{% extends "base_quiz.html" %}
+
 {% block content %}
 <div class="parent-div">
   <div class="centered-div">
@@ -7,40 +8,52 @@
       {% csrf_token %}
 
       {% for question in questions %}
+      <div class="question-block">
         <p>Soalan {{ forloop.counter }}</p>
-        <h2>{{ forloop.counter }}. {{ question.text }}</h2>
+        <h4>{{ forloop.counter }}. {{ question.text }}</h4>
 
-        {% for choice in question.choices.all %}
-          <input type="radio" id="choice_{{ choice.id }}" name="question_{{ question.id }}" value="{{ choice.id }}" />
-          <label for="choice_{{ choice.id }}">{{ choice.text }}</label>
-          <br />
-        {% endfor %}
+        <div class="choices">
+          {% for choice in question.choices.all %}
+          <div class="choice">
+            <input type="radio" id="choice_{{ choice.id }}" name="question_{{ question.id }}" value="{{ choice.id }}" />
+            <label for="choice_{{ choice.id }}">{{ choice.text }}</label>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
       {% endfor %}
-      <br><br><br>
 
-      {% if page_obj.has_next == False %}
-        <button type="submit">Submit Quiz</button>
+      <!-- Submit button only on the last page -->
+      {% if questions.has_next %}
+      <div class="pagination">
+        <button type="submit" class="submit-button" style="display: none;">Submit Quiz</button>
+      </div>
+      {% else %}
+      <div class="pagination">
+        <button type="submit" class="submit-button">Submit Quiz</button>
+      </div>
       {% endif %}
     </form>
 
-    <div class='pagination'>
-      <span class='step-links'>
-        {% if page_obj.has_previous %}
-          <a href='?page=1'>&laquo; first</a>
-          <a href='?page={{ page_obj.previous_page_number }}'>previous</a>
+    <div class="pagination">
+      <span class="step-links">
+        {% if questions.has_previous %}
+        <a href="?page=1">&laquo; Utama</a>
+        <a href="?page={{ questions.previous_page_number }}">Kembali</a>
         {% endif %}
 
-        <span class='current'>
-          Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        <span class="current">
+          Muka {{ questions.number }} dari {{ questions.paginator.num_pages }}
         </span>
 
-        {% if page_obj.has_next %}
-          <a href='?page={{ page_obj.next_page_number }}'>next</a>
-          <a href='?page={{ page_obj.paginator.num_pages }}'>last &raquo;</a>
+        {% if questions.has_next %}
+        <a href="?page={{ questions.next_page_number }}">Seterusnya</a>
+        <a href="?page={{ questions.paginator.num_pages }}">Akhir &raquo;</a>
         {% endif %}
       </span>
     </div>
+
+
   </div>
 </div>
 {% endblock content %}
-
