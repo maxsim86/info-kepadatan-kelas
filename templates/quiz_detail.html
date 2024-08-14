@@ -35,6 +35,7 @@
       {% endif %}
     </form>
 
+
     <div class="pagination">
       <span class="step-links">
         {% if questions.has_previous %}
@@ -43,17 +44,16 @@
         {% endif %}
 
         <span class="current">
-          Muka {{ questions.number }} dari {{ questions.paginator.num_pages }}
+          Page {{ questions.number }} dari {{ questions.paginator.num_pages }}
         </span>
 
         {% if questions.has_next %}
         <a href="?page={{ questions.next_page_number }}">Seterusnya</a>
         <a href="?page={{ questions.paginator.num_pages }}">Akhir &raquo;</a>
         {% endif %}
+    
       </span>
     </div>
-
-
   </div>
 </div>
 {% endblock content %}
