@@ -21,6 +21,9 @@ class Question(models.Model):
     def __str__(self):
         return self.text
 
+    class Meta:
+        ordering = ['text']
+
 
 class Choice(models.Model):
     text = models.CharField(max_length=255)
