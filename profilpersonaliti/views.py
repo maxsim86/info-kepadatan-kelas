@@ -24,20 +24,21 @@ def quizDetail(request, quiz_id):
     # setup pagination
     page = request.GET.get("page")
     num_of_items = 3
-    paginator = Paginator(questions, num_of_items)  # show 5 question for question
+    paginator = Paginator(questions, num_of_items)  # show 3 question for question
 
     try:
-        questions = paginator.page(page)
+        questions_page = paginator.page(page)
     except PageNotAnInteger:
-        page = 1
-        questions = paginator.page(page)
+        questions_page = paginator.page(1)
     except EmptyPage:
-        page = paginator.num_pages
-        questions = paginator.page(page)
+        questions_page = paginator.page(paginator.num_pages)
+    # calculate offset
+    offset = (questions_page.number - 1) * num_of_items
 
     context = {
         "quiz": quiz,
         "questions": questions,
+        'offset':offset,
         "Paginator": paginator,
     }
     return render(request, "quiz_detail.html", context)

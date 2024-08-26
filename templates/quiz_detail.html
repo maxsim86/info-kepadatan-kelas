@@ -4,12 +4,12 @@
 <div class="parent-div">
   <div class="centered-div">
     <h3 class="title">{{ quiz.title }}</h3>
-    <form method="POST" id="quizform" action="{% url 'quiz_submit' quiz.id %}">
+    <form method="POST" id="quizform" action="{% if questions.has_next %}?page={{ questions.next_page_number }}{% else %}{% url 'quiz_submit' quiz.id %}{% endif %}">
       {% csrf_token %}
 
       {% for question in questions %}
       <div class="question-block">
-        <h4>{{ forloop.counter }}. {{ question.text }}</h4>
+        <h4>{{ offset|add:forloop.counter }}. {{ question.text }}</h4>
 
         <div class="choices">
           {% for choice in question.choices.all %}
@@ -22,35 +22,29 @@
       </div>
       {% endfor %}
 
-      <!-- Submit button only on the last page -->
+      <!-- If it's not the last page, show the "Next" button -->
       {% if questions.has_next %}
       <div class="pagination">
-        <button type="submit" class="submit-button" style="display: none;">Submit Quiz</button>
+        <button type="submit" class="submit-button">Next</button>
       </div>
       {% else %}
+      <!-- On the last page, show the "Submit Quiz" button -->
       <div class="pagination">
-        <button type="submit" class="submit-button">submit</button>
+        <button type="submit" class="submit-button">Submit Quiz</button>
       </div>
       {% endif %}
     </form>
 
-
     <div class="pagination">
       <span class="step-links">
         {% if questions.has_previous %}
-        <a href="?page=1">&laquo; Utama</a>
         <a href="?page={{ questions.previous_page_number }}">Kembali</a>
         {% endif %}
 
-        <span class="current">
-          Page {{ questions.number }} dari {{ questions.paginator.num_pages }}
-        </span>
 
         {% if questions.has_next %}
         <a href="?page={{ questions.next_page_number }}">Seterusnya</a>
-        <a href="?page={{ questions.paginator.num_pages }}">Akhir &raquo;</a>
         {% endif %}
-    
       </span>
     </div>
   </div>
