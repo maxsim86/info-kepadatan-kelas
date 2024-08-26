@@ -9,6 +9,7 @@
 
       {% for question in questions %}
       <div class="question-block">
+        <p>Soalan {{ offset|add:forloop.counter }}</p>
         <h4>{{ offset|add:forloop.counter }}. {{ question.text }}</h4>
 
         <div class="choices">
@@ -41,6 +42,9 @@
         <a href="?page={{ questions.previous_page_number }}">Kembali</a>
         {% endif %}
 
+        <span class="current">
+          Page {{ questions.number }} dari {{ questions.paginator.num_pages }}
+        </span>
 
         {% if questions.has_next %}
         <a href="?page={{ questions.next_page_number }}">Seterusnya</a>
