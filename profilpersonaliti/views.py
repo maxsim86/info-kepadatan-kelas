@@ -23,7 +23,7 @@ def quizDetail(request, quiz_id):
 
     # setup pagination
     page = request.GET.get("page")
-    num_of_items = 4
+    num_of_items = 3
     paginator = Paginator(questions, num_of_items)  # show 5 question for question
 
     try:
