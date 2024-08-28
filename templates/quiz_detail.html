@@ -4,12 +4,21 @@
 <div class="parent-div">
   <div class="centered-div">
     <h3 class="title">{{ quiz.title }}</h3>
+
+    <!-- Display error messages -->
+    {% if messages %}
+      <div class="error-messages">
+        {% for message in messages %}
+          <p>{{ message }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+
     <form method="POST" id="quizform" action="{% if questions.has_next %}?page={{ questions.next_page_number }}{% else %}{% url 'quiz_submit' quiz.id %}{% endif %}">
       {% csrf_token %}
 
       {% for question in questions %}
       <div class="question-block">
-        <p>Soalan {{ offset|add:forloop.counter }}</p>
         <h4>{{ offset|add:forloop.counter }}. {{ question.text }}</h4>
 
         <div class="choices">

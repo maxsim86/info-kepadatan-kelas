@@ -17,13 +17,12 @@ def indexQuiz(request):
 
 # quiz detail(soalan quiz)
 @login_required(login_url="login")
-
 def quizDetail(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     questions = quiz.questions.all()
 
     # setup pagination
-    page = request.GET.get('page', 1) # default to page 1 if no page is specific
+    page = request.GET.get("page", 1)  # default to page 1 if no page is specific
     num_of_items = 3
     paginator = Paginator(questions, num_of_items)  # show 3 question for question
 
@@ -34,14 +33,13 @@ def quizDetail(request, quiz_id):
     except EmptyPage:
         questions_page = paginator.page(paginator.num_pages)
 
-
     # calculate offset
     offset = (questions_page.number - 1) * num_of_items
 
     context = {
         "quiz": quiz,
-        "questions": questions_page, #Pass the paginated questions
-        'offset':offset,
+        "questions": questions_page,  # Pass the paginated questions
+        "offset": offset,
     }
     return render(request, "quiz_detail.html", context)
 
@@ -276,27 +274,30 @@ def quiz_submit(request, quiz_id):
         # Store user responses
         for question in questions:
             choice_id = request.POST.get(f"question_{question.id}", None)
-            if choice_id:
-                choice = get_object_or_404(Choice, id=choice_id)
-                UserResponse.objects.create(
-                    user=request.user,
-                    quiz=quiz,
-                    question=question,
-                    selected_choice=choice,
-                )
-            else:
+            if not choice_id:
                 # If a question is not answered, set the error message
-                error_message = "Pilih satu untuk setiap pertanyaan"
+                error_message = "Please answer all questions before submitting."
                 break  # Exit the loop if any question is left unanswered
 
         if error_message:
+            # Re-render the same quiz page with the error
             messages.error(request, error_message)
-            # Redirect back to the last quiz page with an error
-            return redirect(request.path_info)  # Re-render the same page with the error
+            return redirect('quiz_detail', quiz_id=quiz.id)
 
-        # If no errors, process the results and display the final result page
+        # If no errors,store the user response
+        for question in questions:
+            choice_id = request.POST.get(f'question_{question.id}')
+            choice = get_object_or_404(Choice, id=choice_id)
+            UserResponse.objects.create(
+                user=request.user,
+                quiz=quiz,
+                question=question,
+                selected_choice=choice,
+            )
+        
+        # If all questions are answered, redirect to the result page
         count_context = count_choices(request, quiz_id)
-        return render(request, "result.html", count_context)
+        return render(request, 'result.html', count_context)
 
     # If method is not POST, redirect to the quiz detail page
     return redirect("quiz_detail", quiz_id=quiz_id)
