@@ -1,13 +1,36 @@
 {% extends "base_quiz.html" %}
 
 {% block content %}
- <div class="parent-div">
-    <div class="centered-div">
-        <form method="POST" action="{% url 'login' %}"></form>
-        {% csrf_token %}
-        {{form.as_p }}
+  
+{% if form.errors %}
+<p>Your username or password was incorrect. Try again.</p>
+{%endif%}
 
-        <button type="submit">Log Masuk</button>
-    </div>
- </div> 
+{% if next %}
+    {% if user.is_authenticated %}
+<p>You don't have permission for this page</p>
+
+    {% else %}
+        <p>please login to see this page</p>
+    {% endif %}
+
+{% endif %}
+
+<form method='post' action="{% url 'login' %}">
+    {% csrf_token %}
+    {{form.username.label_tag}}
+    {{form.username }}
+
+    {{form.password.label_tag }}
+    {{form.password}}
+    <input type="submit" value="login">
+    <input type="hidden" name="next" value="{{next}}" >
+</form>
+
+
 {% endblock content %}
+
+--User logged ib but no access
+--user not logged in
+--Form Login
+

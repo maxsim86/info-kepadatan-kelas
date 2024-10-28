@@ -69,6 +69,7 @@ def count_choices(request, quiz_id):
     total_sum = 0
 
     for group_name, numbers in question_numbers.items():
+        
 
         group_data = {}
         total_group_score = 0
@@ -269,35 +270,35 @@ def quiz_submit(request, quiz_id):
 
     if request.method == "POST":
         questions = quiz.questions.all()
-        error_message = None
+        all_questions_answered = True  # Assume all questions are answered initially
 
-        # Store user responses
+        # Check if all questions are answered
         for question in questions:
             choice_id = request.POST.get(f"question_{question.id}", None)
             if not choice_id:
-                # If a question is not answered, set the error message
-                error_message = "Please answer all questions before submitting."
+                all_questions_answered = False
                 break  # Exit the loop if any question is left unanswered
 
-        if error_message:
-            # Re-render the same quiz page with the error
-            messages.error(request, error_message)
-            return redirect('quiz_detail', quiz_id=quiz.id)
+        if not all_questions_answered:
+            # If there are unanswered questions, show the error message
+            messages.error(request, "Please answer all questions before submitting.")
+            return redirect("quiz_detail", quiz_id=quiz.id)
 
-        # If no errors,store the user response
+        # If no errors, store user responses
         for question in questions:
-            choice_id = request.POST.get(f'question_{question.id}')
+            choice_id = request.POST.get(f"question_{question.id}")
             choice = get_object_or_404(Choice, id=choice_id)
+
             UserResponse.objects.create(
                 user=request.user,
                 quiz=quiz,
                 question=question,
                 selected_choice=choice,
             )
-        
-        # If all questions are answered, redirect to the result page
+
+        # Redirect to the result page if all questions are answered
         count_context = count_choices(request, quiz_id)
-        return render(request, 'result.html', count_context)
+        return render(request, "result.html", count_context)
 
     # If method is not POST, redirect to the quiz detail page
     return redirect("quiz_detail", quiz_id=quiz_id)

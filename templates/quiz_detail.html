@@ -24,6 +24,7 @@
         <div class="choices">
           {% for choice in question.choices.all %}
           <div class="choice">
+            <!-- Radio button named after question_id -->
             <input type="radio" id="choice_{{ choice.id }}" name="question_{{ question.id }}" value="{{ choice.id }}" />
             <label for="choice_{{ choice.id }}">{{ choice.text }}</label>
           </div>
