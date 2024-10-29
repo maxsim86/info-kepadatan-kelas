@@ -3,21 +3,12 @@
 {% block content %}
 <div class="parent-div">
     <div class="centered-div">
-        {% if user.is_authenticated %}
-            <p>You are logged In</p>
-            <p>Welcome : {{ user.get_username }}</p>
-        {% else %}
-        <p>You are not logged In </p>
-
-          
-        {% endif %}
 <h1>Tajma Consulting</h1>
 <ul>
         {% for quiz in quizzes %}
 
         <a href="{% url 'quiz_detail' quiz.id %}">
             <li>{{quiz}}</li></a>
-
 
 {% endfor %}
 </ul>

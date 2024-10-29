@@ -4,6 +4,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Sum
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib.auth.forms import UserCreationForm
+from django.urls import reverse_lazy
+from django.views.generic import CreateView
 
 # from django.db.models import Count
 
@@ -23,7 +26,7 @@ def quizDetail(request, quiz_id):
 
     # setup pagination
     page = request.GET.get("page", 1)  # default to page 1 if no page is specific
-    num_of_items = 3
+    num_of_items = 10
     paginator = Paginator(questions, num_of_items)  # show 3 question for question
 
     try:
@@ -302,3 +305,8 @@ def quiz_submit(request, quiz_id):
 
     # If method is not POST, redirect to the quiz detail page
     return redirect("quiz_detail", quiz_id=quiz_id)
+
+class SignUpView(CreateView):
+    form_class = UserCreationForm
+    success_url = reverse_lazy('login')
+    template_name = 'profilpersonaliti/signup.html'
