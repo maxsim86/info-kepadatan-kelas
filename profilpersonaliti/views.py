@@ -2,7 +2,6 @@ from django.shortcuts import render, get_object_or_404, redirect
 from profilpersonaliti.models import Quiz, Question, Choice, UserResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Sum
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
@@ -23,6 +22,7 @@ def indexQuiz(request):
 def quizDetail(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     questions = quiz.questions.all()
+
 
     # setup pagination
     page = request.GET.get("page", 1)  # default to page 1 if no page is specific
@@ -51,7 +51,7 @@ def quizDetail(request, quiz_id):
 # PN,PN, IG, PM, KC, KS
 
 
-# bahagian 3 : borang jawapan dengan nilai serta jadual score dan pemeratusan %
+# bahagian 3 : borang jawapan dengan nilai serta jadual score dan peratus %
 def count_choices(request, quiz_id):
     question_numbers = {
         "AS": [1, 13, 25, 37, 49, 61, 73],
@@ -72,7 +72,6 @@ def count_choices(request, quiz_id):
     total_sum = 0
 
     for group_name, numbers in question_numbers.items():
-        
 
         group_data = {}
         total_group_score = 0
@@ -262,7 +261,7 @@ def jadual_score_percentage(request):
         percentage_dict[group_name] = {"percentage": percentage, "category": category}
 
     return render(
-        request, "jadual_score_percentage.html", {"percentage_dict": percentage_dict}
+        request, "jadual_score_percentage.html", {"percentage_dict":percentage_dict}
     )
 
 
@@ -306,7 +305,8 @@ def quiz_submit(request, quiz_id):
     # If method is not POST, redirect to the quiz detail page
     return redirect("quiz_detail", quiz_id=quiz_id)
 
+
 class SignUpView(CreateView):
     form_class = UserCreationForm
-    success_url = reverse_lazy('login')
-    template_name = 'profilpersonaliti/signup.html'
+    success_url = reverse_lazy("login")
+    template_name = "profilpersonaliti/signup.html"

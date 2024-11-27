@@ -7,9 +7,6 @@ from django.http import HttpResponse
 import pandas as pd
 from .forms import ImportForm
 from django.http import JsonResponse
-import chardet, tempfile, os
-import json
-from django.db.models import Count
 from django.contrib.auth.decorators import login_required
 
 

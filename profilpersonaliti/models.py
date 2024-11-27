@@ -25,6 +25,7 @@ class Question(models.Model):
         ordering = ['text']
 
 
+
 class Choice(models.Model):
     text = models.CharField(max_length=255)
     question = models.ForeignKey(
