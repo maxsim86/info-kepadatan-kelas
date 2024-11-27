@@ -23,10 +23,13 @@ from utama.views import check_availability
 
 # domain.com/utama/thank_you
 # domain.com/cars/
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("utama.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
     path("kuiz/", include("profilpersonaliti.urls")),
     path("api/", include("api.urls")),
+
+    path('', include('booking.urls')),
 ]

@@ -10,7 +10,7 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 
 
-#muka depan page
+#create front page
 def home_page(request):
     return render(request, 'utama/home_page.html')
 

@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "booking.apps.BookingConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -45,6 +46,8 @@ INSTALLED_APPS = [
     "import_export",
     "api.apps.ApiConfig",
     "rest_framework",
+    "requests",
+    'appointment',
 ]
 
 MIDDLEWARE = [
@@ -143,3 +146,7 @@ MEDIA_URL = "/media/"
 #MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "media")
 
 IMPORT_EXPORT_USE_TRANSACTIONS = True
+
+
+
+AUTH_USER_MODEL = 'models.UserModel'  # Optional if you use Django's user model
