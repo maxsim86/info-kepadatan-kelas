@@ -19,6 +19,8 @@ from django.contrib import admin
 from django.urls import path, include
 from utama.views import check_availability
 
+
+
 # domain.com/utama/thank_you
 # domain.com/cars/
 urlpatterns = [
