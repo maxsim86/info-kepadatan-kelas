@@ -1,0 +1,37 @@
+<style>
+    form {
+      margin-top: 1rem;
+    }
+  
+    .btn-wrapper {
+      margin-top: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+  
+    input[type="submit"] {
+      cursor: pointer;
+    }
+  </style>
+  
+  <!-- prettier-ignore -->
+  {% extends 'layout.html' %} 
+  {% block content %}
+  <h1>Cancel Room</h1>
+  <form method="POST" action="">
+    {% csrf_token %} {% for b in booking %}
+    <p class="confirm-message">
+      Are you sure you want to cancel <span class="bold">{{b.room.name}}</span> on
+      <span class="bold">{{b.date}}</span> from
+      <span class="bold">{{b.time_slot.check_in_time}}</span> to
+      <span class="bold">{{b.time_slot.check_out_time}}</span> ?
+    </p>
+    {% endfor %}
+    <div class="btn-wrapper">
+      <a class="btn btn-customize" href="{{request.META.HTTP_REFERER}}">Cancel</a>
+      <input class="btn-secondary" type="submit" value="Confirm" />
+    </div>
+  </form>
+  {% endblock content %}

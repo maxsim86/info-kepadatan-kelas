@@ -1,0 +1,57 @@
+<style>
+    .update-wrapper {
+      max-width: 400px;
+    }
+  
+    form {
+      margin-top: 2rem;
+    }
+  
+    input[type="text"],
+    input[type="password"],
+    input[type="email"] {
+      width: 100%;
+      padding: 0.75rem 0.5rem;
+      border: 2px solid gainsboro;
+      border-radius: 4px;
+      margin: 0.5rem 0;
+    }
+  
+    input[type="submit"] {
+      padding: 0.75rem 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+  </style>
+  
+  <!-- prettier-ignore -->
+  {% extends 'layout.html' %} 
+  {% block content %}
+  <div class="update-wrapper">
+    <h1>User Profile</h1>
+    <div class="btn-wrapper">
+      {% if request.user.is_authenticated and request.user.staff %}
+      <a href="{% url 'dashboard' %}" class="btn btn-lg btn-primary">Dashboard</a>
+      <a href="{% url 'manage' %}" class="btn btn-lg btn-secondary ml-md"
+        >Manage</a
+      >
+      <div class="btn-second-row">
+        <a href="{% url 'signout' %}" class="btn btn-lg btn-tertiary">Signout</a>
+      </div>
+      {% elif request.user.is_authenticated and not request.user.staff %}
+      <a href="{% url 'dashboard' %}" class="btn btn-lg btn-primary">Dashboard</a>
+      <a href="{% url 'signout' %}" class="btn btn-lg btn-tertiary ml-md"
+        >Signout</a
+      >
+      {% else %}
+      <a href="{% url 'signup' %}" class="btn btn-lg btn-primary">Signup</a>
+      <a href="{% url 'signin' %}" class="btn btn-lg btn-tertiary">Signin</a>
+      {% endif %}
+    </div>
+    <form action="" method="POST">
+      <!-- prettier-ignore -->
+      {% csrf_token %} 
+    {{ form.as_p }}
+      <input type="submit" value="Submit" />
+    </form>
+  </div>
+  {% endblock content %}

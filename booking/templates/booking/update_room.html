@@ -1,0 +1,40 @@
+<style>
+    .update-wrapper {
+      max-width: 400px;
+    }
+  
+    form {
+      margin-top: 1rem;
+    }
+  
+    input[type="text"],
+    input[type="date"],
+    input[type="time"],
+    input[type="number"] {
+      width: 100%;
+      padding: 0.75rem 0.5rem;
+      border: 2px solid gainsboro;
+      border-radius: 4px;
+      margin: 0.5rem 0;
+    }
+  
+    input[type="submit"] {
+      width: 100%;
+      padding: 0.75rem 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+  </style>
+  
+  <!-- prettier-ignore -->
+  {% extends 'layout.html' %} 
+  {% block content %}
+  <div class="update-wrapper">
+    <h1>Update Room</h1>
+    <form action="" method="POST">
+      <!-- prettier-ignore -->
+      {% csrf_token %} 
+      {{ form.as_p }}
+      <input type="submit" value="Submit" />
+    </form>
+  </div>
+  {% endblock content %}
