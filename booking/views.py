@@ -142,6 +142,14 @@ def addRooms(request):
             return redirect('view-rooms')
     return render(request, 'booking/add_rooms.html', {'form':form,'user':current_user})
 
+
+
+
+def deleteRoom(request, pk):
+    try:
+        room = Room.objects.get (id=pk)
+
+
 # Timeslots
 # Add Timeslot for room page view
 def addTimeSlots(request, pk):

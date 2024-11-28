@@ -26,6 +26,7 @@ urlpatterns = [
     path('book-room/<str:p_date>/<str:p>', views.bookRoom, name='book-room'),
     path('cancel-room/<str:ts>/<str:pk>', views.cancelRoom, name='cancel-room'),
     path('update-room/<str:pk>', views.updateRoom, name='update-room'),
+    path('delete-room/<str:pk>', views.deleteRoom, name='delete-room'),
     
     
 
