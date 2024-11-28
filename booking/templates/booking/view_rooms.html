@@ -1,0 +1,118 @@
+<style>
+    h1 {
+      margin-bottom: 1rem;
+    }
+  
+    .view-rooms-sub {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid gainsboro;
+    }
+  
+    .room-wrapper {
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid gainsboro;
+    }
+  
+    .room-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+    }
+  
+    .room-body {
+      margin-top: 0.5rem;
+    }
+  
+    .room-btn-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+  
+    .room-btn {
+      display: flex;
+      gap: 0.5rem;
+    }
+  
+    .advance {
+      color: gray;
+      font-size: 0.875rem;
+    }
+  
+    @media only screen and (min-width: 460px) {
+      .room-body {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+  </style>
+  <!-- prettier-ignore -->
+  {% extends 'layout.html' %} 
+  {% block content %} 
+  {% if user.staff or user.admin %}
+  <div class="rooms-wrapper">
+    <h1>View Rooms</h1>
+    {% if not rooms %}
+    <div class="info-wrapper">
+      <p class="info">No rooms found!</p>
+    </div>
+    {% else %}
+    <div class="view-rooms-sub">
+      <div class="total-rooms">
+        <h3>Total Rooms - {{total_rooms}}</h3>
+      </div>
+      <div>
+        <a href="{% url 'add-rooms' %}" class="btn btn-lg btn-tertiary">Add</a>
+      </div>
+    </div>
+    {% for room in rooms %}
+    <div class="room-wrapper">
+      <div class="room-header">
+        <span><h2>{{room.name}}</h2></span>
+      </div>
+      <div class="room-body">
+        <div>
+          <div>
+            <p class="advance">
+              {{room.advance_booking}} days to book in advance
+            </p>
+          </div>
+        </div>
+        <div class="room-btn-wrapper">
+          <div>
+            <a
+              class="btn btn-secondary btn-md"
+              href="{% url 'update-room' room.id %}"
+              >Edit</a
+            >
+          </div>
+          <div>
+            <a
+              class="btn btn-primary btn-md"
+              href="{% url 'view-timeslots' room.id %}"
+              >Timeslots</a
+            >
+          </div>
+          <div>
+            <a
+              class="btn btn-tertiary btn-md"
+              href="{% url 'delete-room' room.id %}"
+              >Delete</a
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %} {% endif %}
+  </div>
+  {% else %}
+  <h2>Access Denied!</h2>
+  {% endif %} {% endblock content %}

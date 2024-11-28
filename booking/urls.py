@@ -9,6 +9,8 @@ urlpatterns = [
     path('home/', views.home, name='home'),
     path('manage/', views.manage, name='manage'),
     path('manage/rooms', views.viewRooms, name='view-rooms'),
+    path('manage/rooms/add', views.addRooms, name='add-rooms'),
+    path('manage/booking', views.viewBookings, name='bookings'), # add booking
     
     
     
