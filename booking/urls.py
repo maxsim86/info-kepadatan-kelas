@@ -3,6 +3,18 @@ from booking import views
 
 
 urlpatterns = [
-    path('room_list/', views.room_list, name='room_list'),
+    #domain.com/home
+    
+    #home page booking site
+    path('home/', views.home, name='home'),
+    path('manage/', views.manage, name='manage'),
+    path('manage/rooms', views.viewRooms, name='view-rooms'),
+    
+    
+    
+    
+    path('', views.room_list, name='room_list'),
     path('book/<int:room_id>/', views.book_room, name='book_room')
+
+
 ]

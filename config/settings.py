@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     "api.apps.ApiConfig",
     "rest_framework",
     "requests",
-    'appointment',
 ]
 
 MIDDLEWARE = [
@@ -149,4 +148,3 @@ IMPORT_EXPORT_USE_TRANSACTIONS = True
 
 
 
-AUTH_USER_MODEL = 'models.UserModel'  # Optional if you use Django's user model

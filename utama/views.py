@@ -10,10 +10,6 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 
 
-#create front page
-def home_page(request):
-    return render(request, 'utama/home_page.html')
-
 
 def check_availability(request):
     form = ClassroomForm()
@@ -40,7 +36,7 @@ def check_availability(request):
         "class_name_filter": class_name_filter,
         "school": school_name,
     }
-    return render(request, "check_availability.html", context)
+    return render(request, "utama/check_availability.html", context)
 
 
 @login_required
@@ -126,7 +122,7 @@ def contact_us(request):
     # ELSE, RENDER FORM
     else:
         form = ContactForm()
-    return render(request, "contact_us.html", context={"form": form})
+    return render(request, "utama/contact_us.html", context={"form": form})
 
 
 def thank_you(request):

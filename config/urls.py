@@ -17,7 +17,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from utama.views import check_availability
+#from utama.views import check_availability
 
 
 
@@ -30,6 +30,5 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     path("kuiz/", include("profilpersonaliti.urls")),
     path("api/", include("api.urls")),
-
     path('', include('booking.urls')),
 ]
