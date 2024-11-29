@@ -7,23 +7,64 @@ from .models import Room
 from datetime import datetime
 import requests
 
-from .forms import RoomForm, UserUpdateForm
+from .forms import RoomForm, UserUpdateForm, RegisterForm
 from .models import Room, Booking, TimeSlot
 from datetime import datetime, date, timedelta
 
 
 User = get_user_model()
 
-# Create your views here.
-#Telegram bot token and chat ID
-
-TELEGRAM_BOT_TOKEN = ''
-TELEGRAM_CHAT_ID = ''
-
-
 #homepage view
 def home(request):
-    return render(request, 'booking/base.html')
+    return render(request, 'booking/home.html')
+
+    
+#signin page view
+def signinPage(request):
+    page = 'signin'
+    if request.method == 'POST':
+        email = request.POST.get('email').lower() 
+        password = request.POST.get('password')
+        try:
+            user = User.objects.get(email=email)
+        except:
+            messages.info(request, 'User doesnt exist !')
+
+        user = authenticate(request, email=email, password=password)
+
+        if user is not None:
+            login(request, user)
+            return redirect('dashboard')
+        else:
+            messages.info(request,  'Username or password doesnot exist')
+    
+    context = {'page':page}
+    return render(request, 'booking/login_register.html', context)
+
+    
+# signup page view
+def signupPage(request):
+    page = 'signup'
+    form = RegisterForm()
+    context = {'page':page, 'form':form}
+
+    if request.method == "POST":
+        form = RegisterForm(request.POST)
+
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.save()
+            login(request, user)
+            return redirect('dashboard')
+        else:
+            messages.error(request, 'An error occured!')
+    return render(request, 'booking/login_register.html', context)
+    
+
+#sign out page
+def signoutPage(request):
+    logout(request)
+    return render('signin')
 
 
 #room page view
@@ -34,7 +75,7 @@ def room(request, pk):
 
 #booking logic
 def bookRoom(request, p_date, pk):
-    f_date = datetime.strptime(p_date, "%Y%m%d").date().strftime(%Y-%m-%d)
+    f_date = datetime.strptime(p_date, "%Y%m%d").date().strftime("%Y-%m-%d")
     user = User.objects.get(email=request.user)
     time_slot = TimeSlot.objects.get(id=pk)
     days = time_slot.room.advance_booking
@@ -79,10 +120,6 @@ def cancelRoom(request, ts, pk):
     context={'booking':booking}
     return render(request, 'booking/cancel_room.html', context)
      
-        
-
-    
-
 #for users
 #dashboard page view
 def dashboard(request):
@@ -121,7 +158,7 @@ def userProfile(request):
         form = UserUpdateForm(request.POST, instance=user)
         if form.is_valid():
             form.save()
-            message.success(request, 'Your profile is updated successfully!')
+            messages.success(request, 'Your profile is updated successfully!')
         else:
             form = UserUpdateForm(instance=user)
     context = {'form':form}
@@ -151,6 +188,7 @@ def deleteRoom(request, pk):
         context = {'room':room}
     except:
         context={'error':'an error occurred!'}
+
     if request.method == 'POST':
         room.delete()
         return redirect('view-rooms')
@@ -206,15 +244,6 @@ def userBookings(request):
 
     return render(request, 'booking/user_bookings.html', context)
 
-
-
-
-
-
-
-
-
-
 def viewRooms(request):
     rooms = Room.objects.all()
     total_rooms = len(rooms)
@@ -237,47 +266,3 @@ def updateRoom(request, pk):
     return render(request, 'booking/update_room.html', context)
         
 
-
-@login_required
-def room_list(request):
-    # get query from object
-    rooms =Room.objects.all()
-    return render(request, 'booking/room_list.html', {'rooms':rooms})
-
-
-def book_room(request, room_id):
-    if request.method =='POST':
-        room = Room.objects.get(id=room_id)
-        date = request.POST.get('date')
-        start_time = request.POST.get('start_time')
-        end_time = request.POST.get('end_time')
-
-        #validate
-        if Booking.objects.filter(room=room, date=date, start_time__lt=end_time, end_time__gt=start_time).exists():
-            return JsonResponse({'success':False, 'message': 'slot already booking!'})
-
-        #create new booking
-        booking = Booking.objects.create(
-            user = request.user,
-            room=room,
-            date=date,
-            start_time=start_time,
-            end_time=end_time,
-
-        )
-        # send notification to telegram
-        message = (
-            f"Booking Baru :\n"
-                f"User : {request.user.username} \n"
-                f"Bilik : {room.name}\n"
-                f"Tarikh : {date}\n"
-                f"Masa : {start_time}- {end_time}"
-        )
-        requests.post(
-            f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
-            data = {'chat_id': TELEGRAM_CHAT_ID, 'text':message}
-
-        )
-
-        return JsonResponse({ 'success': True })
-    return render(request, 'booking/book_room.html', {'room_id':room_id})

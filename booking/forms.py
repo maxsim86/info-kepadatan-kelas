@@ -6,6 +6,41 @@ from .models import Room, TimeSlot, Booking
 User = get_user_model()
 
 
+class RegisterForm(forms.Form):
+    password = forms.CharField(
+        widget=forms.PasswordInput(
+            attrs={
+                "placeholder": "Set Password",
+                "class": "form-control",
+            }
+        )
+    )
+    password2 = forms.CharField(
+        label="Confirm Password",
+        widget=forms.PasswordInput(
+            attrs={
+                "placeholder": "Confirm Password",
+                "class": "form-control",
+            }
+        ),
+    )
+
+    class Meta:
+        model = User
+        fields = ["name", "email"]
+        widgets = {
+            "name": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": "Your name",
+                }
+            ),
+            "email": forms.EmailInput(
+                attrs={"class": "form-control", "placeholder": "Your Email"}
+            ),
+        }
+
+
 class RoomForm(forms.ModelForm):
     class Meta:
         model = Room
@@ -24,19 +59,16 @@ class RoomForm(forms.ModelForm):
         }
 
 
-
 class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['name', 'email']
         widgets = {
-            'name':forms.TextInput(attrs={'class':'form-control',
+            'name':forms.TextInput(attrs={'class':"form-control",
                                           }),
-            'email':forms.EmailInput(attrs={'class': 'form-control'})
+            'email':forms.EmailInput(attrs={'class': "form-control",})
         }
-        
-        
-    
+   
     
 class RoomForm(forms.ModelForm):
     class Meta:

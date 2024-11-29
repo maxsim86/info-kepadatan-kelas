@@ -1,0 +1,39 @@
+<style>
+    h1 {
+      margin-bottom: 1rem;
+    }
+  
+    form {
+      max-width: 400px;
+      margin-top: 1.5rem;
+    }
+  
+    input[type="date"] {
+      width: 100%;
+      padding: 0.75rem 0.5rem;
+      border: 2px solid gainsboro;
+      border-radius: 4px;
+      margin: 0.5rem 0;
+      cursor: pointer;
+    }
+  
+    input[type="submit"] {
+      background-color: green;
+      color: white;
+    }
+  </style>
+  
+  <!-- prettier-ignore -->
+  {% extends 'layout.html' %} {% block content %}
+  <h1>Dashboard page</h1>
+  <a class="btn btn-lg btn-secondary" href="{% url 'user-bookings' %}"
+    >View your bookings</a
+  >
+  <form action="" method="POST">
+    {% csrf_token %}
+    <label>Pick a date to book a room</label>
+    <input id="datePicker" type="date" name="date" value="{{today}}" />
+    <input type="submit" value="Submit" />
+  </form>
+  
+  {% endblock content %}
