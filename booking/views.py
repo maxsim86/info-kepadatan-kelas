@@ -144,11 +144,18 @@ def addRooms(request):
 
 
 
-
+# delete room page view
 def deleteRoom(request, pk):
     try:
         room = Room.objects.get (id=pk)
-
+        context = {'room':room}
+    except:
+        context={'error':'an error occurred!'}
+    if request.method == 'POST':
+        room.delete()
+        return redirect('view-rooms')
+    return render(request, 'booking/delete.html', context)
+        
 
 # Timeslots
 # Add Timeslot for room page view
