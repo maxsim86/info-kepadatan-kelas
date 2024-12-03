@@ -4,8 +4,8 @@ from . import views
 urlpatterns = [
     path('', views.home, name='home'),
     # api
-    path('api/', include('base.api.urls')),
-    
+    path('api/', include('booking.api.urls')),
+
     # user actions
     path('signin/', views.signinPage, name='signin'),
     path('signup/', views.signupPage, name='signup'),
