@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "booking.apps.BookingConfig",
+
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -146,5 +147,6 @@ MEDIA_URL = "/media/"
 
 IMPORT_EXPORT_USE_TRANSACTIONS = True
 
-
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+AUTH_USER_MODEL = 'booking.User'
 
