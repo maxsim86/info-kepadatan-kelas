@@ -13,7 +13,7 @@ User = get_user_model()
 
 # home page view
 def home(request):
-    return render(request, "profilepersonaliti/layout.html")
+    return render(request, "booking/home.html")
 
 
 # signin page view

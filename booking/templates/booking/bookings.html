@@ -1,0 +1,55 @@
+<style>
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 1rem auto;
+  }
+
+  table {
+    width: 100%;
+    text-align: center;
+  }
+
+  th,
+  td {
+    border: 1px solid #ddd;
+    padding: 0.5rem;
+  }
+</style>
+
+<!-- prettier-ignore -->
+{% extends 'layout.html' %} 
+{% block content %}
+<div class="bookings-wrapper">
+  <h1>Manage Bookings</h1>
+  {% if not bookings %}
+  <div class="info-wrapper">
+    <p class="info">No bookings found!</p>
+  </div>
+  {% else %}
+  <div class="table-wrapper">
+    <table>
+      <tr>
+        <th>Room</th>
+        <th>Date</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Checkin Time</th>
+        <th>Checkout Time</th>
+      </tr>
+      {% for booking in bookings %}
+
+      <tr>
+        <td>{{booking.time_slot.room.name}}</td>
+        <td>{{booking.date}}</td>
+        <td>{{booking.user.name}}</td>
+        <td>{{booking.user.email}}</td>
+        <td>{{booking.time_slot.check_in_time}}</td>
+        <td>{{booking.time_slot.check_out_time}}</td>
+      </tr>
+
+      {% endfor%}
+    </table>
+  </div>
+  {% endif %}
+</div>
+{% endblock content %}
