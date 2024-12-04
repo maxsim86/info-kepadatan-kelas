@@ -23,18 +23,18 @@
   <h1>Manage Bookings</h1>
   {% if not bookings %}
   <div class="info-wrapper">
-    <p class="info">No bookings found!</p>
+    <p class="info">Tiada tempahan dijumpai ! </p>
   </div>
   {% else %}
   <div class="table-wrapper">
     <table>
       <tr>
-        <th>Room</th>
-        <th>Date</th>
-        <th>Name</th>
+        <th>Bilik</th>
+        <th>Tarikh</th>
+        <th>Nama</th>
         <th>Email</th>
-        <th>Checkin Time</th>
-        <th>Checkout Time</th>
+        <th>Masa Checkin</th>
+        <th>Masa Checkout</th>
       </tr>
       {% for booking in bookings %}
 

@@ -153,6 +153,7 @@ def bookRoom(request, p_date, pk):
     elif not (
         (picked_date_obj.day - today_date_obj.day >= days)
         and (time_slot.booked == False)
+
     ):
         message = "FAILURE"
     elif not (picked_date_obj.day >= today_date_obj.day):
