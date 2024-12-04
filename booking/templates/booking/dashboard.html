@@ -25,13 +25,13 @@
   
   <!-- prettier-ignore -->
   {% extends 'layout.html' %} {% block content %}
-  <h1>Dashboard page</h1>
+  <h1>Dashboard</h1>
   <a class="btn btn-lg btn-secondary" href="{% url 'user-bookings' %}"
-    >View your bookings</a
+    >Lihat Tempahan Anda</a
   >
   <form action="" method="POST">
     {% csrf_token %}
-    <label>Pick a date to book a room</label>
+    <label>Pilih Tarikh untuk tempah bilik Mesyuarat</label>
     <input id="datePicker" type="date" name="date" value="{{today}}" />
     <input type="submit" value="Submit" />
   </form>

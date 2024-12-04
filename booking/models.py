@@ -121,6 +121,9 @@ class TimeSlot(models.Model):
     class Meta:
         verbose_name = 'Masa Tempahan'
         verbose_name_plural = 'Masa Tempahan'
+        
+    def __str__(self):
+        return f'booking time {self.check_in_time} of {self.check_out_time}'
 
 
 class Booking(models.Model):
@@ -128,8 +131,8 @@ class Booking(models.Model):
     time_slot = models.ForeignKey(TimeSlot, on_delete=models.CASCADE)
     date = models.DateField()
 
-    # def __str__(self):
-    #     return f'{self.user} has booked {self.room} from {self.room.defined_check_in_time} to {self.room.defined_check_out_time} on {self.room.date}'
+    def __str__(self):
+        return f'{self.user} has booked {self.time_slot.room} {self.time_slot}'
 
     class Meta:
         verbose_name = 'Tempahan'

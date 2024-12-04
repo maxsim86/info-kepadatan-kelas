@@ -12,10 +12,10 @@
 {% extends 'layout.html' %}
 {% block content %}
 <div class="home-wrapper">
-  <h1>Tempahan Bilik Mesyuarat</h1>
+  <h1></h1>
   <div class="home-des">
     <p class="home-des-1">
-      Ini adalah app tempahan bilik mesyuarat sign In untuk mula tempah!
+      Ini adalah app tempahan bilik mesyuarat, start sign In dan mulakan untuk tempah!
 
     </p>
     <p>
@@ -30,7 +30,7 @@
       >Manage</a
     >
     <div class="btn-second-row">
-      <a href="{% url 'signout' %}" class="btn btn-lg btn-tertiary">Signout</a>
+      <a href="{% url 'signout' %}" class="btn btn-lg btn-tertiary">Log keluar</a>
     </div>
     {% elif request.user.is_authenticated and not request.user.staff %}
     <a href="{% url 'dashboard' %}" class="btn btn-lg btn-primary">Dashboard</a>

@@ -1,6 +1,6 @@
 <nav>
-  <div><a href="{% url 'home' %}" class="nav-brand">Room Slot Booking</a></div>
+  <div><a href="{% url 'home' %}" class="nav-brand">Tempahan Bilik Mesyuarat</a></div>
   {% if request.user.is_authenticated %}
-  <div><a class="nav-profile" href="{% url 'user-profile' %}">Profile</a></div>
+  <div><a class="nav-profile" href="{% url 'user-profile' %}">Profil</a></div>
   {% endif %}
 </nav>

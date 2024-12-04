@@ -8,18 +8,18 @@
 {% block content %} 
 {% if user.staff or user.admin %}
 <div>
-  <h1>Room Manager Page</h1>
+  <h1>Uruskan Bilik Mesyuarat</h1>
   <p class="des">
-    This is the page for the Room Manager to add and view the booked rooms.
+    Kemaskini bilik mesyuarat samada untuk tambah bilik, lihat dan papar tambah bilik
   </p>
   <div class="btn-wrapper">
-    <a class="btn btn-lg btn-primary" href="{% url 'add-rooms' %}">Add Rooms</a>
+    <a class="btn btn-lg btn-primary" href="{% url 'add-rooms' %}">Tambah Bilik</a>
     <a class="btn btn-lg btn-secondary ml-md" href="{% url 'bookings' %}"
-      >View Bookings</a
+      >Lihat Tempahan </a
     >
     <div class="btn-second-row">
       <a class="btn btn-lg btn-tertiary" href="{% url 'view-rooms' %}"
-        >View Rooms</a
+        >Lihat Bilik</a
       >
     </div>
   </div>
