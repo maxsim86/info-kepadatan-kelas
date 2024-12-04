@@ -1,5 +1,7 @@
 from django.db import models
-from django.contrib.auth.models import User
+#from django.contrib.auth.models import User
+from django.conf import settings
+
 
 # Create your models here.
 
@@ -38,7 +40,7 @@ class Choice(models.Model):
 
 
 class UserResponse(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     selected_choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
