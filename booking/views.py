@@ -37,7 +37,7 @@ def signinPage(request):
             messages.info(request, "Username or Password does not exist!")
 
     context = {"page": page}
-    return render(request, "base/login_register.html", context)
+    return render(request, "booking/login_register.html", context)
 
 
 # signup page view
@@ -57,7 +57,7 @@ def signupPage(request):
         else:
             messages.error(request, "An error occurred!")
 
-    return render(request, "base/login_register.html", context)
+    return render(request, "booking/login_register.html", context)
 
 
 # signout page view
@@ -77,7 +77,7 @@ def dashboard(request):
         f_date = picked_date.replace("-", "")
         return redirect("available-rooms", f_date)
     context = {"today": default_date}
-    return render(request, "base/dashboard.html", context)
+    return render(request, "booking/dashboard.html", context)
 
 
 # available rooms page view
@@ -86,7 +86,7 @@ def availableRooms(request, date):
     f_date = datetime.strptime(date, "%Y%m%d").date().strftime("%Y-%m-%d")
     rooms = Room.objects.all()
     context = {"rooms": rooms, "date": date}
-    return render(request, "base/available_rooms.html", context)
+    return render(request, "booking/available_rooms.html", context)
 
 
 # available timeslots page view
@@ -95,7 +95,7 @@ def availableTimeSlots(request, date, pk):
     room = Room.objects.get(id=pk)
     time_slots = TimeSlot.objects.filter(room=room)
     context = {"time_slots": time_slots, "room": room, "date": date}
-    return render(request, "base/available_timeslots.html", context)
+    return render(request, "booking/available_timeslots.html", context)
 
 
 # user profile page view
@@ -111,7 +111,7 @@ def userProfile(request):
         else:
             form = UserUpdateForm(instance=user)
     context = {"form": form}
-    return render(request, "base/profile.html", context)
+    return render(request, "booking/profile.html", context)
 
 
 # room page view
@@ -119,7 +119,7 @@ def userProfile(request):
 def room(request, pk):
     room_object = Room.objects.get(id=pk)
     context = {"room": room_object}
-    return render(request, "base/room.html", context)
+    return render(request, "booking/room.html", context)
 
 
 # book room page view
@@ -161,7 +161,7 @@ def bookRoom(request, p_date, pk):
         message = "ERROR"
 
     context = {"user": user, "time_slot": time_slot, "message": message, "days": days}
-    return render(request, "base/book_room.html", context)
+    return render(request, "booking/book_room.html", context)
 
 
 # cancel booking page view
@@ -175,14 +175,14 @@ def cancelRoom(request, ts, pk):
         return redirect("user-bookings")
 
     context = {"booking": booking}
-    return render(request, "base/cancel_room.html", context)
+    return render(request, "booking/cancel_room.html", context)
 
 
 # For Room Manager
 # manage page view
 @staff_member_required
 def manage(request):
-    return render(request, "base/manage.html")
+    return render(request, "booking/manage.html")
 
 
 # Rooms
@@ -198,7 +198,7 @@ def addRooms(request):
             form.save()
             return redirect("view-rooms")
 
-    return render(request, "base/add_rooms.html", {"form": form, "user": current_user})
+    return render(request, "booking/add_rooms.html", {"form": form, "user": current_user})
 
 
 # view rooms page view
@@ -224,7 +224,7 @@ def updateRoom(request, pk):
             return redirect("dashboard")
 
     context = {"form": form, "room": room_object}
-    return render(request, "base/update_room.html", context)
+    return render(request, "booking/update_room.html", context)
 
 
 # delete room page view
@@ -240,7 +240,7 @@ def deleteRoom(request, pk):
         room.delete()
         return redirect("view-rooms")
 
-    return render(request, "base/delete.html", context)
+    return render(request, "booking/delete.html", context)
 
 
 # Timeslots
@@ -258,7 +258,7 @@ def addTimeSlots(request, pk):
         )
         return redirect("view-timeslots", room.id)
 
-    return render(request, "base/add_timeslots.html", context)
+    return render(request, "booking/add_timeslots.html", context)
 
 
 # view timeslots page view
@@ -268,7 +268,7 @@ def viewTimeSlots(request, pk):
     time_slots = TimeSlot.objects.filter(room=room)
 
     context = {"time_slots": time_slots, "room": room}
-    return render(request, "base/view_timeslots.html", context)
+    return render(request, "booking/view_timeslots.html", context)
 
 
 # delete timeslot page view
@@ -285,7 +285,7 @@ def deleteTimeSlot(request, pk):
         time_slot.delete()
         return redirect("view-timeslots", room.id)
 
-    return render(request, "base/delete_timeslot.html", context)
+    return render(request, "booking/delete_timeslot.html", context)
 
 
 # Bookings
@@ -295,7 +295,7 @@ def viewBookings(request):
     all_bookings = Booking.objects.all()
 
     context = {"bookings": all_bookings}
-    return render(request, "base/bookings.html", context)
+    return render(request, "booking/bookings.html", context)
 
 
 # view user bookings page view
@@ -305,4 +305,4 @@ def userBookings(request):
     bookings = Booking.objects.filter(user=user)
     context = {"user": user, "bookings": bookings}
 
-    return render(request, "base/user_bookings.html", context)
+    return render(request, "booking/user_bookings.html", context)

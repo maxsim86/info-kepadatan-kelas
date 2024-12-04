@@ -22,7 +22,7 @@ from django.urls import path, include
 
 
 # domain.com/utama/thank_you
-# domain.com/cars/
+# domain.com/booking/
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -30,5 +30,5 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     path("kuiz/", include("profilpersonaliti.urls")),
     path("api/", include("api.urls")),
-    path('', include("booking.urls")),
+    path('booking/', include("booking.urls")),
 ]

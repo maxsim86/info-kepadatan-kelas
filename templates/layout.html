@@ -1,10 +1,142 @@
+<!DOCTYPE html>
+{% load static %}
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>this is a layout page</h1>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Room Management</title>
+    <link rel="stylesheet" href="{% static 'styles/layout.css' %}" />
+    <style>
+      ul {
+        list-style: none;
+        max-width: 400px;
+      }
+
+      .info-wrapper {
+        margin-top: 1rem;
+      }
+
+      .info {
+        background-color: #D1ECF1;
+        padding: 0.75rem 0.5rem;
+        border-radius: 0.5rem;
+        margin-bottom: 0.5rem;
+        color: #0099cc;
+        font-weight: 600;
+      }
+
+      .success {
+        background-color: #D4EDDA;
+        color: green;
+        padding: 0.75rem 0.5rem;
+        border-radius: 0.5rem;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+      }
+
+      .btn {
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      .btn-sm {
+        padding: 0.125rem 0.375rem;
+        border-radius: 0.375rem;
+      }
+
+      .btn-md {
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.375rem;
+      }
+
+      .btn-lg {
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.375rem;
+      }
+
+      .btn-primary {
+        background-color: green;
+        color: white;
+      }
+
+      .btn-secondary{
+        background-color: #ffbb33;
+        color: white;
+      }
+
+      .btn-tertiary {
+        background-color: gainsboro;
+        color: black;
+      }
+
+      .ml-md{
+        margin-left: 0.5rem;
+      }
+
+      .ml-lg{
+        margin-left: 1rem;
+      }
+
+      .btn-wrapper {
+        margin-top: 1rem;
+      }
+
+      .btn-second-row {
+        margin-top: 1rem;
+      }
+
+      input[type="submit"] {
+        padding: 0.4rem 0.75rem;
+        border-radius: 0.375rem;
+        cursor: pointer;
+      }
+
+      .btn-customize {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.825rem;
+        border-radius: 0.375rem;
+        background-color: gainsboro;
+        color: black;
+      }
+
+      .bold {
+        font-weight: 500;
+      }
+
+      hr {
+        display: block;
+        border-width: 1px; 
+      }
+
+      @media only screen and (min-width: 640px) {
+        .btn-second-row {
+          display: inline;
+        }
+
+        .btn-tertiary {
+          margin-left: 0.5rem;
+        }
+
+        .confirm-message {
+          font-size: 1.25rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="main-wrapper">
+      {% include 'navbar.html' %} 
+      {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+      <div id="wrapper">
+        {% block content %} {% endblock %}
+      </div>
+    </div>
+  </body>
 </html>
