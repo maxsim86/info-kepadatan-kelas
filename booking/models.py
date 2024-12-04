@@ -105,9 +105,11 @@ class Room(models.Model):
 
     class Meta:
         ordering = ["name"]
+        verbose_name = 'Bilik'
+        verbose_name_plural = 'Bilik'
 
     def __str__(self):
-        return self.room.name
+        return self.name
 
 
 class TimeSlot(models.Model):
@@ -115,6 +117,10 @@ class TimeSlot(models.Model):
     check_out_time = models.TimeField(max_length=4)
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     booked = models.BooleanField(default=False)
+    
+    class Meta:
+        verbose_name = 'Masa Tempahan'
+        verbose_name_plural = 'Masa Tempahan'
 
 
 class Booking(models.Model):
@@ -124,3 +130,7 @@ class Booking(models.Model):
 
     # def __str__(self):
     #     return f'{self.user} has booked {self.room} from {self.room.defined_check_in_time} to {self.room.defined_check_out_time} on {self.room.date}'
+
+    class Meta:
+        verbose_name = 'Tempahan'
+        verbose_name_plural = 'Tempahan'
