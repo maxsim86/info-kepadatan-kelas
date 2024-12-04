@@ -3,7 +3,7 @@ from os import times
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from booking.models import Room, Booking, User, TimeSlot
-from .serializer import (
+from .serializers import (
     RoomSerializer,
     TimeSlotSerializer,
     UserSerializer,
