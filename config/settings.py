@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     "utama",
     "profilpersonaliti",
     
-    
     "import_export",
     "api.apps.ApiConfig",
     "rest_framework",
