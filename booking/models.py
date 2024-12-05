@@ -125,7 +125,6 @@ class TimeSlot(models.Model):
     def __str__(self):
         return f'booking time {self.check_in_time} of {self.check_out_time}'
 
-
 class Booking(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     time_slot = models.ForeignKey(TimeSlot, on_delete=models.CASCADE)

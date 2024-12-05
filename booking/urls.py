@@ -2,9 +2,10 @@ from django.urls import URLPattern, path, include
 from . import views
 
 urlpatterns = [
+    # muka depan page
     path("", views.home, name="home"),
     # api
-    path("api/", include("booking.api.urls")),
+    path("booking/api/", include("booking.api.urls")),
     # user actions
     path("signin/", views.signinPage, name="signin"),
     path("signup/", views.signupPage, name="signup"),

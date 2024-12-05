@@ -80,7 +80,7 @@ def dashboard(request):
     return render(request, "booking/dashboard.html", context)
 
 
-# available rooms page view
+# senarai bilik yang tersedia
 @login_required(redirect_field_name="/signin")
 def availableRooms(request, date):
     f_date = datetime.strptime(date, "%Y%m%d").date().strftime("%Y-%m-%d")
@@ -287,7 +287,6 @@ def deleteTimeSlot(request, pk):
         return redirect("view-timeslots", room.id)
 
     return render(request, "booking/delete_timeslot.html", context)
-
 
 # Bookings
 # view bookings page view

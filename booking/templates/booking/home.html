@@ -16,31 +16,30 @@
   <h1></h1>
   <div class="home-des">
     <p class="home-des-1">
-      Ini adalah app tempahan bilik mesyuarat, start sign In dan mulakan untuk tempah!
+      App tempahan bilik mesyuarat, Mulakan regiter, Sign In dan mulakan untuk tempah!
     </p>
     <p>
       Aplikasi ini juga disertakan dengan API.. Klik untuk
-      <a href="/api">/api</a>
+      <a href="booking/api">/api</a>
     </p>
   </div>
   <div class="btn-wrapper">
     {% if request.user.is_authenticated and request.user.staff %}
     <a href="{% url 'dashboard' %}" class="btn btn-lg btn-primary">Dashboard</a>
-    <a href="{% url 'manage' %}" class="btn btn-lg btn-secondary ml-md"
-      >Manage</a
-    >
+    <a href="{% url 'manage' %}" class="btn btn-lg btn-secondary ml-md">Manage</a>
+
     <div class="btn-second-row">
       <a href="{% url 'signout' %}" class="btn btn-lg btn-tertiary">Log keluar</a>
     </div>
+
+
     {% elif request.user.is_authenticated and not request.user.staff %}
     <a href="{% url 'dashboard' %}" class="btn btn-lg btn-primary">Dashboard</a>
-    <a href="{% url 'signout' %}" class="btn btn-lg btn-tertiary ml-md"
-      >Signout</a
-    >
+    <a href="{% url 'signout' %}" class="btn btn-lg btn-tertiary ml-md">Signout</a>
     {% else %}
-    <a href="{% url 'signup' %}" class="btn btn-lg btn-primary">Signup</a>
-    <a href="{% url 'signin' %}" class="btn btn-lg btn-tertiary">Signin</a>
+    <a href="{% url 'signup' %}" class="btn btn-lg btn-primary">Sign Up</a>
+    <a href="{% url 'signin' %}" class="btn btn-lg btn-tertiary">Sign In</a>
     {% endif %}
   </div>
 </div>
-{% endblock content %} 
+{% endblock content %}
