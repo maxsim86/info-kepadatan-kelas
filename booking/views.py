@@ -15,7 +15,6 @@ User = get_user_model()
 def home(request):
     return render(request, "booking/home.html")
 
-
 # signin page view
 def signinPage(request):
     page = "signin"
@@ -26,7 +25,7 @@ def signinPage(request):
         try:
             user = User.objects.get(email=email)
         except:
-            messages.info(request, "User does not exist!")
+            messages.info(request, "Pengguna tidak wujud!")
 
         user = authenticate(request, email=email, password=password)
 
@@ -34,7 +33,7 @@ def signinPage(request):
             login(request, user)
             return redirect("dashboard")
         else:
-            messages.info(request, "Username or Password does not exist!")
+            messages.info(request, "Nama Pengguna dan kata laluan tidak wujud!")
 
     context = {"page": page}
     return render(request, "booking/login_register.html", context)
