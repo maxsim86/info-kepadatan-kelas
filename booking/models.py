@@ -122,6 +122,7 @@ class TimeSlot(models.Model):
         verbose_name = 'Masa Tempahan'
         verbose_name_plural = 'Masa Tempahan'
         
+        
     def __str__(self):
         return f'booking time {self.check_in_time} of {self.check_out_time}'
 

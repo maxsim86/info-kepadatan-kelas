@@ -11,20 +11,22 @@ class RegisterForm(forms.ModelForm):
     """
     The default
     """
-
+# password pertama
     password = forms.CharField(
         widget=forms.PasswordInput(
             attrs={
-                "placeholder": "Set Password",
+                "placeholder": "Set Kata Laluan",
                 "class": "form-control",
             }
         )
     )
+
+    # password kedua / confirmation untuk password kedua
     password_2 = forms.CharField(
         label="Confirm Password",
         widget=forms.PasswordInput(
             attrs={
-                "placeholder": "Confirm Password",
+                "placeholder": "Confirm Kata Laluan",
                 "class": "form-control",
             }
         ),
@@ -35,10 +37,10 @@ class RegisterForm(forms.ModelForm):
         fields = ["name", "email"]
         widgets = {
             "name": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "Your Name"}
+                attrs={"class": "form-control", "placeholder": "Nama Anda"}
             ),
             "email": forms.EmailInput(
-                attrs={"class": "form-control", "placeholder": "Your Email"}
+                attrs={"class": "form-control", "placeholder": "Email Anda"}
             ),
         }
 
@@ -49,8 +51,9 @@ class RegisterForm(forms.ModelForm):
         email = self.cleaned_data.get("email")
         qs = User.objects.filter(email=email)
         if qs.exists():
-            raise forms.ValidationError("email is taken")
+            raise forms.ValidationError("Email sudah diambil")
         return email
+
 
     def clean(self):
         """
@@ -61,6 +64,7 @@ class RegisterForm(forms.ModelForm):
         password_2 = cleaned_data.get("password_2")
         if password is not None and password != password_2:
             self.add_error("password_2", "Your passwords must match")
+             
         return cleaned_data
 
     def save(self, commit=True):
@@ -163,7 +167,7 @@ class RoomForm(forms.ModelForm):
         fields = ("name", "advance_booking")
         widgets = {
             "name": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "Room Name"}
+                attrs={"class": "form-control", "placeholder": "Nama bilik"}
             ),
             "advance_booking": forms.NumberInput(
                 attrs={
@@ -195,4 +199,3 @@ class TimeSlotForm(forms.ModelForm):
     def clean(self):
         cleaned_data = self.cleaned_data
         return cleaned_data
-
