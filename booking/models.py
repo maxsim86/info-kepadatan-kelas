@@ -1,4 +1,4 @@
-#from django.db import models
+# from django.db import models
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 from django.utils import timezone
@@ -105,8 +105,8 @@ class Room(models.Model):
 
     class Meta:
         ordering = ["name"]
-        verbose_name = 'Bilik'
-        verbose_name_plural = 'Bilik'
+        verbose_name = "Bilik"
+        verbose_name_plural = "Bilik"
 
     def __str__(self):
         return self.name
@@ -117,14 +117,14 @@ class TimeSlot(models.Model):
     check_out_time = models.TimeField(max_length=4)
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     booked = models.BooleanField(default=False)
-    
+
     class Meta:
-        verbose_name = 'Masa Tempahan'
-        verbose_name_plural = 'Masa Tempahan'
-        
-        
+        verbose_name = "Masa Tempahan"
+        verbose_name_plural = "Masa Tempahan"
+
     def __str__(self):
-        return f'booking time {self.check_in_time} of {self.check_out_time}'
+        return f"booking time {self.check_in_time} of {self.check_out_time}"
+
 
 class Booking(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -132,8 +132,12 @@ class Booking(models.Model):
     date = models.DateField()
 
     def __str__(self):
-        return f'{self.user} has booked {self.time_slot.room} {self.time_slot}'
+        return f"{self.user} has booked {self.time_slot.room} {self.time_slot}"
 
     class Meta:
-        verbose_name = 'Tempahan'
-        verbose_name_plural = 'Tempahan'
+        verbose_name = "Tempahan"
+        verbose_name_plural = "Tempahan"
+
+
+
+
