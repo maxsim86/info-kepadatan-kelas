@@ -54,20 +54,22 @@
       }
     }
   </style>
+
   <!-- prettier-ignore -->
   {% extends 'layout.html' %} 
   {% block content %} 
+  
   {% if user.staff or user.admin %}
   <div class="rooms-wrapper">
-    <h1>View Rooms</h1>
+    <h1>Lihat Bilik</h1>
     {% if not rooms %}
     <div class="info-wrapper">
-      <p class="info">No rooms found!</p>
+      <p class="info">Tiada Bilik Dijumpai!</p>
     </div>
     {% else %}
     <div class="view-rooms-sub">
       <div class="total-rooms">
-        <h3>Total Rooms - {{total_rooms}}</h3>
+        <h3>Jumlah Bilik - {{total_rooms}}</h3>
       </div>
       <div>
         <a href="{% url 'add-rooms' %}" class="btn btn-lg btn-tertiary">Add</a>
@@ -82,7 +84,7 @@
         <div>
           <div>
             <p class="advance">
-              {{room.advance_booking}} days to book in advance
+              {{room.advance_booking}} hari diperlukan untuk tempah
             </p>
           </div>
         </div>

@@ -11,4 +11,7 @@ urlpatterns = [
     path("contact_us/", views.contact_us, name="contact_us"),
     path("thank_you/", views.thank_you, name="thank_you"),
     path("success/", views.success_page, name="success_page"),
+
+    # url untuk tab untuk booking
+
 ]

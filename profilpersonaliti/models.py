@@ -1,5 +1,6 @@
 from django.db import models
-#from django.contrib.auth.models import User
+
+# from django.contrib.auth.models import User
 from django.conf import settings
 
 
@@ -24,8 +25,7 @@ class Question(models.Model):
         return self.text
 
     class Meta:
-        ordering = ['text']
-
+        ordering = ["text"]
 
 
 class Choice(models.Model):
@@ -55,5 +55,3 @@ class UserResponse(models.Model):
     def calculate_score(self):
         total_score = sum(choice.score for choice in self.question.choice.all())
         return total_score
-
-

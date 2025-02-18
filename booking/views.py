@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from .forms import RoomForm, TimeSlotForm, RegisterForm, UserUpdateForm
+from .forms import RoomForm,TimeSlotForm, RegisterForm, UserUpdateForm
 from .models import Room, Booking, TimeSlot
 from datetime import datetime, date, timedelta
 
@@ -14,6 +14,7 @@ User = get_user_model()
 # home page view
 def home(request):
     return render(request, "booking/home.html")
+
 
 # signin page view
 def signinPage(request):
@@ -152,7 +153,6 @@ def bookRoom(request, p_date, pk):
     elif not (
         (picked_date_obj.day - today_date_obj.day >= days)
         and (time_slot.booked == False)
-
     ):
         message = "FAILURE"
     elif not (picked_date_obj.day >= today_date_obj.day):
@@ -198,7 +198,9 @@ def addRooms(request):
             form.save()
             return redirect("view-rooms")
 
-    return render(request, "booking/add_rooms.html", {"form": form, "user": current_user})
+    return render(
+        request, "booking/add_rooms.html", {"form": form, "user": current_user}
+    )
 
 
 # view rooms page view
@@ -286,6 +288,7 @@ def deleteTimeSlot(request, pk):
         return redirect("view-timeslots", room.id)
 
     return render(request, "booking/delete_timeslot.html", context)
+
 
 # Bookings
 # view bookings page view
