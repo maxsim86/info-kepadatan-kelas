@@ -17,8 +17,13 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-#from utama.views import check_availability
 
+from rest_framework_simplejwt.views import(
+TokenObtainPairView,
+TokenRefreshView    
+)
+
+#from utama.views import check_availability
 
 
 # domain.com/utama/thank_you
@@ -31,4 +36,8 @@ urlpatterns = [
     path("kuiz/", include("profilpersonaliti.urls")),
     path("api/", include("api.urls")),
     path('booking/', include("booking.urls")),
+    path("chat/", include("chat.urls")),
+    
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

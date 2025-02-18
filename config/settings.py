@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "booking.apps.BookingConfig",
+    "daphne",
 
     "django.contrib.admin",
     "django.contrib.auth",
@@ -42,11 +43,18 @@ INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
     "utama",
     "profilpersonaliti",
+    "chat", #aplikasi chat
     
     "import_export",
     "api.apps.ApiConfig",
     "rest_framework",
+    "rest_framework_simplejwt",
     "requests",
+
+    #channels
+    "channels",
+    "asgiref",
+    "htmx",
 ]
 
 MIDDLEWARE = [
@@ -89,6 +97,12 @@ DATABASES = {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
     }
+}
+
+CHANNEL_LAYERS = {  
+    "default":{
+      "BACKEND": "channels.layers.InMemoryChannelLayer"  
+    },
 }
 
 
@@ -149,3 +163,8 @@ IMPORT_EXPORT_USE_TRANSACTIONS = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'booking.User'
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}

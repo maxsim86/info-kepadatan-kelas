@@ -1,0 +1,11 @@
+<h1>Welcome to the chat</h1>
+<input type="text" id="room_name" placeholder="Enter room name">
+<button onclick="joinRoom()">Join Room</button>
+
+<script>
+    function joinRoom() {
+        var roomName = document.getElementById('room_name').value;
+        window.location.pathname = '/chat' + roomName +'/';
+    }
+</script>
+
