@@ -1,4 +1,5 @@
 from django.db import models
 
 # Create your models here.
-test
+def name_of_bilangan():
+    
