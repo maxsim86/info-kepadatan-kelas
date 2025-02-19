@@ -3,6 +3,10 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 
+
+from django.contrib.auth.models import User
+from .models import Conversation, Message
+
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
@@ -35,6 +39,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         message_content = text_data_json['message']
         # Send back to the same user
+        await self.save_message(message_content)
         await self.channel_layer.group_send(
             self.room_group_name,
             {
@@ -55,10 +60,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
         }))
         
     @database_sync_to_async
-    def authenticate(self):
+    async def authenticate(self):
         try:
-            # Assuming you are sending the token in the authorization header
-            jwt_token = self.scope['headers'].decode()
+            auth_header =dict(self.scope['headers']).get(b'authorization',b'').decode()
+            if auth_header.startswitch('Bearer '):
+                
+                jwt_token = auth_header.split(' ')
+            else:
+                await self.close()
             validated_token = JWTAuthentication().get_validated_token(jwt_token)
             user = JWTAuthentication().get_user(validated_token)
 
@@ -68,14 +77,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 await self.close()
         except Exception as e:
             print(f"Authentication error: {e}")
-            await self.close()
+            await self.close() # now i can use await here
 
     @database_sync_to_async
     def get_or_create_conversation(self):
         participants = [self.scope['user'], User.objects.first()]
         conversation, created = Conversation.objects.get_or_create(
             participants__in=participants,
-            participants__incount= len(participants)
+            participants__count= len(participants)
         )
         if created:
             conversation.participants.set(participants)
