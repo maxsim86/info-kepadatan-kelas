@@ -31,4 +31,7 @@ urlpatterns = [
     path("kuiz/", include("profilpersonaliti.urls")),
     path("api/", include("api.urls")),
     path('booking/', include("booking.urls")),
+
+    # Live Chat
+    path('chat/', include('live_chat.urls')),
 ]
