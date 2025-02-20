@@ -16,13 +16,13 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 #application = get_asgi_application()
 
 
-django_asgi_app = get_asgi_application()
+# django_asgi_app = get_asgi_application()
 
-from live_chat import routing
+# from live_chat import routing
 
-application = ProtocolTypeRouter({
-    "http": django_asgi_app,
-    "websocket": AllowedHostsOriginValidator(
-        AuthMiddlewareStack(URLRouter(routing.websocket_urlpatterns))
-    ),
-})
+# application = ProtocolTypeRouter({
+#     "http": django_asgi_app,
+#     "websocket": AllowedHostsOriginValidator(
+#         AuthMiddlewareStack(URLRouter(routing.websocket_urlpatterns))
+#     ),
+# })

@@ -127,3 +127,11 @@ def contact_us(request):
 
 def thank_you(request):
     return render(request, "thank_you.html")
+
+
+
+
+#front page untuk live chat
+
+def home_view(request):
+    return render(request, 'home.html')
