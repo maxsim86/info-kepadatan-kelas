@@ -31,7 +31,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    "daphne",
     "booking.apps.BookingConfig",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -41,17 +40,13 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "whitenoise.runserver_nostatic",
     "utama",
-    "users",
     "profilpersonaliti",
-    'live_chat',
     "import_export",
     "api.apps.ApiConfig",
     "rest_framework",
     "requests",
     "django_htmx",
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
+
 ]
 
 MIDDLEWARE = [
@@ -62,15 +57,14 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "allauth.account.middleware.AccountMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
-AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend",
-    "allauth.account.auth_backends.AuthenticationBackend",
-]
+# AUTHENTICATION_BACKENDS = [
+#     "django.contrib.auth.backends.ModelBackend",
+#     "allauth.account.auth_backends.AuthenticationBackend",
+# ]
 
 
 ROOT_URLCONF = "config.urls"
