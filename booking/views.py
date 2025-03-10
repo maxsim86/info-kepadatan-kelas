@@ -309,7 +309,3 @@ def userBookings(request):
 
     return render(request, "booking/user_bookings.html", context)
 
-
-def infoRoom(request):
-    #    detail = User.object.get(email=request.user)
-    pass

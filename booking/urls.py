@@ -33,5 +33,4 @@ urlpatterns = [
     path("cancel-room/<str:ts>/<str:pk>", views.cancelRoom, name="cancel-room"),
     path("update-room/<str:pk>", views.updateRoom, name="update-room"),
     path("delete-room/<str:pk>", views.deleteRoom, name="delete-room"),
-    path("info/", views.infoRoom, name="info-room"),
 ]

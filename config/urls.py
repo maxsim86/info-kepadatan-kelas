@@ -33,7 +33,7 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     path("kuiz/", include("profilpersonaliti.urls")),
     path("api/", include("api.urls")),
-    path('booking/', include("booking.urls")),
+    path('tempah/', include("booking.urls")),
 
 ]
 
