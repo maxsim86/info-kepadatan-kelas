@@ -22,8 +22,6 @@ def indexQuiz(request):
 def quizDetail(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     questions = quiz.questions.all()
-
-
     # setup pagination
     page = request.GET.get("page", 1)  # default to page 1 if no page is specific
     num_of_items = 10
@@ -261,7 +259,7 @@ def jadual_score_percentage(request):
         percentage_dict[group_name] = {"percentage": percentage, "category": category}
 
     return render(
-        request, "jadual_score_percentage.html", {"percentage_dict":percentage_dict}
+        request, "jadual_score_percentage.html", {"percentage_dict": percentage_dict}
     )
 
 

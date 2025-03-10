@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from .forms import RoomForm,TimeSlotForm, RegisterForm, UserUpdateForm
+from .forms import RoomForm, TimeSlotForm, RegisterForm, UserUpdateForm
 from .models import Room, Booking, TimeSlot
 from datetime import datetime, date, timedelta
 
@@ -308,3 +308,8 @@ def userBookings(request):
     context = {"user": user, "bookings": bookings}
 
     return render(request, "booking/user_bookings.html", context)
+
+
+def infoRoom(request):
+    #    detail = User.object.get(email=request.user)
+    pass

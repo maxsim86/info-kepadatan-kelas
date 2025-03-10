@@ -10,7 +10,6 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 
 
-
 def check_availability(request):
     form = ClassroomForm()
 
@@ -129,9 +128,9 @@ def thank_you(request):
     return render(request, "thank_you.html")
 
 
+# front page untuk live chat
 
-
-#front page untuk live chat
 
 def home_view(request):
-    return render(request, 'home.html')
+    return render(request, "home.html")
+
