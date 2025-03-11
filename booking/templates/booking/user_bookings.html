@@ -33,18 +33,18 @@
       <tr>
         <th>Bilik</th>
         <th>Tarikh</th>
-        <th>Masa Checkin</th>
-        <th>Masa Checkout</th>
+        <th>Masa Mula</th>
+        <th>Masa Tamat</th>
         <th>Tindakan</th>
       </tr>
       {% for booking in bookings %}
-
       <tr>
         <td>{{booking.time_slot.room.name}}</td>
         <td>{{booking.date}}</td>
-        <td>{{booking.time_slot.check_in_time}}</td>
-        <td>{{booking.time_slot.check_out_time}}</td>
+        <td>{{booking.time_slot.get_translated_check_in_time}}</td>
+        <td>{{booking.time_slot.get_translated_checkout_time}}</td>
         <td>
+          
           <a class="btn btn-md btn-secondary" href="{% url 'cancel-room' booking.time_slot.id booking.id %}">
             Batal
           </a>

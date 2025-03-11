@@ -144,9 +144,7 @@ def bookRoom(request, p_date, pk):
         message = "ALREADY YOU"
     elif time_slot.booked == True:
         message = "ALREADY"
-    elif (picked_date_obj.day - today_date_obj.day >= days) and (
-        time_slot.booked == False
-    ):
+    elif (picked_date_obj.day - today_date_obj.day >= days) and (time_slot.booked == False):
         TimeSlot.objects.filter(id=pk).update(booked=True)
         Booking.objects.create(user=user, time_slot=time_slot, date=f_date)
         message = "SUCCESS"

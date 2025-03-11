@@ -40,16 +40,17 @@
   {% else %} {% for time_slot in time_slots %}
   <div class="timeslot-wrapper">
     <div class="timeslot-header">
-      <span class="bold">{{time_slot.check_in_time}}</span>
-      <span>to</span>
-      <span class="bold">{{time_slot.check_out_time}}</span>
+      <span class="bold">{{time_slot.get_translated_check_in_time}}</span>
+      <span>hingga</span>
+
+      <span class="bold">{{time_slot.get_translated_checkout_time}}</span>
     </div>
     <div class="timeslot-body">
       <div>
         <div>
           <p class="advance">
             Anda pasti untuk tempah {{ room.name }} dari 
-  {{time_slot.check_in_time}} - {{time_slot.check_out_time}}?
+  {{time_slot.get_translated_check_in_time}} - {{time_slot.get_translated_checkout_time}}?
           </p>
         </div>
       </div>

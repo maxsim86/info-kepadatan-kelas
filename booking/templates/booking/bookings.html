@@ -33,8 +33,8 @@
         <th>Tarikh</th>
         <th>Nama</th>
         <th>Email</th>
-        <th>Masa Checkin</th>
-        <th>Masa Checkout</th>
+        <th>Masa Mula</th>
+        <th>Masa Tamat</th>
       </tr>
       {% for booking in bookings %}
 
@@ -43,8 +43,8 @@
         <td>{{booking.date}}</td>
         <td>{{booking.user.name}}</td>
         <td>{{booking.user.email}}</td>
-        <td>{{booking.time_slot.check_in_time}}</td>
-        <td>{{booking.time_slot.check_out_time}}</td>
+        <td>{{booking.time_slot.get_translated_check_in_time}}</td>
+        <td>{{booking.time_slot.get_translated_checkout_time}}</td>
       </tr>
 
       {% endfor%}
