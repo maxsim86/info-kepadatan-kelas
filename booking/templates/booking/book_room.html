@@ -5,43 +5,50 @@
 </style>
 
 <!-- prettier-ignore -->
-{% extends 'layout.html' %} 
+{% extends 'layout.html' %}
 {% block content %}
+
 <div>
   <h1>Status for {{time_slot.room.name|lower }}</h1>
   {% if message == "SUCCESS" %}
   <div class="info-wrapper">
     <p class="success">{{time_slot.room.name}} berjaya ditempah!</p>
-  </div>
+</div>
+
   <!-- prettier-ignore -->
   {% elif message == "ALREADY YOU" %}
+
   <div class="info-wrapper">
     <p class="info">
       Anda sudah membuat tempahan bagi slot masa dari
-      {{time_slot.check_in_time}} to {{time_slot.check_out_time}}!
+      {{time_slot.get_translated_check_in_time}} hingga {{time_slot.get_translated_checkout_time}} !
     </p>
   </div>
+
   {% elif message == "ALREADY" %}
+
   <div class="info-wrapper">
     <p class="info">
-      Bilik sudah ada pengguna lain yang tempah! Sila pilih bilik lain atau slot masa
+      Sudah ada pengguna lain yang tempah !.Sila pilih Bilik Mesyuarat yang lain dan slot masa yang berbeza.
     </p>
   </div>
+
   {% elif message == "FAILURE" %}
   <div class="info-wrapper">
     <p class="info">Tempahan perlu dibuat sebelum {{ days }} hari lebih awal!</p>
   </div>
+
   {% else %}
+
   <div class="info-wrapper">
     <p class="info">
       Ralat telah berlaku!, Tidak dapat membuat tempahan bilik untuk slot masa.
     </p>
   </div>
+
   {% endif %}
   <div class="btn-wrapper">
-    <a class="btn btn-md btn-secondary" href="{% url 'dashboard' %}"
-      >Kembali ke Dashboard</a
-    >
+    <a class="btn btn-md btn-secondary" href="{% url 'dashboard' %}">Kembali ke Dashboard</a>
   </div>
 </div>
 {% endblock content %}

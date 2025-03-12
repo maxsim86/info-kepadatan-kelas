@@ -37,7 +37,7 @@
 <div class="rooms-wrapper">
   {% if not rooms %}
   <div class="info-wrapper">
-    <p class="info">No rooms are there to book!</p>
+    <p class="info">Tiada bilik untuk ditempah!</p>
   </div>
   {% else %} {% for room in rooms %}
   <div class="room-wrapper">
@@ -56,7 +56,7 @@
         </div>
       </div>
       <div>
-        <a class="btn btn-md btn-primary" href="{% url 'available-timeslots' date room.id %}">Lihat Slot Masa</a>
+        <a class="btn btn-md btn-primary" href="{% url 'available-timeslots' date room.id %}">Slot Masa</a>
       </div>
     </div>
   </div>

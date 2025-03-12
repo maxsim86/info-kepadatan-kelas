@@ -19,16 +19,16 @@
 <!-- prettier-ignore -->
 {% extends 'layout.html' %}
 {% block content %}
-<h1>Batalkan Tempahan</h1>
+<h1>Batal Tempahan</h1>
 <form method="POST" action="">
   {% csrf_token %}
 
   {% for b in booking %}
   <p class="confirm-message">
-    Anda pasti untuk membatalkan slot tempahan<span class="bold">{{b.room.name}}</span> pada
+    Anda pasti untuk batalkan slot tempahan<span class="bold">{{b.room.name}}</span>
     <span class="bold">{{b.date|date:"d M Y"|lower }}</span> dari
-    <span class="bold">{{b.time_slot.check_in_time}}</span> hingga
-    <span class="bold">{{b.time_slot.check_out_time}}</span> ?
+    <span class="bold">{{b.time_slot.get_translated_check_in_time}}</span> hingga
+    <span class="bold">{{b.time_slot.get_translated_checkout_time}}</span> ?
   </p>
   {% endfor %}
   <div class="btn-wrapper">
