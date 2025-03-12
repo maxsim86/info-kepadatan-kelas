@@ -1,10 +1,3 @@
-<style>
-  .btn-wrapper {
-    margin-top: 1rem;
-  }
-</style>
-
-<!-- prettier-ignore -->
 {% extends 'layout.html' %}
 {% block content %}
 
@@ -15,9 +8,7 @@
     <p class="success">{{time_slot.room.name}} berjaya ditempah!</p>
 </div>
 
-  <!-- prettier-ignore -->
   {% elif message == "ALREADY YOU" %}
-
   <div class="info-wrapper">
     <p class="info">
       Anda sudah membuat tempahan bagi slot masa dari
@@ -26,16 +17,23 @@
   </div>
 
   {% elif message == "ALREADY" %}
-
   <div class="info-wrapper">
     <p class="info">
       Sudah ada pengguna lain yang tempah !.Sila pilih Bilik Mesyuarat yang lain dan slot masa yang berbeza.
     </p>
   </div>
+    {% elif message == "FULL_DAY_CONFLICT" %}
+    <div class="info-wrapper">
+        <p class="info">Slot masa penuh telah ditempah. Sila pilih slot masa yang lain.</p>
+    </div>
+    {% elif message == "HALF_DAY_CONFLICT" %}
+    <div class="info-wrapper">
+        <p class="info">Slot masa separuh hari tidak tersedia kerana tempahan slot 1 hari telah dibuat.</p>
+    </div>
 
   {% elif message == "FAILURE" %}
   <div class="info-wrapper">
-    <p class="info">Tempahan perlu dibuat sebelum {{ days }} hari lebih awal!</p>
+    <p class="info">Tempahan perlu dibuat {{ days }} hari lebih awal!</p>
   </div>
 
   {% else %}
