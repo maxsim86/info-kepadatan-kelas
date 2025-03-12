@@ -23,8 +23,8 @@
   <form method="POST" action="">
     {% csrf_token %}
     <p class="confirm-message">
-      Are you sure you want to delete timeslot from
-      <span class="bold">{{time_slot.check_in_time}}</span> to
+   Anda pasti untuk delete time slot dari
+      <span class="bold">{{time_slot.check_in_time}}</span> hingga
       <span class="bold">{{time_slot.check_out_time}}</span>?
     </p>
     <div class="btn-wrapper">
