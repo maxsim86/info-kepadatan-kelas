@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hasil Kuis</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hasil Kuis</h1>
+
+    <h2>Skor per Kategori</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Kategori</th>
+                <th>Total Skor</th>
+                {% for number in count_per_question.AS %}
+                    {% if number != "total_group_score" %}
+                        <th>Soal {{ number }}</th>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for group_name, group_data in count_per_question.items %}
+            <tr>
+                <td>{{ group_name }}</td>
+                <td>{{ group_data.total_group_score }}</td>
+                {% for number, question_data in group_data.items %}
+                    {% if number != "total_group_score" %}
+                        <td>{{ question_data.score_sum }}</td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Total Skor Keseluruhan</h2>
+    <p>Total Skor: {{ total_sum }}</p>
+
+</body>
+</html>

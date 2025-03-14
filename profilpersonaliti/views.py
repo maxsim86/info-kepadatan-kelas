@@ -98,6 +98,7 @@ def count_choices(request, quiz_id):
     return context
 
 
+
 percentage_values = {
     0: 0,
     1: 5,
@@ -123,26 +124,31 @@ percentage_values = {
     21: 99,
 }
 
-
 @login_required(login_url="login")
 def score_percentage(request, quiz_id):
-    # calculate total score for each group name
     total_count = count_choices(request, quiz_id)
     total_scores = {
         group_name: data["total_group_score"]
         for group_name, data in total_count["count_per_question"].items()
     }
 
-    # Map total scores to percentage values
     score_percentages = {
         group_name: percentage_values.get(total_score, 0)
         for group_name, total_score in total_scores.items()
     }
 
+    score_categories = {
+        group_name: calculate_score_percentage(percentage)
+        for group_name, percentage in score_percentages.items()
+    }
 
-# Render templates to print display score percentage
-#    context = {"score_percentages": score_percentages}
-#    return render(request, "score_percentage.html", context)
+    context = {
+        "score_percentages": score_percentages,
+        "score_categories": score_categories,
+    }
+    return render(request, "quiz_results.html", context)
+
+
 
 
 def calculate_percentage(total, jn):

@@ -165,10 +165,6 @@ def bookRoom(request, p_date, pk):
 
 
 
-
-
-
-
 @login_required(redirect_field_name="/signin")
 def bookRoom(request, p_date, pk):
     f_date = datetime.strptime(p_date, "%Y%m%d").date().strftime("%Y-%m-%d")
@@ -183,7 +179,7 @@ def bookRoom(request, p_date, pk):
     try:
         booking_obj = Booking.objects.filter(user=user, time_slot=time_slot)
     except:
-        print("Queryset doesnot exists")
+        print("Queryset does not exists")
 
     if booking_obj.exists():
         message = "ALREADY YOU"
@@ -232,12 +228,6 @@ def bookRoom(request, p_date, pk):
 
     context = {"user": user, "time_slot": time_slot, "message": message, "days": days}
     return render(request, "booking/book_room.html", context)
-
-
-
-
-
-
 
 
 

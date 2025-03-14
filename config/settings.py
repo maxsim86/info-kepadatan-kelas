@@ -40,12 +40,14 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "whitenoise.runserver_nostatic",
     "utama",
-    "profilpersonaliti",
+    
     "import_export",
     "api.apps.ApiConfig",
     "rest_framework",
     "requests",
     "django_htmx",
+    
+    "profilpersonaliti",
 
 ]
 
