@@ -1,78 +1,166 @@
+/* ====================
+   Global Styles
+   ==================== */
+
+   body {
+    font-family: "HeiTi SC Light", "Microsoft YaHei", sans-serif;
+    color: var(--font-color); /* Menggunakan variabel font-color */
+    font-size: 18px;
+}
+
 :root {
-    --font-color: rgb(174,174,174)
+    --font-color: rgb(8, 8, 8);
+    --primary-color: #6ae27e; /* Warna biru utama */
+    --primary-darker: #2980b9; /* Warna biru lebih gelap */
+    --success-color: #28a745; /* Warna sukses hijau */
+    --error-color: red; /* Warna error merah */
+    --button-color: rgb(121, 117, 234); /* Warna tombol */
+    --button-hover: rgb(90, 86, 200); /* Warna hover tombol */
+    --light-bg: #f0f0f0; /* Warna latar belakang ringan */
+    --border-color: #ddd; /* Warna border */
+    --message-bg: #e0f7fa; /* Warna latar belakang pesan */
+    --message-border: #b2ebf2; /* Warna border pesan */
+    --message-error-bg: #ffe0b2; /* Warna latar belakang pesan error */
+    --message-error-border: #ffcc80; /* Warna border pesan error */
+    --message-success-bg: #c8e6c9; /* Warna latar belakang pesan sukses */
+    --message-success-border: #a5d6a7; /* Warna border pesan sukses */
 }
 
-
-body, html {
-    background: wheat;
-    height: 100%;
-    color: rgb(84, 83, 83);
-    font-family: Arial, Helvetica, sans-serif;
+h1, h2, h3 {
+    font-family: "HeiTi SC Light", "Microsoft YaHei", sans-serif;
 }
 
-.parent-div{
+p {
+    font-family: sans-serif; /* Font fallback */
+}
+
+a {
+    text-decoration: none;
+    color: var(--font-color);
+}
+
+/* ====================
+   Layout Styles
+   ==================== */
+
+.parent-div {
     display: flex;
     align-items: center;
     justify-content: center;
+}
 
-}
-.title{
-    text-decoration: underline;
-}
-.centered-div{
+.centered-div {
     align-items: center;
     width: 80%;
     margin-top: 4rem;
 }
 
+.content-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 20px;
+}
+
+/* ====================
+   Navigation Styles
+   ==================== */
+
 nav {
     display: flex;
     justify-content: space-between;
-    padding-bottom: 3rem;
+    padding: 1rem 0 3rem 0;
     font-size: x-large;
-    padding-top: 1rem;
-
 }
 
-a{
+.site-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 15px 0;
+    text-align: center;
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.nav-left a {
+    color: white;
     text-decoration: none;
-    color: var(--font-color);
+    font-size: 1.2em;
+    font-weight: bold;
 }
 
-.success{
-    color: green;
+.nav-right {
+    display: flex;
+    align-items: center;
 }
-.error {
-    color:red;
-}
- button {
-    display: block;
-    width: 100%;
 
+.logout-button, .login-link {
+    background-color: var(--primary-darker);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    text-decoration: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.logout-button:hover, .login-link:hover {
+    background-color: #1f618d;
+}
+
+/* ====================
+   Form Styles
+   ==================== */
+
+button, .submit-button {
+    display: inline-block; /* Mengubah menjadi inline-block */
+    width: auto; /* Mengubah lebar menjadi auto */
     font-size: large;
     text-align: center;
-    background-color: rgb(121, 117, 234);
-    color: var(--font-color);
+    background-color: var(--button-color);
+    color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
- }
-
- .submit{
-    padding: 15px;
-    margin-top: 3rem;
- }
-
-
-
- .pagination {
-    text-align: center; /* Center the pagination content */
-    margin-top: 20px;
-    display: flex;
-    justify-content: center; /* Align items to the center horizontally */
+    padding: 10px 20px; /* Menambahkan padding */
+    margin-top: 20px; /* Menambahkan margin top */
 }
 
-.pagination .step-links a {
+button:hover, .submit-button:hover {
+    background-color: var(--button-hover);
+}
+
+.submit-button {
+    background-color: var(--success-color);
+}
+
+/* ====================
+   Typography Styles
+   ==================== */
+
+.title {
+    text-decoration: underline;
+}
+
+/* ====================
+   Pagination Styles
+   ==================== */
+
+.pagination {
+    text-align: center;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.pagination a {
     margin: 0 10px;
     text-decoration: none;
     color: #007bff;
@@ -80,20 +168,34 @@ a{
 
 .pagination .current {
     font-weight: bold;
-    margin: 0 10px;
 }
 
-.submit-button {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 10px 20px;
+/* ====================
+   Message Styles
+   ==================== */
+
+.messages {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+}
+
+.messages li {
+    padding: 10px;
     border-radius: 5px;
-    cursor: pointer;
-    display: inline-block;
-    margin-top: 20px;
+    background-color: var(--message-bg);
+    border: 1px solid var(--message-border);
+    margin-bottom: 5px;
 }
 
-.submit-button:hover {
-    background-color: #218838;
+.messages li.error {
+    background-color: var(--message-error-bg);
+    border: 1px solid var(--message-error-border);
+    color: var(--error-color);
+}
+
+.messages li.success {
+    background-color: var(--message-success-bg);
+    border: 1px solid var(--message-success-border);
+    color: green;
 }

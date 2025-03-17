@@ -7,8 +7,8 @@ from profilpersonaliti.models import (
     Choice,
 )
 from django.db.models import Sum
-
 # Register your models here.
+
 
 
 class ChoiceInline(admin.TabularInline):
@@ -19,6 +19,7 @@ class ChoiceInline(admin.TabularInline):
 class QuestionDashboardAdmin(ImportExportModelAdmin):
     inlines = [ChoiceInline]
     list_filter = ("quiz",)
+    ordering = ('question_number',)
 
 
 class UserResponseAdmin(admin.ModelAdmin):

@@ -5,33 +5,36 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>{% block title %} Kuiz Tajma consulting {% endblock title %}</title>
+    <meta http-equiv="X-UA-Compatible" content="ie-edge" />
+    <title>{% block title %} Tajma Consulting {% endblock title %}</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
   </head>
   <body>
-    <nav>
-      <div class="nav-left">
-        <a href="{% url 'index_quiz' %}">Profil Personaliti </a>
-      </div>
+    <header class="site-header">
+      <nav class="nav-container">
+        <div class="nav-left">
+          <a href="{% url 'index_quiz' %}">Profil Personaliti </a>
+        </div>
 
-      <div class="nav-right">
-        {% if user.is_authenticated %}
-        <form method="POST" action="{% url 'logout' %}">
-          {% csrf_token %}
-          <button method="submit">Log Keluar</button>
-        </form>
+        <div class="nav-right">
+          {% if user.is_authenticated %}
+          <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="logout-button">Log Keluar</button>
+          </form>
+          {% else %}
+          <a href="{% url 'login' %}" class="login-link">Log Masuk</a>
+          {% endif %}
+        </div>
+      </nav>
+    </header>
 
-        {% else %}
-        <a href="{% url 'login' %} ">log Masuk</a>
-        {% endif %}
-      </div>
-    </nav>
+    <main class="content-container">
+      {% block content %}{% endblock content %}
+    </main>
 
-    {% block content %}{% endblock content %}
-
-    <div class="parent-div">
-      <div class="parent-div">
+    <footer class="site-footer">
+      <div class="footer-container">
         {% if messages %}
         <ul class="messages">
           {% for message in messages %}
@@ -42,6 +45,6 @@
         </ul>
         {% endif %}
       </div>
-    </div>
+    </footer>
   </body>
 </html>

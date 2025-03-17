@@ -46,7 +46,7 @@ class UserResponse(models.Model):
     selected_choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
 
     def __str__(self) -> str:
-        return f"{self.user.username}'s response to {self.question.text} in {self.quiz.title} is {self.selected_choice.text}"
+        return f"{self.user.email}'s response to {self.question.text} in {self.quiz.title} is {self.selected_choice.text}"
 
     def score(self):
         return self.selected_choice.score if self.selected_choice else 0

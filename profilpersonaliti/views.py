@@ -21,10 +21,10 @@ def indexQuiz(request):
 @login_required(login_url="login")
 def quizDetail(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
-    questions = quiz.questions.all()
+    questions = quiz.questions.all().order_by('question_number')
     # setup pagination
     page = request.GET.get("page", 1)  # default to page 1 if no page is specific
-    num_of_items = 10
+    num_of_items = 93
     paginator = Paginator(questions, num_of_items)  # show 3 question for question
 
     try:
