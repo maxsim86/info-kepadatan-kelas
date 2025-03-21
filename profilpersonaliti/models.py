@@ -1,6 +1,4 @@
 from django.db import models
-
-# from django.contrib.auth.models import User
 from django.conf import settings
 
 
@@ -37,19 +35,33 @@ class Choice(models.Model):
 
     def __str__(self) -> str:
         return self.text
-
-
-class UserResponse(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    
+    
+    
+class QuizResponse(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
-    selected_choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
+    response_data = models.JSONField()  # Store answers as a JSON object
+    personal_data = models.JSONField(blank=True, null=True) # Tambahkan ini
 
-    def __str__(self) -> str:
-        return f"{self.user.email}'s response to {self.question.text} in {self.quiz.title} is {self.selected_choice.text}"
+    created_at = models.DateTimeField(auto_now_add=True)
 
-    def score(self):
-        return self.selected_choice.score if self.selected_choice else 0
+    def __str__(self):
+        return f"{self.quiz.title} - {self.id}"
+
+
+
+# class UserResponse(models.Model):
+#     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+#     question = models.ForeignKey(Question, on_delete=models.CASCADE)
+#     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
+#     selected_choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
+
+#     def __str__(self) -> str:
+#         return f"{self.user.email}'s response to {self.question.text} in {self.quiz.title} is {self.selected_choice.text}"
+
+#     def score(self):
+#         return self.selected_choice.score if self.selected_choice else 0
+
 
     # mengira jumlah score
     def calculate_score(self):

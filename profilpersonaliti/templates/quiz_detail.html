@@ -5,7 +5,7 @@
   <div class="centered-div">
     <h3 class="title">{{ quiz.title }}</h3>
 
-    <form method="POST" id="quizform" action="{% if questions.has_next %}?page={{ questions.next_page_number }}{% else %}{% url 'quiz_submit' quiz.id %}{% endif %}">
+    <form method="POST" id="quizform" action="{% if questions.has_next %}?page={{ questions.next_page_number }}{% else %}{% url 'profilpersonaliti:quiz_submit' quiz.id %}{% endif %}">
       {% csrf_token %}
 
       {% for question in questions %}

@@ -158,14 +158,3 @@ IMPORT_EXPORT_USE_TRANSACTIONS = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'booking.User'
-
-
-
-#testing untuk live chat
-
-LOGIN_REDIRECT_URL = '/'
-
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-ACCOUNT_LOGIN_METHODS = {'email'}
-ACCOUNT_EMAIL_REQUIRED = True
-

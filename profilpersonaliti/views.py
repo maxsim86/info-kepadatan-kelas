@@ -1,11 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from profilpersonaliti.models import Quiz, Question, Choice, UserResponse
-from django.contrib.auth.decorators import login_required
+from profilpersonaliti.models import Quiz, Choice, UserResponse
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
-from django.views.generic import CreateView
+
+
 
 # from django.db.models import Count
 
@@ -18,7 +18,6 @@ def indexQuiz(request):
 
 
 # quiz detail(soalan quiz)
-@login_required(login_url="login")
 def quizDetail(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     questions = quiz.questions.all().order_by('question_number')
@@ -124,7 +123,6 @@ percentage_values = {
     21: 99,
 }
 
-@login_required(login_url="login")
 def score_percentage(request, quiz_id):
     total_count = count_choices(request, quiz_id)
     total_scores = {
@@ -270,7 +268,6 @@ def jadual_score_percentage(request):
 
 
 # Quiz submit
-@login_required(login_url="login")
 def quiz_submit(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
 
@@ -308,11 +305,4 @@ def quiz_submit(request, quiz_id):
 
     # If method is not POST, redirect to the quiz detail page
     return redirect("quiz_detail", quiz_id=quiz_id)
-
-
-class SignUpView(CreateView):
-    form_class = UserCreationForm
-    success_url = reverse_lazy("login")
-    template_name = "profilpersonaliti/signup.html"
-
 

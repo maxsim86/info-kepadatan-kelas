@@ -5,27 +5,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie-edge" />
-    <title>{% block title %} Tajma Consulting {% endblock title %}</title>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>{% block title %} Kuiz Tajma consulting {% endblock title %}</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
   </head>
   <body>
     <header class="site-header">
       <nav class="nav-container">
         <div class="nav-left">
-          <a href="{% url 'index_quiz' %}">Profil Personaliti </a>
+          <a href="{% url 'index_quiz' %}">UNIT PSIKOLOGI & KAUNSELING</a>
         </div>
 
-        <div class="nav-right">
-          {% if user.is_authenticated %}
-          <form method="POST" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button type="submit" class="logout-button">Log Keluar</button>
-          </form>
-          {% else %}
-          <a href="{% url 'login' %}" class="login-link">Log Masuk</a>
-          {% endif %}
-        </div>
+
       </nav>
     </header>
 
