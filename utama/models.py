@@ -99,7 +99,7 @@ class Classroom(models.Model):
         max_length=50, choices=SCHOOL_CHOICES, verbose_name="Senarai Sekolah"
     )
     year = models.CharField(
-        max_length=50, choices=YEAR_CHOICES, verbose_name="tahun kelas"
+        max_length=50, choices=YEAR_CHOICES, verbose_name="Pilih Tahun"
     )
     average = models.IntegerField(verbose_name="purata")
 

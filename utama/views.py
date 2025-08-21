@@ -22,7 +22,7 @@ def check_availability(request):
 
     classrooms = Classroom.objects.all()
 
-    # Filter berdasarkan sekolah dan tahun
+    # Filter mengikut sekolah dan tahun
     year = request.GET.get("year", "PPKI")
     school_name = request.GET.get("school", "SMK TAMAN KLANG UTAMA")
     class_name_filter = request.GET.get("class_name", "")
