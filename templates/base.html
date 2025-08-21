@@ -2,6 +2,7 @@
 {% load django_htmx %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -105,8 +106,9 @@
         .alert-danger { @apply bg-red-500 }
     </style>
 </head>
+
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' class="{% block class %}{% endblock %}">
-	
+
     {% include 'includes/messages.html' %}
 
     {% include 'includes/header.html' %}
@@ -117,4 +119,5 @@
     {% block javascript %}{% endblock %}
 
 </body>
+
 </html>

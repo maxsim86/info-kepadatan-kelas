@@ -1,55 +1,28 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Hasil Kuis</title>
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-    </style>
-</head>
-<body>
-    <h1>Keputusan</h1>
+{% extends "base_quiz.html" %}
 
-    <h2>Skor per Kategori</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Kategori</th>
-                <th>Total Skor</th>
-                {% for number in count_per_question.AS %}
-                    {% if number != "total_group_score" %}
-                        <th>Soal {{ number }}</th>
-                    {% endif %}
-                {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for group_name, group_data in count_per_question.items %}
-            <tr>
-                <td>{{ group_name }}</td>
-                <td>{{ group_data.total_group_score }}</td>
-                {% for number, question_data in group_data.items %}
-                    {% if number != "total_group_score" %}
-                        <td>{{ question_data.score_sum }}</td>
-                    {% endif %}
-                {% endfor %}
-            </tr>
+{% block content %}
+    <div class="parent-div">
+        <div class="centered-div">
+            <h1>Hasil Kuis {{ quiz.title }}</h1>
+            {% for response in responses %}
+                <div class="user-info">
+                    <h2>Nomor Kad Pengenalan: {{ response.personal_data.no_kad_pengenalan }}</h2>
+                    <p>Nama Penuh: {{ response.personal_data.nama_penuh }}</p>
+                    <p>Email: {{ response.personal_data.alamat_e_mel }}</p>
+                    <h3>Jawaban:</h3>
+                    <ul>
+                        {% for question_id, choice_id in response.response_data.items %}
+                            {% with question=quiz.questions.get(id=question_id|safe) %}
+                                {% with choice=question.choices.get(id=choice_id|safe) %}
+                                    <li>
+                                        Pertanyaan: {{ question.text }} - Jawaban: {{ choice.text }} (Skor: {{ choice.score }})
+                                    </li>
+                                {% endwith %}
+                            {% endwith %}
+                        {% endfor %}
+                    </ul>
+                </div>
             {% endfor %}
-        </tbody>
-    </table>
-
-    <h2>Total Skor Keseluruhan</h2>
-    <p>Total Skor: {{ total_sum }}</p>
-
-</body>
-</html>
+        </div>
+    </div>
+{% endblock content %}

@@ -124,15 +124,15 @@ class TimeSlot(models.Model):
 
     def __str__(self):
         return f"booking time {self.check_in_time} of {self.check_out_time}"
-    
-# Translate noon to Tengah hari dari PM /AM to Pagi /Petang
+
+    # Translate noon to Tengah hari dari PM /AM to Pagi /Petang
     def get_translated_check_in_time(self):
         hour = self.check_in_time.hour
         minute = self.check_in_time.minute
-        
+
         if hour == 12 and minute == 0:
             return "Tengah Hari"
-        
+
         period = "Pagi" if hour < 12 else "Petang"
         if hour == 0:
             hour_12 = 12
@@ -142,14 +142,13 @@ class TimeSlot(models.Model):
             hour_12 = hour
         return f"{hour_12}:{minute:02d} {period}"
 
-    
     def get_translated_checkout_time(self):
         hour = self.check_out_time.hour
         minute = self.check_out_time.minute
 
         if hour == 12 and minute == 0:
             return "Tengah Hari"
-        #jika jam kurang dari pukul 12 dikira Petang
+        # jika jam kurang dari pukul 12 dikira Petang
         period = "Pagi" if hour < 12 else "Petang"
         if hour == 0:
             hour_12 = 12
@@ -160,7 +159,7 @@ class TimeSlot(models.Model):
 
         return f"{hour_12}:{minute:02d} {period}"
 
-        
+
 class Booking(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     time_slot = models.ForeignKey(TimeSlot, on_delete=models.CASCADE)

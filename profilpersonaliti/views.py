@@ -1,10 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from profilpersonaliti.models import Quiz, Choice, UserResponse
+from profilpersonaliti.models import Quiz, Choice, QuizResponse
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
-
+from django.views.decorators.http import require_POST
+from .forms import PersonalDataForm
 
 
 # from django.db.models import Count
@@ -13,32 +14,31 @@ from django.urls import reverse_lazy
 # Create your views here.
 def indexQuiz(request):
     quizzes = Quiz.objects.filter(is_ready_to_publish=True)
-    context = {"quizzes": quizzes}
+    personal_form = PersonalDataForm()
+    context = {
+        "quizzes": quizzes,
+        "personal_form": personal_form,
+    }
     return render(request, "index_quiz.html", context=context)
 
 
-# quiz detail(soalan quiz)
+# quiz detail(detail quiz)
 def quizDetail(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
-    questions = quiz.questions.all().order_by('question_number')
-    # setup pagination
-    page = request.GET.get("page", 1)  # default to page 1 if no page is specific
+    questions = quiz.questions.all().order_by("question_number")
+    page = request.GET.get("page", 1)
     num_of_items = 93
-    paginator = Paginator(questions, num_of_items)  # show 3 question for question
-
+    paginator = Paginator(questions, num_of_items)
     try:
         questions_page = paginator.page(page)
     except PageNotAnInteger:
         questions_page = paginator.page(1)
     except EmptyPage:
         questions_page = paginator.page(paginator.num_pages)
-
-    # calculate offset
     offset = (questions_page.number - 1) * num_of_items
-
     context = {
         "quiz": quiz,
-        "questions": questions_page,  # Pass the paginated questions
+        "questions": questions_page,
         "offset": offset,
     }
     return render(request, "quiz_detail.html", context)
@@ -49,7 +49,7 @@ def quizDetail(request, quiz_id):
 
 
 # bahagian 3 : borang jawapan dengan nilai serta jadual score dan peratus %
-def count_choices(request, quiz_id):
+def count_choices(quiz_response):
     question_numbers = {
         "AS": [1, 13, 25, 37, 49, 61, 73],
         "AN": [2, 14, 26, 38, 50, 62, 74, 85],
@@ -69,33 +69,23 @@ def count_choices(request, quiz_id):
     total_sum = 0
 
     for group_name, numbers in question_numbers.items():
-
         group_data = {}
         total_group_score = 0
-
         for number in numbers:
-            user_responses = UserResponse.objects.filter(
-                quiz_id=quiz_id, question__question_number=number
+            question = Question.objects.get(
+                quiz=quiz_response.quiz, question_number=number
             )
-            score_sum = sum(user_response.score() for user_response in user_responses)
-
-            group_data[number] = {
-                "user_responses": user_responses,
-                "score_sum": score_sum,
-            }
+            choice_id = quiz_response.response_data.get(str(question.id))
+            score_sum = 0
+            if choice_id:
+                choice = Choice.objects.get(id=choice_id)
+                score_sum = choice.score
+            group_data[number] = {"score_sum": score_sum}
             total_sum += score_sum
             total_group_score += score_sum
-
         group_data["total_group_score"] = total_group_score
         count_per_question[group_name] = group_data
-
-    context = {
-        "count_per_question": count_per_question,
-        "total_sum": total_sum,
-    }
-
-    return context
-
+    return {"count_per_question": count_per_question, "total_sum": total_sum}
 
 
 percentage_values = {
@@ -123,30 +113,25 @@ percentage_values = {
     21: 99,
 }
 
-def score_percentage(request, quiz_id):
-    total_count = count_choices(request, quiz_id)
+
+def score_percentage(quiz_response):
+    total_count = count_choices(quiz_response)
     total_scores = {
         group_name: data["total_group_score"]
         for group_name, data in total_count["count_per_question"].items()
     }
-
     score_percentages = {
         group_name: percentage_values.get(total_score, 0)
         for group_name, total_score in total_scores.items()
     }
-
     score_categories = {
         group_name: calculate_score_percentage(percentage)
         for group_name, percentage in score_percentages.items()
     }
-
-    context = {
+    return {
         "score_percentages": score_percentages,
         "score_categories": score_categories,
     }
-    return render(request, "quiz_results.html", context)
-
-
 
 
 def calculate_percentage(total, jn):
@@ -267,42 +252,46 @@ def jadual_score_percentage(request):
     )
 
 
-# Quiz submit
+@require_POST
 def quiz_submit(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
+    questions = quiz.questions.all()
+    personal_form = PersonalDataForm(request.POST)
 
-    if request.method == "POST":
-        questions = quiz.questions.all()
-        all_questions_answered = True  # Assume all questions are answered initially
+    # Validasi formulir data pribadi
+    if not personal_form.is_valid():
+        messages.error(request, "Silakan isi formulir data pribadi dengan benar.")
+        return redirect("quiz_detail", quiz_id=quiz_id)
 
-        # Check if all questions are answered
-        for question in questions:
-            choice_id = request.POST.get(f"question_{question.id}", None)
-            if not choice_id:
-                all_questions_answered = False
-                break  # Exit the loop if any question is left unanswered
+    personal_data = personal_form.cleaned_data
 
-        if not all_questions_answered:
-            # If there are unanswered questions, show the error message
-            messages.error(request, "Please answer all questions before submitting.")
-            return redirect("quiz_detail", quiz_id=quiz.id)
+    # Validasi jawaban kuis
+    all_questions_answered = True
+    response_data = {}
+    for question in questions:
+        choice_id = request.POST.get(f"question_{question.id}", None)
+        if not choice_id:
+            all_questions_answered = False
+            break
+        response_data[str(question.id)] = int(choice_id)
 
-        # If no errors, store user responses
-        for question in questions:
-            choice_id = request.POST.get(f"question_{question.id}")
-            choice = get_object_or_404(Choice, id=choice_id)
+    if not all_questions_answered:
+        messages.error(request, "Silakan jawab semua pertanyaan sebelum hantar.")
+        return redirect("quiz_detail", quiz_id=quiz_id)
 
-            UserResponse.objects.create(
-                user=request.user,
-                quiz=quiz,
-                question=question,
-                selected_choice=choice,
-            )
+    # Simpan data ke QuizResponse
+    QuizResponse.objects.create(
+        quiz=quiz,
+        response_data=response_data,
+        personal_data=personal_data,
+    )
 
-        # Redirect to the result page if all questions are answered
-        count_context = count_choices(request, quiz_id)
-        return render(request, "result.html", count_context)
+    # Kirim data ke result.html
+    context = {
+        "quiz": quiz,
+        "responses": QuizResponse.objects.filter(
+            quiz=quiz, response_data=response_data, personal_data=personal_data
+        ),
+    }
 
-    # If method is not POST, redirect to the quiz detail page
-    return redirect("quiz_detail", quiz_id=quiz_id)
-
+    return render(request, "result.html", context)

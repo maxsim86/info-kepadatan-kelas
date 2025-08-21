@@ -1,20 +1,23 @@
 {% extends "base_quiz.html" %}
 
 {% block content %}
+
+
 <div class="parent-div">
     <div class="centered-div">
-<h1>TAJMA CONSULTING</h1>
-<ul>
-        {% for quiz in quizzes %}
 
-        <a href="{% url 'quiz_detail' quiz.id %}">
-            <li>{{quiz}}</li></a>
 
-{% endfor %}
-</ul>
+        <h1>TAJMA CONSULTING</h1>
+        <ul>
+            {% for quiz in quizzes %}
+
+            <a href="{% url 'profilpersonaliti:quiz_detail' quiz.id %}">
+                <h3 class="title">{{ quiz.title }}</h3>
+
+
+                {% endfor %}
+        </ul>
     </div>
 
 </div>
 {% endblock content %}
-
-

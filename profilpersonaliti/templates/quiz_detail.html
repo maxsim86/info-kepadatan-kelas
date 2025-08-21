@@ -1,44 +1,40 @@
 {% extends "base_quiz.html" %}
 
 {% block content %}
-<div class="parent-div">
-  <div class="centered-div">
-    <h3 class="title">{{ quiz.title }}</h3>
+    <div class="parent-div">
+        <div class="centered-div">
+            <h3 class="title">{{ quiz.title }}</h3>
 
-    <form method="POST" id="quizform" action="{% if questions.has_next %}?page={{ questions.next_page_number }}{% else %}{% url 'profilpersonaliti:quiz_submit' quiz.id %}{% endif %}">
-      {% csrf_token %}
+            {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
 
-      {% for question in questions %}
-      <div class="question-block">
-        <h4>{{ offset|add:forloop.counter }}. {{ question.text }}</h4>
+            <form method="post" id="personalform">
+                {% csrf_token %}
+                <h4>Maklumat Peribadi</h4>
+                {% if personal_form.errors %}
+                    <div class="form-errors">
+                        {% for field, errors in personal_form.errors.items %}
+                            {% for error in errors %}
+                                <p>{{ field|title }}: {{ error }}</p>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="form-group">
+                    <label for="{{ personal_form.no_kad_pengenalan.id_for_label }}">{{ personal_form.no_kad_pengenalan.label }}</label>
+                    {{ personal_form.no_kad_pengenalan }}
+                </div>
+                </form>
 
-        <div class="choices">
-          {% for choice in question.choices.all %}
-          <div class="choice">
-            <input type="radio" id="choice_{{ choice.id }}" name="question_{{ question.id }}" value="{{ choice.id }}" />
-            <label for="choice_{{ choice.id }}">{{ choice.text }}</label>
-          </div>
-          {% endfor %}
-        </div>
-      </div>
-      {% endfor %}
+            <form method="POST" id="quizform" action="{% if questions.has_next %}?page={{ questions.next_page_number }}{% else %}{% url 'profilpersonaliti:quiz_submit' quiz.id %}{% endif %}">
+                {% csrf_token %}
+                </form>
 
-      {% if questions.has_next %}
-      <button type="submit" class="submit-button">Next</button>
-      {% else %}
-      <button type="submit" class="submit-button">Hantar kuiz</button>
-      {% endif %}
-    </form>
-
-    <div class="pagination">
-      {% if questions.has_previous %}
-        <a href="?page={{ questions.previous_page_number }}" class="pagination-button">Kembali</a>
-      {% endif %}
-
-      {% for page_num in page_range %}
-        <a href="?page={{ page_num }}" {% if page_num == questions.number %}class="active pagination-button"{% else %}class="pagination-button"{% endif %}>{{ page_num }}</a>
-      {% endfor %}
+            </div>
     </div>
-  </div>
-</div>
 {% endblock content %}

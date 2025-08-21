@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Classroom(models.Model):
     SCHOOL_CHOICES = [
         ("SK KLANG ", "SK KLANG"),
@@ -95,7 +96,7 @@ class Classroom(models.Model):
     ]
 
     school = models.CharField(
-        max_length=50, choices=SCHOOL_CHOICES, verbose_name="Pilihan Sekolah"
+        max_length=50, choices=SCHOOL_CHOICES, verbose_name="Senarai Sekolah"
     )
     year = models.CharField(
         max_length=50, choices=YEAR_CHOICES, verbose_name="tahun kelas"
