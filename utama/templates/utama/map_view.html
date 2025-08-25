@@ -1,0 +1,81 @@
+{% extends 'utama/base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+
+<style>
+    /* 2. Tetapkan saiz untuk bekas peta */
+    #map { 
+        height: 70vh; /* 70% ketinggian viewport */
+        width: 100%;
+    }
+</style>
+
+<div class="container mt-4">
+    <h2 class="mb-3">Peta Interaktif Status Sekolah</h2>
+    
+    <div id="map"></div>
+</div>
+
+
+<script>
+// Pastikan kod dijalankan selepas DOM sedia
+document.addEventListener('DOMContentLoaded', function () {
+    
+    // 4. Inisialisasi peta dan tetapkan pusat (view) awal - contohnya Klang
+    const map = L.map('map').setView([3.0449, 101.4456], 12);
+
+    // 5. Tambah 'tile layer' (rupa peta asas) dari OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // 6. Cipta ikon tersuai untuk setiap status
+    const greenIcon = L.icon({
+        iconUrl: '{% static "flashinggreen.gif" %}', // Guna imej GIF anda
+        iconSize:     [50, 50], // Saiz ikon
+    });
+
+    const redIcon = L.icon({
+        iconUrl: '{% static "flickering_red.gif" %}', // Guna imej GIF anda
+        iconSize:     [50, 50],
+    });
+
+    // 7. Dapatkan data dari API endpoint yang kita cipta
+    fetch("{% url 'school_data_json' %}")
+        .then(response => response.json())
+        .then(data => {
+            // 8. Gelung melalui setiap sekolah dalam data
+            data.forEach(school => {
+                let iconToUse;
+                let statusText;
+
+                // Tentukan ikon dan teks berdasarkan nilai 'max_average'
+                if (school.max_average < 39) {
+                    iconToUse = greenIcon;
+                    statusText = "<b>Status:</b> <span style='color:green;'>MASIH KOSONG</span>";
+                } else {
+                    iconToUse = redIcon;
+                    statusText = "<b>Status:</b> <span style='color:red;'>PENUH</span>";
+                }
+                
+                // Cipta 'marker' (pin) dengan ikon yang betul dan letakkan di atas peta
+                const marker = L.marker([school.latitude, school.longitude], {icon: iconToUse}).addTo(map);
+
+                // Tambah popup yang akan muncul apabila pin diklik
+                marker.bindPopup(`<b>${school.school}</b><br>${statusText}`);
+            });
+        })
+        .catch(error => console.error('Error fetching school data:', error));
+
+});
+</script>
+
+{% endblock content %}

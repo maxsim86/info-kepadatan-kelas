@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .forms import ClassroomForm, ContactForm
+from .forms import ClassroomForm
 from .models import Classroom
 from django.urls import reverse
 from .resources import ClassroomResource
@@ -8,34 +8,67 @@ import pandas as pd
 from .forms import ImportForm
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from django.db.models import Max
+
+
 
 
 def check_availability(request):
-    form = ClassroomForm()
+    form = ClassroomForm(request.GET or None)
 
     if request.method == "POST":
-        form = ClassroomForm(request.POST)
-        if form.is_valid():
-            form.save()
+        post_form = ClassroomForm(request.GET or None)
 
+        if post_form.is_valid():
+            post_form.save()
             return redirect("check_availability")
 
-    classrooms = Classroom.objects.all()
+    
 
-    # Filter mengikut sekolah dan tahun
-    year = request.GET.get("year", "PPKI")
-    school_name = request.GET.get("school", "SMK TAMAN KLANG UTAMA")
-    class_name_filter = request.GET.get("class_name", "")
-    classrooms = Classroom.objects.filter(year=year, school__icontains=school_name)
+    selected_year =request.GET.get("year")
+    selected_school = request.GET.get("school")
+    classrooms = Classroom.objects.none()
+    
+    if selected_year and selected_school:
+        classrooms = Classroom.objects.filter(year=selected_year,school=selected_school)
 
     context = {
         "form": form,
         "classrooms": classrooms,
-        "selected_year": year,
-        "class_name_filter": class_name_filter,
-        "school": school_name,
+        "selected_year": selected_year,
+        "selected_school": selected_school,
     }
-    return render(request, "utama/check_availability.html", context)
+    if "HX-Request" in request.headers:
+        return render(request, "utama/partials/classroom_list.html", context)
+
+    return render(request, 'utama/check_availability.html', context)
+
+
+def school_data_json(request):
+    """
+    View ini menyediakan data sekolah dalam format JSON.
+    Ia kini boleh menapis mengikut tahun jika parameter 'year' diberikan.
+    """
+    selected_year = request.GET.get('year', None)
+    
+    # Mulakan dengan query asas
+    queryset = Classroom.objects.filter(latitude__isnull=False, longitude__isnull=False)
+
+    if selected_year:
+        # Jika tahun dipilih, tapis mengikut tahun tersebut.
+        # 'average' akan menjadi nilai untuk tahun itu sahaja.
+        schools_data = queryset.filter(year=selected_year).values(
+            'school', 'latitude', 'longitude', 'average', 'photo'
+        )
+    else:
+        # Jika tiada tahun dipilih (paparan awal), guna logik asal (Max).
+        # Kita namakan semula 'max_average' kepada 'average' untuk konsistensi.
+        schools_data = queryset.values('school', 'latitude', 'longitude', 'photo').annotate(
+            average=Max('average')
+        )
+
+    return JsonResponse(list(schools_data), safe=False)
+
 
 
 @login_required
@@ -109,27 +142,6 @@ def success_page(request):
     return render(request, "success_page.html")
 
 
-def contact_us(request):
-    # POST REQUEST --> FORM CONTENTS --> THANK YOU
-    if request.method == "POST":
-        form = ContactForm(request.POST)
-
-        if form.is_valid():
-            # simpan di DB admin
-            form.save()
-            return redirect(reverse("thank_you"))
-    # ELSE, RENDER FORM
-    else:
-        form = ContactForm()
-    return render(request, "utama/contact_us.html", context={"form": form})
-
 
 def thank_you(request):
     return render(request, "thank_you.html")
-
-
-# front page untuk live chat
-
-
-def home_view(request):
-    return render(request, "home.html")

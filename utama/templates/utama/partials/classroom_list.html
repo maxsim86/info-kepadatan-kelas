@@ -1,0 +1,15 @@
+{% load static %}
+{% for classroom in classrooms %}
+<li class="list-group-item">
+    {{ classroom.school}} - 
+    {% if classroom.average < 39 %}
+        <span class="badge bg-success">MASIH MEMPUNYAI KEKOSONGAN</span>
+           <img src="{% static 'flashinggreen.gif' %}" alt="Traffic Light" width="60">        
+    {% else %}
+        <span class="badge bg-danger">PENUH</span>
+        <img src="{% static 'flickering_red.gif' %}" alt="Traffic Light" width="60">
+    {% endif %}
+</li>
+{% empty %}
+<li class="list-group-item">Sila buat pilihan sekolah dan tahun untuk memaparkan data.</li>
+{% endfor %}

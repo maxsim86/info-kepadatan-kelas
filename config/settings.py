@@ -151,6 +151,7 @@ LOGIN_REDIRECT_URL = "/kuiz"
 LOGOUT_REDIRECT_URL = "/kuiz"
 
 MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / 'media'
 
 #MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "media")
 

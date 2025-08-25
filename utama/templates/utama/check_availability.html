@@ -1,51 +1,195 @@
 {% extends 'utama/base.html' %}
-
 {% load static %}
 
 {% block content %}
-  
-<link rel="stylesheet" href="{% static 'utama/check_availability.css' %}">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
 
+<style>
+    /* Tetapkan saiz untuk bekas peta */
+    #map { 
+        height: 450px; /* Saiz ketinggian peta */
+        width: 100%;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+    }
+</style>
 
-<body class="container availlability mt-3">
-   <form method="get" action="{% url 'check_availability' %}" class="mb-5">
-
-    {% csrf_token %}
-    {{ form }}
+<div class="container mt-3">
+   
+   <form 
+       hx-get="{% url 'check_availability' %}" 
+       hx-trigger="change" 
+       hx-target="#results"
+       hx-indicator=".htmx-indicator"
+       class="mb-3 p-4 border rounded bg-light">
     
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-    <label for="year" class="mr-2">Pilihan Tahun</label><br>
-    <select name="year" id="year" class="form-select mr-2" style="max-width : 150px" >
-        <option value="PPKI" {% if selected_year == 'PPKI' %}selected{% endif %}>PPKI</option>
+        <h4 class="mb-3">Carian Status Sekolah</h4>
+        <div class="row g-3">
+            <div class="col-md">
+                <label for="id_school" class="form-label">Pilihan Sekolah</label>
+                {{ form.school }}
+            </div>
+    
+            <div class="col-md">
+                <label for="year" class="form-label">Pilihan Tahun</label>
+                <select name="year" id="year" class="form-select">
+                    <option value="">Pilih Tahun...</option>
+                    <option value="PPKI" {% if selected_year == 'PPKI' %}selected{% endif %}>PPKI</option>
         <option value="TAHUN SATU" {% if selected_year == 'TAHUN SATU' %}selected{% endif %}>Tahun 1</option>
         <option value="TAHUN DUA" {% if selected_year == 'TAHUN DUA' %}selected{% endif %}>Tahun 2</option>
         <option value="TAHUN TIGA" {% if selected_year == 'TAHUN TIGA' %}selected{% endif %}>Tahun 3</option>
         <option value="TAHUN EMPAT" {% if selected_year == 'TAHUN EMPAT' %}selected{% endif %}>Tahun 4</option>
         <option value="TAHUN LIMA" {% if selected_year == 'TAHUN LIMA' %}selected{% endif %}>Tahun 5</option>
         <option value="TAHUN ENAM" {% if selected_year == 'TAHUN ENAM' %}selected{% endif %}>Tahun 6</option>
-    </select><br>
-
-
-    <button type="submit" class="btn btn-primary col-span-full ">Papar</button>
-</div>
+                </select>
+            </div>
+        </div>
    </form>
+
+   <div id="map"></div>
    
+   <h4 class="mt-4">Keputusan Carian</h4>
+   <div class="htmx-indicator">Memuatkan keputusan...</div>
    <ul id="results" class="list-group">
-    {% for classroom in classrooms %}
-    <li class="list-group-item">
-        {{ classroom.school}} - 
-        {% if classroom.average < 39 %}
-            <span class="badge bg-success">MASIH MEMPUNYAI KEKOSONGAN</span>
-               <img src="{% static 'flashinggreen.gif' %}" alt="Traffic Light" width="60">        
-        {% else %}
-            <span class="badge bg-danger">PENUH</span>
-            <img src="{% static 'flickering_red.gif' %}" alt="Traffic Light" width="60">
-        {% endif %}
-    </li>
-    {% endfor %}
+       {% include 'utama/partials/classroom_list.html' %}
    </ul>
 
+</div>
 
-</body>
+<style>
+    .direction-buttons {
+        margin-top: 10px;
+        display: flex;
+        gap: 10px; /* Jarak antara butang */
+    }
+    .direction-btn {
+        display: inline-block;
+        padding: 5px 10px;
+        background-color: #0d6efd;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 0.9em;
+        text-align: center;
+        flex-grow: 1; /* Butang memenuhi ruang */
+    }
+    .direction-btn.waze {
+        background-color: #33ccff;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    
+    // ... (kod inisialisasi map, icon, dll yang sedia ada tidak berubah)
+    const map = L.map('map').setView([3.0449, 101.4456], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
+    const schoolSelect = document.getElementById('id_school');
+    const yearSelect = document.getElementById('year');
+    const markers = {};
+    const markersGroup = L.layerGroup().addTo(map);
+    const greenIcon = L.icon({ iconUrl: '{% static "flashinggreen.gif" %}', iconSize: [50, 50] });
+    const redIcon = L.icon({ iconUrl: '{% static "flickering_red.gif" %}', iconSize: [50, 50] });
+
+    function updateMap() {
+        const selectedYear = yearSelect.value;
+        let apiUrl = "{% url 'school_data_json' %}";
+        if (selectedYear) { apiUrl += `?year=${encodeURIComponent(selectedYear)}`; }
+        
+        markersGroup.clearLayers();
+        
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(school => {
+                    const iconToUse = school.average < 39 ? greenIcon : redIcon;
+                    const statusText = school.average < 39 ? "<span style='color:green;'>MASIH KOSONG</span>" : "<span style='color:red;'>PENUH</span>";
+                    
+                    if (school.latitude && school.longitude) {
+                        
+                        let popupContent = `<b>${school.school}</b><br><b>Status:</b> ${statusText}`;
+
+                        if (school.photo) {
+                            const imageUrl = `/media/${school.photo}`;
+                            popupContent += `<br><br><a href="${imageUrl}" data-lightbox="${school.school}" data-title="${school.school}"><img src="${imageUrl}" alt="${school.school}" style="width:100%; height:auto; border-radius:4px;"></a>`;
+                        }
+                        
+                        // === BAHAGIAN BARU: Tambah butang arah ===
+                        popupContent += `
+                            <div class="direction-buttons">
+                                <a href="#" class="direction-btn" data-service="google" data-lat="${school.latitude}" data-lon="${school.longitude}">Google Maps</a>
+                                <a href="#" class="direction-btn waze" data-service="waze" data-lat="${school.latitude}" data-lon="${school.longitude}">Waze</a>
+                            </div>
+                        `;
+                        // === TAMAT BAHAGIAN BARU ===
+
+                        const marker = L.marker([school.latitude, school.longitude], {icon: iconToUse});
+                        marker.bindPopup(popupContent, { minWidth: 200 });
+                        
+                        markers[school.school] = marker;
+                        markersGroup.addLayer(marker);
+                    }
+                });
+            });
+    }
+    
+    // ... (kod event listener untuk 'schoolSelect' dan 'yearSelect' tidak berubah)
+    schoolSelect.addEventListener('change', function() { /* ... */ });
+    yearSelect.addEventListener('change', updateMap);
+
+    // === BAHAGIAN BARU: Logik untuk mengendalikan klik pada butang arah ===
+  map.on('click', function(e) {
+        // Semak jika elemen yang diklik adalah butang arah kita
+        let target = e.originalEvent.target;
+        if (target.classList.contains('direction-btn')) {
+            const destLat = target.dataset.lat;
+            const destLon = target.dataset.lon;
+            const service = target.dataset.service;
+
+            // Semak jika pelayar menyokong Geolocation
+            if (!navigator.geolocation) {
+                alert("Maaf, pelayar anda tidak menyokong fungsi geolokasi.");
+                return;
+            }
+
+            // Minta lokasi semasa pengguna
+            navigator.geolocation.getCurrentPosition(
+                function(position) { // Fungsi jika berjaya
+                    const startLat = position.coords.latitude;
+                    const startLon = position.coords.longitude;
+                    let directionUrl = '';
+
+                    // === KOD URL YANG DIPERBETULKAN ===
+                    if (service === 'google') {
+                        // Format URL Google Maps yang standard dan universal
+                        directionUrl = `https://www.google.com/maps/dir/?api=1&origin=${startLat},${startLon}&destination=${destLat},${destLon}`;
+                    } else if (service === 'waze') {
+                        // Format "Universal Link" Waze. 
+                        // Ia akan cuba buka aplikasi di telefon, atau laman web di desktop.
+                        directionUrl = `https://www.waze.com/ul?ll=${destLat},${destLon}&navigate=yes`;
+                    }
+                    
+                    // Buka URL dalam tab baru
+                    if(directionUrl) {
+                        window.open(directionUrl, '_blank');
+                    }
+                }, 
+                function() { // Fungsi jika gagal atau pengguna menolak
+                    alert("Gagal mendapatkan lokasi anda. Sila pastikan anda memberi kebenaran akses lokasi.");
+                }
+            );
+        }
+    });
+    // === TAMAT BLOK UNTUK DIGANTIKAN ===
+
+    updateMap(); 
+});
+</script>
+
 {% endblock content %}
-</html>
