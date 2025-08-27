@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Classroom(models.Model):
     SCHOOL_CHOICES = [
         ("SK KLANG ", "SK KLANG"),
@@ -95,15 +96,17 @@ class Classroom(models.Model):
     ]
 
     school = models.CharField(
-        max_length=50, choices=SCHOOL_CHOICES, verbose_name="Pilihan Sekolah"
+        max_length=50, choices=SCHOOL_CHOICES, verbose_name="Senarai Sekolah"
     )
     year = models.CharField(
-        max_length=50, choices=YEAR_CHOICES, verbose_name="tahun kelas"
+        max_length=50, choices=YEAR_CHOICES, verbose_name="Masukkan tahun kelas"
     )
     average = models.IntegerField(verbose_name="purata")
-    latitude = models.FloatField(null=True, blank=True, verbose_name='Latitude')
-    longitude = models.FloatField(null=True, blank=True, verbose_name='Longtitude')
-    photo = models.ImageField(upload_to='school_photos/', null=True, blank=True, verbose_name='Gambar Sekolah')
+    latitude = models.FloatField(null=True, blank=True, verbose_name="Latitude")
+    longitude = models.FloatField(null=True, blank=True, verbose_name="Longtitude")
+    photo = models.ImageField(
+        upload_to="school_photos/", null=True, blank=True, verbose_name="Gambar Sekolah"
+    )
 
     class Meta:
         verbose_name = "Enrolmen Sekolah"
@@ -111,4 +114,3 @@ class Classroom(models.Model):
 
     def __str__(self):
         return f"{self.school} - {self.year} - {self.average}"
-    

@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
 from .forms import ClassroomForm
 from .models import Classroom
-from django.urls import reverse
 from .resources import ClassroomResource
 from django.http import HttpResponse
 import pandas as pd
@@ -9,8 +8,7 @@ from .forms import ImportForm
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.db.models import Max
-
-
+from django.template.loader import render_to_string
 
 
 def check_availability(request):
@@ -23,14 +21,14 @@ def check_availability(request):
             post_form.save()
             return redirect("check_availability")
 
-    
-
-    selected_year =request.GET.get("year")
+    selected_year = request.GET.get("year")
     selected_school = request.GET.get("school")
     classrooms = Classroom.objects.none()
-    
+
     if selected_year and selected_school:
-        classrooms = Classroom.objects.filter(year=selected_year,school=selected_school)
+        classrooms = Classroom.objects.filter(
+            year=selected_year, school=selected_school
+        )
 
     context = {
         "form": form,
@@ -39,9 +37,15 @@ def check_availability(request):
         "selected_school": selected_school,
     }
     if "HX-Request" in request.headers:
-        return render(request, "utama/partials/classroom_list.html", context)
+        html = render_to_string("utama/partials/classroom_list.html", context, request=request)
+        response = HttpResponse(html)
+        response['HX-Trigger'] = 'openModal'
+        return response
+    
+    
+    return render(request, "utama/check_availability.html", context)
 
-    return render(request, 'utama/check_availability.html', context)
+
 
 
 def school_data_json(request):
@@ -49,25 +53,24 @@ def school_data_json(request):
     View ini menyediakan data sekolah dalam format JSON.
     Ia kini boleh menapis mengikut tahun jika parameter 'year' diberikan.
     """
-    selected_year = request.GET.get('year', None)
-    
-    # Mulakan dengan query asas
+    selected_year = request.GET.get("year", None)
+
     queryset = Classroom.objects.filter(latitude__isnull=False, longitude__isnull=False)
 
     if selected_year:
-        # Jika tahun dipilih, tapis mengikut tahun tersebut.
-        # 'average' akan menjadi nilai untuk tahun itu sahaja.
         schools_data = queryset.filter(year=selected_year).values(
-            'school', 'latitude', 'longitude', 'average', 'photo'
+            "id","school", "latitude", "longitude", "average", "photo"
         )
     else:
-        # Jika tiada tahun dipilih (paparan awal), guna logik asal (Max).
-        # Kita namakan semula 'max_average' kepada 'average' untuk konsistensi.
-        schools_data = queryset.values('school', 'latitude', 'longitude', 'photo').annotate(
-            average=Max('average')
-        )
+        schools_data = queryset.values(
+            "school", "latitude", "longitude", "photo"
+        ).annotate(
+            average=Max("average"),
+            id=Max("id")
+            )
 
     return JsonResponse(list(schools_data), safe=False)
+
 
 
 
@@ -140,7 +143,6 @@ def import_data(request):
 # success url
 def success_page(request):
     return render(request, "success_page.html")
-
 
 
 def thank_you(request):

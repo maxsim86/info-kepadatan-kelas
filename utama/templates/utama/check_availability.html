@@ -2,107 +2,365 @@
 {% load static %}
 
 {% block content %}
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-     crossorigin=""/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-     crossorigin=""></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <style>
-    /* Tetapkan saiz untuk bekas peta */
-    #map { 
-        height: 450px; /* Saiz ketinggian peta */
-        width: 100%;
-        margin-top: 20px;
-        margin-bottom: 20px;
-        border-radius: 8px;
+    #map { height: 450px; width: 100%; margin-top: 20px; margin-bottom: 20px; border-radius: 8px; }
+    .direction-buttons { margin-top: 10px; display: flex; gap: 10px; }
+    .direction-btn { padding: 5px 10px; color: white; text-decoration: none; border-radius: 4px; font-size: 0.9em; text-align: center; flex-grow: 1; }
+    .direction-btn.google { background-color: #4285F4; }
+    .direction-btn.waze { background-color: #33ccff; }
+    /* === CSS BARU UNTUK IKON KLUSTER BERNOMBOR === */
+    .marker-cluster-small,
+    .marker-cluster-medium,
+    .marker-cluster-large {
+        background-clip: padding-box;
+        border-radius: 50%;
     }
+    .marker-cluster-small {
+        background-color: rgba(110, 204, 57, 0.6); /* Hijau */
+    }
+    .marker-cluster-medium {
+        background-color: rgba(241, 211, 87, 0.6); /* Kuning */
+    }
+    .marker-cluster-large {
+        background-color: rgba(253, 156, 115, 0.6); /* Oren */
+    }
+    .marker-cluster div {
+        width: 30px;
+        height: 30px;
+        margin-left: 5px;
+        margin-top: 5px;
+        text-align: center;
+        border-radius: 50%;
+        font-size: 12px;
+        color: #fff;
+    }
+    .marker-cluster-small div {
+        background-color: rgba(110, 204, 57, 0.9);
+    }
+    .marker-cluster-medium div {
+        background-color: rgba(240, 194, 12, 0.9);
+    }
+    .marker-cluster-large div {
+        background-color: rgba(241, 128, 23, 0.9);
+    }
+
+    /* === CSS BARU UNTUK SUSUN ATUR & KOTAK CADANGAN === */
+.map-container {
+    display: flex;
+    flex-wrap: wrap; /* Memastikan ia responsif pada skrin kecil */
+    gap: 20px; /* Jarak antara peta dan kotak cadangan */
+}
+
+#map {
+    flex: 2; /* Peta akan ambil 2/3 ruang */
+    min-width: 300px; /* Saiz minimum untuk peta */
+    height: 500px; /* Tinggikan sedikit peta */
+}
+
+#suggestion-box {
+    flex: 1; /* Kotak cadangan akan ambil 1/3 ruang */
+    min-width: 300px; /* Saiz minimum untuk kotak */
+    height: 500px;
+    overflow-y: auto; /* Boleh skrol jika senarai panjang */
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.suggestion-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.suggestion-item:hover {
+    background-color: #e9ecef;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item small {
+    color: #6c757d;
+}
+
+/* === CSS BARU UNTUK MODAL DIALOG === */
+.modal-overlay {
+    display: none; /* Tersembunyi secara lalai */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5); /* Latar belakang separa lutsinar */
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 600px;
+    border-radius: 8px;
+    position: relative;
+    animation: fadeIn 0.3s;
+}
+
+.modal-close {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.modal-close:hover {
+    color: #000;
+}
+
+@keyframes fadeIn {
+    from {opacity: 0; transform: scale(0.9);}
+    to {opacity: 1; transform: scale(1);}
+}
+
 </style>
 
-<div class="container mt-3">
-   
-   <form 
-       hx-get="{% url 'check_availability' %}" 
-       hx-trigger="change" 
-       hx-target="#results"
-       hx-indicator=".htmx-indicator"
-       class="mb-3 p-4 border rounded bg-light">
-    
+<div class="mb-3 p-4 border rounded bg-light">
+
+    <form id="search-form"  hx-get="{% url 'check_availability' %}" 
+      hx-target="#modal-results" 
+      hx-indicator=".htmx-indicator">
+
         <h4 class="mb-3">Carian Status Sekolah</h4>
         <div class="row g-3">
             <div class="col-md">
                 <label for="id_school" class="form-label">Pilihan Sekolah</label>
                 {{ form.school }}
             </div>
-    
             <div class="col-md">
                 <label for="year" class="form-label">Pilihan Tahun</label>
                 <select name="year" id="year" class="form-select">
                     <option value="">Pilih Tahun...</option>
                     <option value="PPKI" {% if selected_year == 'PPKI' %}selected{% endif %}>PPKI</option>
-        <option value="TAHUN SATU" {% if selected_year == 'TAHUN SATU' %}selected{% endif %}>Tahun 1</option>
-        <option value="TAHUN DUA" {% if selected_year == 'TAHUN DUA' %}selected{% endif %}>Tahun 2</option>
-        <option value="TAHUN TIGA" {% if selected_year == 'TAHUN TIGA' %}selected{% endif %}>Tahun 3</option>
-        <option value="TAHUN EMPAT" {% if selected_year == 'TAHUN EMPAT' %}selected{% endif %}>Tahun 4</option>
-        <option value="TAHUN LIMA" {% if selected_year == 'TAHUN LIMA' %}selected{% endif %}>Tahun 5</option>
-        <option value="TAHUN ENAM" {% if selected_year == 'TAHUN ENAM' %}selected{% endif %}>Tahun 6</option>
+                    <option value="TAHUN SATU" {% if selected_year == 'TAHUN SATU' %}selected{% endif %}>Tahun 1</option>
+                    <option value="TAHUN DUA" {% if selected_year == 'TAHUN DUA' %}selected{% endif %}>Tahun 2</option>
+                    <option value="TAHUN TIGA" {% if selected_year == 'TAHUN TIGA' %}selected{% endif %}>Tahun 3</option>
+                    <option value="TAHUN EMPAT" {% if selected_year == 'TAHUN EMPAT' %}selected{% endif %}>Tahun 4</option>
+                    <option value="TAHUN LIMA" {% if selected_year == 'TAHUN LIMA' %}selected{% endif %}>Tahun 5</option>
+                    <option value="TAHUN ENAM" {% if selected_year == 'TAHUN ENAM' %}selected{% endif %}>Tahun 6</option>
                 </select>
             </div>
         </div>
-   </form>
-
-   <div id="map"></div>
-   
-   <h4 class="mt-4">Keputusan Carian</h4>
-   <div class="htmx-indicator">Memuatkan keputusan...</div>
-   <ul id="results" class="list-group">
-       {% include 'utama/partials/classroom_list.html' %}
-   </ul>
-
+    </form>
 </div>
 
-<style>
-    .direction-buttons {
-        margin-top: 10px;
-        display: flex;
-        gap: 10px; /* Jarak antara butang */
-    }
-    .direction-btn {
-        display: inline-block;
-        padding: 5px 10px;
-        background-color: #0d6efd;
-        color: white;
-        text-decoration: none;
-        border-radius: 4px;
-        font-size: 0.9em;
-        text-align: center;
-        flex-grow: 1; /* Butang memenuhi ruang */
-    }
-    .direction-btn.waze {
-        background-color: #33ccff;
-    }
-</style>
+<div class="map-container mt-4">
+<div id="map"></div>
+
+<div id="suggestion-box">
+        <h5 class="text-muted text-center">Pilih sebuah sekolah untuk melihat cadangan sekolah berdekatan.</h5>
+    </div>
+</div>
+
+
+
+<div id="search-modal" class="modal-overlay">
+    <div class="modal-content">
+        <span class="modal-close">&times;</span>
+        <h4 class="mb-3">Keputusan Carian</h4>
+        <div id="modal-results">
+            </div>
+    </div>
+</div>
+
+
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     
-    // ... (kod inisialisasi map, icon, dll yang sedia ada tidak berubah)
     const map = L.map('map').setView([3.0449, 101.4456], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
+    L.control.locate().addTo(map);
+
+    map.pm.addControls({
+        position: 'topright', // Kedudukan toolbar
+        drawMarker: true,
+        drawCircleMarker: true,
+        drawPolygon: true,
+        drawRectangle: true,
+        drawPolyline: true,
+        editMode: true,
+        dragMode: true,
+        cutPolygon: true,
+        removalMode: true,
+    });
+    const modal = document.getElementById('search-modal');
+    const closeModalBtn = modal.querySelector('.modal-close');
     const schoolSelect = document.getElementById('id_school');
     const yearSelect = document.getElementById('year');
-    const markers = {};
-    const markersGroup = L.layerGroup().addTo(map);
-    const greenIcon = L.icon({ iconUrl: '{% static "flashinggreen.gif" %}', iconSize: [50, 50] });
-    const redIcon = L.icon({ iconUrl: '{% static "flickering_red.gif" %}', iconSize: [50, 50] });
+    const suggestionBox = document.getElementById('suggestion-box');
+    const form = document.getElementById('search-form'); // Rujukan baru ke borang
+
+
+    const markerReferences = {};
+    let allSchoolsData = [];
+
+
+
+    
+    // === FUNGSI UTAMA BARU untuk mengendalikan perubahan borang ===
+    function handleFormChange() {
+        const schoolValue = schoolSelect.value;
+        const yearValue = yearSelect.value;
+
+        // 1. Logik yang berjalan setiap kali sekolah dipilih (zoom peta & kemas kini cadangan)
+        const selectedMarker = markerReferences[schoolValue];
+        if (selectedMarker) {
+            markerCluster.zoomToShowLayer(selectedMarker, () => selectedMarker.openPopup());
+        }
+        updateSuggestions(schoolValue);
+
+        // 2. Semak jika KEDUA-DUA medan telah diisi
+        if (schoolValue && yearValue) {
+            console.log("Kedua-dua medan diisi. Mencetuskan carian HTMX...");
+            
+            // Cetuskan permintaan HTMX secara manual menggunakan JavaScript
+            htmx.ajax('GET', form.getAttribute('hx-get'), {
+                target: htmx.find(form.getAttribute('hx-target')),
+                values: htmx.values(form),
+                indicator: htmx.find(form.getAttribute('hx-indicator'))
+            });
+        }
+    }
+
+    // Fungsi untuk membuka modal
+    function openModal() {
+        modal.style.display = 'flex';
+    }
+
+    // Fungsi untuk menutup modal
+    function closeModal() {
+        modal.style.display = 'none';
+    }
+    // Dengar 'event' openModal yang dicetuskan oleh HTMX (dari header HX-Trigger)
+    document.body.addEventListener('openModal', openModal);
+
+    // Dengar klik pada butang tutup (X)
+    closeModalBtn.addEventListener('click', closeModal);
+
+    // Dengar klik pada latar belakang gelap untuk menutup modal
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+
+    schoolSelect.addEventListener('change', handleFormChange);
+    yearSelect.addEventListener('change', handleFormChange);
+
+    suggestionBox.addEventListener('click', function(e) {
+        const targetItem = e.target.closest('.suggestion-item');
+        if (targetItem) {
+            const schoolName = targetItem.dataset.schoolName;
+            const marker = markerReferences[schoolName];
+            if (marker) {
+                markerCluster.zoomToShowLayer(marker, () => marker.openPopup());
+            }
+        }
+    });
+
+
+    // Fungsi untuk mencipta ikon kluster bernombor
+    const createClusterIcon = function (cluster) {
+        var count = cluster.getChildCount();
+        var className = 'marker-cluster marker-cluster-';
+        var size = 40;
+        if (count < 10) { className += 'small'; size = 40; } 
+        else if (count < 100) { className += 'medium'; size = 50; } 
+        else { className += 'large'; size = 60; }
+        return L.divIcon({
+            html: '<div><span>' + count + '</span></div>',
+            className: className,
+            iconSize: L.point(size, size)
+        });
+    };
+    const markerCluster = L.markerClusterGroup({ iconCreateFunction: createClusterIcon });
+    
+    // === FUNGSI BARU: Untuk memuatkan data SEMUA sekolah sekali sahaja ===
+    function fetchAllSchools() {
+        let apiUrl = "{% url 'school_data_json' %}"; // Panggil API tanpa parameter 'year'
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                allSchoolsData = data.filter(school => school.latitude && school.longitude);
+                updateMap(); // Panggil updateMap untuk paparan awal
+            });
+    }
+
+     // === FUNGSI BARU: Untuk mengemas kini senarai cadangan ===
+    function updateSuggestions(selectedSchoolName) {
+        if (!selectedSchoolName) {
+            suggestionBox.innerHTML = '<h5 class="text-muted text-center">Pilih sebuah sekolah untuk melihat cadangan.</h5>';
+            return;
+        }
+
+        const selectedSchool = allSchoolsData.find(s => s.school === selectedSchoolName);
+        if (!selectedSchool) return;
+        
+        const selectedSchoolLatLng = L.latLng(selectedSchool.latitude, selectedSchool.longitude);
+
+        // 1. Tapis: Ambil sekolah yang masih kosong (green) dan bukan sekolah yang dipilih
+        const greenSchools = allSchoolsData.filter(s => s.average < 39 && s.school !== selectedSchoolName);
+
+        // 2. Kira Jarak: Kira jarak setiap sekolah kosong dari sekolah yang dipilih
+        greenSchools.forEach(s => {
+            const currentLatLng = L.latLng(s.latitude, s.longitude);
+            s.distance = selectedSchoolLatLng.distanceTo(currentLatLng) / 1000; // dalam kilometer
+        });
+
+        // 3. Susun: Susun sekolah mengikut jarak terdekat
+        greenSchools.sort((a, b) => a.distance - b.distance);
+
+        // 4. Papar: Bina HTML dan paparkan 5 cadangan teratas
+        let suggestionsHTML = `<h5 class="mb-3">Cadangan Sekolah Berdekatan</h5>`;
+        if (greenSchools.length > 0) {
+            greenSchools.slice(0, 5).forEach(s => {
+                suggestionsHTML += `
+                    <div class="suggestion-item" data-school-name="${s.school}">
+                        <strong>${s.school}</strong><br>
+                        <small>Anggaran Jarak: ${s.distance.toFixed(2)} km</small>
+                    </div>
+                `;
+            });
+        } else {
+            suggestionsHTML += '<p class="text-muted">Tiada sekolah berdekatan yang mempunyai kekosongan.</p>';
+        }
+        suggestionBox.innerHTML = suggestionsHTML;
+    }
+
+
+    const greenIcon = L.icon({ iconUrl: '{% static "marker-green.png" %}', shadowUrl: '{% static "leaf-shadow.png" %}', iconSize: [38, 95], shadowSize:   [50, 64], iconAnchor:   [22, 94], shadowAnchor: [4, 62], popupAnchor:  [-3, -76] });
+    const redIcon = L.icon({ iconUrl: '{% static "marker-red.png" %}',shadowUrl: '{% static "leaf-shadow.png" %}', iconSize: [38, 95], shadowSize:   [50, 64], iconAnchor:   [22, 94], shadowAnchor: [4, 62], popupAnchor:  [-3, -76] });
 
     function updateMap() {
         const selectedYear = yearSelect.value;
         let apiUrl = "{% url 'school_data_json' %}";
         if (selectedYear) { apiUrl += `?year=${encodeURIComponent(selectedYear)}`; }
         
-        markersGroup.clearLayers();
+        markerCluster.clearLayers();
         
         fetch(apiUrl)
             .then(response => response.json())
@@ -112,84 +370,43 @@ document.addEventListener('DOMContentLoaded', function () {
                     const statusText = school.average < 39 ? "<span style='color:green;'>MASIH KOSONG</span>" : "<span style='color:red;'>PENUH</span>";
                     
                     if (school.latitude && school.longitude) {
-                        
                         let popupContent = `<b>${school.school}</b><br><b>Status:</b> ${statusText}`;
-
                         if (school.photo) {
                             const imageUrl = `/media/${school.photo}`;
                             popupContent += `<br><br><a href="${imageUrl}" data-lightbox="${school.school}" data-title="${school.school}"><img src="${imageUrl}" alt="${school.school}" style="width:100%; height:auto; border-radius:4px;"></a>`;
                         }
-                        
-                        // === BAHAGIAN BARU: Tambah butang arah ===
-                        popupContent += `
-                            <div class="direction-buttons">
-                                <a href="#" class="direction-btn" data-service="google" data-lat="${school.latitude}" data-lon="${school.longitude}">Google Maps</a>
-                                <a href="#" class="direction-btn waze" data-service="waze" data-lat="${school.latitude}" data-lon="${school.longitude}">Waze</a>
-                            </div>
-                        `;
-                        // === TAMAT BAHAGIAN BARU ===
+                        popupContent += `<div class="direction-buttons"> ... </div>`;
 
                         const marker = L.marker([school.latitude, school.longitude], {icon: iconToUse});
                         marker.bindPopup(popupContent, { minWidth: 200 });
                         
-                        markers[school.school] = marker;
-                        markersGroup.addLayer(marker);
+                        markerReferences[school.school] = marker;
+                        
+                        markerCluster.addLayer(marker);
                     }
                 });
+                // Tambah kumpulan kluster pada peta
+                map.addLayer(markerCluster);
             });
     }
     
-    // ... (kod event listener untuk 'schoolSelect' dan 'yearSelect' tidak berubah)
-    schoolSelect.addEventListener('change', function() { /* ... */ });
-    yearSelect.addEventListener('change', updateMap);
+    // === DIPERBAIKI: Logik untuk zum ke sekolah yang dipilih ditambah semula ===
+    schoolSelect.addEventListener('change', function() {
+        const selectedSchoolName = this.value;
+        const selectedMarker = markerReferences[selectedSchoolName];
 
-    // === BAHAGIAN BARU: Logik untuk mengendalikan klik pada butang arah ===
-  map.on('click', function(e) {
-        // Semak jika elemen yang diklik adalah butang arah kita
-        let target = e.originalEvent.target;
-        if (target.classList.contains('direction-btn')) {
-            const destLat = target.dataset.lat;
-            const destLon = target.dataset.lon;
-            const service = target.dataset.service;
-
-            // Semak jika pelayar menyokong Geolocation
-            if (!navigator.geolocation) {
-                alert("Maaf, pelayar anda tidak menyokong fungsi geolokasi.");
-                return;
-            }
-
-            // Minta lokasi semasa pengguna
-            navigator.geolocation.getCurrentPosition(
-                function(position) { // Fungsi jika berjaya
-                    const startLat = position.coords.latitude;
-                    const startLon = position.coords.longitude;
-                    let directionUrl = '';
-
-                    // === KOD URL YANG DIPERBETULKAN ===
-                    if (service === 'google') {
-                        // Format URL Google Maps yang standard dan universal
-                        directionUrl = `https://www.google.com/maps/dir/?api=1&origin=${startLat},${startLon}&destination=${destLat},${destLon}`;
-                    } else if (service === 'waze') {
-                        // Format "Universal Link" Waze. 
-                        // Ia akan cuba buka aplikasi di telefon, atau laman web di desktop.
-                        directionUrl = `https://www.waze.com/ul?ll=${destLat},${destLon}&navigate=yes`;
-                    }
-                    
-                    // Buka URL dalam tab baru
-                    if(directionUrl) {
-                        window.open(directionUrl, '_blank');
-                    }
-                }, 
-                function() { // Fungsi jika gagal atau pengguna menolak
-                    alert("Gagal mendapatkan lokasi anda. Sila pastikan anda memberi kebenaran akses lokasi.");
-                }
-            );
+        if (selectedMarker) {
+            markerCluster.zoomToShowLayer(selectedMarker, () => selectedMarker.openPopup());
         }
+        // Panggil fungsi untuk kemas kini cadangan
+        updateSuggestions(selectedSchoolName);
     });
-    // === TAMAT BLOK UNTUK DIGANTIKAN ===
+    
+    
 
-    updateMap(); 
-});
+    fetchAllSchools();
+    });
 </script>
+
 
 {% endblock content %}

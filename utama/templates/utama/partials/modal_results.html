@@ -1,0 +1,24 @@
+{% load static %}
+
+<div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);" 
+     aria-modal="true" role="dialog"
+     _="on click or keydown[key=='Escape'] remove me">
+
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" _="on click stop propagation">
+            
+            <div class="modal-header">
+                <h5 class="modal-title">Keputusan Carian Sekolah</h5>
+                <button type="button" class="btn-close" aria-label="Close"
+                        _="on click remove closest .modal"></button>
+            </div>
+            
+            <div class="modal-body">
+                <ul class="list-group">
+                    {% include 'utama/partials/classroom_list.html' %}
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</div>

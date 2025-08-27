@@ -51,4 +51,3 @@ class QuizResponse(models.Model):
     def __str__(self):
         return f"{self.quiz.title}-{self.id}"
 
-

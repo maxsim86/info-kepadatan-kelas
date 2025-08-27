@@ -20,8 +20,8 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
 from utama.views import *
-#from utama.views import check_availability
 
+# from utama.views import check_availability
 
 
 # domain.com/utama/thank_you
@@ -33,10 +33,9 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     path("kuiz/", include("profilpersonaliti.urls")),
     path("api/", include("api.urls")),
-    path('tempah/', include("booking.urls")),
-
+    path("tempah/", include("booking.urls")),
 ]
 
-#only used when DEBUG=True, whitenoise can serve files when DEBUG= False
+# only used when DEBUG=True, whitenoise can serve files when DEBUG= False
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
