@@ -1,0 +1,21 @@
+{% extends 'utama/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container my-4">
+    <h2 class="mb-4">Pencari Sekolah Berdekatan</h2>
+    <p>Halaman untuk aplikasi pencari sekolah anda akan berada di sini.</p>
+    
+    <!-- Peta dan borang carian akan ditambah di sini nanti -->
+    <div id="map" style="height: 500px; border-radius: 8px;"></div>
+</div>
+
+<!-- Anda boleh letakkan skrip Leaflet anda di sini kemudian -->
+<script>
+    // Contoh inisialisasi peta ringkas
+    document.addEventListener('DOMContentLoaded', function() {
+        const map = L.map('map').setView([3.0449, 101.4456], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    });
+</script>
+{% endblock content %}

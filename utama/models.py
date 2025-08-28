@@ -1,6 +1,5 @@
 from django.db import models
 
-
 class Classroom(models.Model):
     SCHOOL_CHOICES = [
         ("SK KLANG ", "SK KLANG"),
