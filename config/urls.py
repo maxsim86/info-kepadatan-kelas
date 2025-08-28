@@ -34,6 +34,7 @@ urlpatterns = [
     path("kuiz/", include("profilpersonaliti.urls")),
     path("api/", include("api.urls")),
     path("tempah/", include("booking.urls")),
+    path("cari/", include('carian_sekolah_urls')),
 ]
 
 # only used when DEBUG=True, whitenoise can serve files when DEBUG= False

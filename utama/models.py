@@ -114,3 +114,4 @@ class Classroom(models.Model):
 
     def __str__(self):
         return f"{self.school} - {self.year} - {self.average}"
+    

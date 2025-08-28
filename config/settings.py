@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "whitenoise.runserver_nostatic",
     "utama",
+    "carian_sekolah",
     
     "import_export",
     "api.apps.ApiConfig",
