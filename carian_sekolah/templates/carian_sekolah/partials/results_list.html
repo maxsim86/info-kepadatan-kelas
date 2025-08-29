@@ -1,0 +1,17 @@
+{% if schools %}
+    {% for school in schools %}
+    <a href="#" class="list-group-item list-group-item-action" data-school-name="{{ school.name }}">
+        <strong>{{ school.name }}</strong><br>
+        <small class="text-muted">{{ school.address }}</small>
+        
+        <!-- TAMBAH BLOK INI UNTUK PAPAR JARAK -->
+        <div class="mt-1">
+            <span class="badge bg-primary rounded-pill">
+                Anggaran: {{ school.distance.km|floatformat:2 }} km
+            </span>
+        </div>
+    </a>
+    {% endfor %}
+{% else %}
+    <div class="list-group-item">Tiada sekolah ditemui dalam jarak ini.</div>
+{% endif %}

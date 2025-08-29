@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "requests",
     "django_htmx",
+    "django.contrib.gis",
+    "leaflet",
  
     
     "profilpersonaliti",

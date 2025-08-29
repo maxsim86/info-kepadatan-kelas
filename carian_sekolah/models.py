@@ -8,6 +8,21 @@ class School(models.Model):
     Ia menggunakan PointField dari GeoDjango untuk menyimpan koordinat.
     """
     
+    class SchoolType(models.TextChoices):
+        RENDAH = 'RENDAH', 'Sekolah Rendah'
+        MENENGAH = 'MENENGAH', 'Sekolah Menengah'
+        
+    kod_sekolah = models.CharField(
+        max_length=10, 
+        unique=True,  # Kod sekolah sepatutnya unik
+        verbose_name="Kod Sekolah", null=True, blank=True
+    )
+    ppd = models.CharField(
+        max_length=100, 
+        verbose_name="PPD",
+        null=True,blank=True
+    )
+    
     # Medan standard untuk menyimpan maklumat asas sekolah.
     name = models.CharField(
         max_length=255, 
@@ -21,6 +36,14 @@ class School(models.Model):
         verbose_name="Koordinat Lokasi"
     )
 
+    school_type = models.CharField(
+        max_length=10,
+        choices=SchoolType.choices,
+        default=SchoolType.RENDAH,
+        verbose_name="Jenis Sekolah"
+    )
+
+
     class Meta:
         verbose_name = "Sekolah"
         verbose_name_plural = "Senarai Sekolah"
@@ -31,3 +54,4 @@ class School(models.Model):
         yang akan digunakan di antaramuka admin.
         """
         return self.name
+

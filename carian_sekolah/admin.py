@@ -5,6 +5,11 @@ from .models import School
 
 @admin.register(School)
 class SchoolAdmin(admin.GISModelAdmin):
+    """
+    Konfigurasi ini memberitahu Django untuk menggunakan peta Leaflet
+    di halaman admin, dan bukannya OpenLayers.
+    """
+    # Baris ini adalah yang paling penting untuk membetulkan ralat
     gis_widget_kwargs = {
         "attrs": {
             "default_zoom": 11,
@@ -12,5 +17,6 @@ class SchoolAdmin(admin.GISModelAdmin):
             "default_lon": 101.4456,
         },
     }
+
     list_display = ('name', 'address')
     search_fields = ('name', 'address')
