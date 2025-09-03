@@ -1,17 +1,28 @@
-{% if schools %}
+<!-- 1. Semak kes khas untuk geocoding yang gagal dahulu -->
+{% if geocoding_failed and not schools %}
+    <div class="list-group-item text-warning">
+        Lokasi "{{ location_query }}" tidak dapat ditemui. Cuba guna nama bandar atau poskod yang lebih umum.
+    </div>
+
+<!-- 2. Jika tidak, semak jika ada sekolah yang ditemui -->
+{% elif schools %}
     {% for school in schools %}
     <a href="#" class="list-group-item list-group-item-action" data-school-name="{{ school.name }}">
         <strong>{{ school.name }}</strong><br>
         <small class="text-muted">{{ school.address }}</small>
         
-        <!-- TAMBAH BLOK INI UNTUK PAPAR JARAK -->
+        {% if search_location_found %}
         <div class="mt-1">
             <span class="badge bg-primary rounded-pill">
                 Anggaran: {{ school.distance.km|floatformat:2 }} km
             </span>
         </div>
+        {% endif %}
     </a>
     {% endfor %}
+
+<!-- 3. Jika tiada sekolah ditemui (dan geocoding tidak gagal) -->
 {% else %}
-    <div class="list-group-item">Tiada sekolah ditemui dalam jarak ini.</div>
+    <div class="list-group-item">Tiada sekolah ditemui sepadan dengan carian anda.</div>
 {% endif %}
+

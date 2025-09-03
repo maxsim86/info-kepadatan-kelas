@@ -30,13 +30,20 @@
                 <form hx-get="{% url 'carian_sekolah:api_search_and_find' %}"
                       hx-target="#results-list"
                       hx-indicator="#loader">
+
+
                     <div class="mb-3">
-                        <label for="location-input" class="form-label">Poskod atau Nama Jalan</label>
-                        <input type="text" class="form-control" name="location" id="location-input" placeholder="cth: 41200 atau Jalan Kebun" required>
-                    </div>
+    <!-- UBAH LABEL DAN PLACEHOLDER -->
+    <label for="location-input" class="form-label">Cari Nama Sekolah atau Lokasi</label>
+    <input type="text" name="location" id="location-input" class="form-control" 
+           placeholder="cth: SMK Kota Kemuning atau 41200 Klang">
+</div>
+
+
                     <div class="mb-3">
                         <label for="school-type-select" class="form-label">Jenis Sekolah</label>
                         <select id="school-type-select" name="type" class="form-select">
+                            <option value="SEMUA" selected>Semua Jenis</option>
                             <option value="RENDAH">Sekolah Rendah</option>
                             <option value="MENENGAH">Sekolah Menengah</option>
                         </select>
@@ -47,6 +54,7 @@
                             <option value="1">1 km</option>
                             <option value="3" selected>3 km</option>
                             <option value="5">5 km</option>
+                            <option value="10.0">10 km</option>
                         </select>
                     </div>
                     <div class="d-grid">
@@ -86,29 +94,32 @@ document.addEventListener('DOMContentLoaded', function () {
     let userMarker;
     const markerReferences = {};
 
-    // 2. Dengar isyarat 'updateMap' dari HTMX
-    document.body.addEventListener('updateMap', function(evt) {
-        const data = evt.detail;
-        
-        schoolLayer.clearLayers();
-        if (userMarker) map.removeLayer(userMarker);
+document.body.addEventListener('updateMap', function(evt) {
+    const data = evt.detail;
+    
+    schoolLayer.clearLayers();
+    if (userMarker) map.removeLayer(userMarker);
 
-        // Letakkan penanda lokasi carian
+    // === TAMBAH SEMAKAN INI ===
+    // Hanya letak penanda dan zum jika lokasi carian ditemui
+    if (data.search_location) {
         userMarker = L.marker([data.search_location.lat, data.search_location.lon])
             .addTo(map)
             .bindPopup('Lokasi Carian Anda')
             .openPopup();
         map.flyTo([data.search_location.lat, data.search_location.lon], 14);
+    }
+    // ============================
 
-        // Paparkan penanda sekolah
-        if (data.schools.length > 0) {
-            data.schools.forEach(school => {
-                const marker = L.marker([school.lat, school.lon]).addTo(schoolLayer)
-                    .bindPopup(`<b>${school.name}</b>`);
-                markerReferences[school.name] = marker;
-            });
-        }
-    });
+    // Paparkan penanda sekolah (kod ini tidak berubah)
+    if (data.schools.length > 0) {
+        data.schools.forEach(school => {
+            const marker = L.marker([school.lat, school.lon]).addTo(schoolLayer)
+                .bindPopup(`<b>${school.name}</b>`);
+            markerReferences[school.name] = marker;
+        });
+    }
+});
 
     // 3. Logik untuk klik pada senarai hasil
     document.getElementById('results-list').addEventListener('click', function(e) {

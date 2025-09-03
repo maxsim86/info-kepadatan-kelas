@@ -1,4 +1,4 @@
-# dalam carian_sekolah/management/commands/import_sekolah.py
+# carian_sekolah/management/commands/import_sekolah.py
 
 import csv
 from django.core.management.base import BaseCommand, CommandError
@@ -6,7 +6,7 @@ from django.contrib.gis.geos import Point
 from carian_sekolah.models import School
 
 class Command(BaseCommand):
-    help = 'Import data sekolah dari fail CSV dengan data PPD dan Kod Sekolah'
+    help = 'Import data sekolah dari fail CSV dan hasilkan laporan ralat.'
 
     def add_arguments(self, parser):
         parser.add_argument('csv_file', type=str, help='Laluan ke fail CSV')
@@ -15,43 +15,59 @@ class Command(BaseCommand):
         csv_file_path = options['csv_file']
         self.stdout.write(f"Memulakan import dari {csv_file_path}...")
 
+        error_rows = []
+        success_count = 0
+
         try:
             with open(csv_file_path, mode='r', encoding='utf-8') as file:
                 reader = csv.DictReader(file)
                 
-                sekolah_untuk_dikemas_kini = []
-                sekolah_untuk_dicipta = []
-                
                 for row in reader:
                     try:
-                        kod_sekolah = row['kod_sekolah'].strip()
-                        lokasi = Point(float(row['longitude']), float(row['latitude']), srid=4236)
+                        # Semak jika lajur penting wujud dan tidak kosong
+                        kod_sekolah = row.get('kod_sekolah', '').strip()
+                        latitude = row.get('latitude', '').strip()
+                        longitude = row.get('longitude', '').strip()
+
+                        if not kod_sekolah or not latitude or not longitude:
+                            raise ValueError("Kod sekolah, latitude, atau longitude kosong.")
+
+                        lokasi = Point(float(longitude), float(latitude), srid=4326)
                         
-                        # Data untuk dicipta atau dikemas kini
                         data_sekolah = {
-                            'name': row['name'].strip(),
-                            'address': row['address'].strip(),
-                            'ppd': row['ppd'].strip(),
-                            'school_type': row['school_type'].strip().upper(),
+                            'name': row.get('name', '').strip(),
+                            'address': row.get('address', '').strip(),
+                            'ppd': row.get('ppd', '').strip(),
+                            'school_type': row.get('school_type', 'RENDAH').strip().upper(),
+                            #'postcode': row.get('postcode', '').strip(),
                             'location': lokasi,
                         }
 
-                        # Semak jika sekolah sudah wujud berdasarkan kod sekolah
-                        sekolah, dicipta = School.objects.update_or_create(
+                        _, dicipta = School.objects.update_or_create(
                             kod_sekolah=kod_sekolah,
                             defaults=data_sekolah
                         )
-
-                        if dicipta:
-                            self.stdout.write(f"Mencipta: {sekolah.name}")
-                        else:
-                            self.stdout.write(f"Mengemas kini: {sekolah.name}")
+                        success_count += 1
 
                     except (ValueError, KeyError) as e:
-                        self.stdout.write(self.style.ERROR(f"Baris dilangkau kerana ralat data: {row} - {e}"))
+                        # Jika berlaku ralat, simpan baris dan sebabnya
+                        row['sebab_ralat'] = str(e)
+                        error_rows.append(row)
                         continue
+            
+            self.stdout.write(self.style.SUCCESS(f"Proses selesai. {success_count} sekolah berjaya diimport/dikemas kini."))
+
+            # Jika terdapat ralat, hasilkan fail laporan
+            if error_rows:
+                error_file_path = 'import_errors.csv'
+                self.stdout.write(self.style.WARNING(f"{len(error_rows)} baris gagal diimport. Laporan ralat disimpan di {error_file_path}"))
                 
-                self.stdout.write(self.style.SUCCESS("Proses import selesai."))
+                with open(error_file_path, mode='w', encoding='utf-8', newline='') as error_file:
+                    # Ambil pengepala dari baris pertama yang ralat
+                    fieldnames = error_rows[0].keys()
+                    writer = csv.DictWriter(error_file, fieldnames=fieldnames)
+                    writer.writeheader()
+                    writer.writerows(error_rows)
 
         except FileNotFoundError:
             raise CommandError(f'Fail "{csv_file_path}" tidak ditemui.')

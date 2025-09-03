@@ -32,6 +32,9 @@ class School(models.Model):
         verbose_name="Alamat Penuh",
         blank=True # Alamat boleh dikosongkan jika tidak diketahui.
     )
+        
+
+    
     location = gis_models.PointField(
         verbose_name="Koordinat Lokasi"
     )
@@ -49,9 +52,7 @@ class School(models.Model):
         verbose_name_plural = "Senarai Sekolah"
 
     def __str__(self):
-        """
-        Mengembalikan representasi string untuk model ini, 
-        yang akan digunakan di antaramuka admin.
-        """
         return self.name
+
+
 
