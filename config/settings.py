@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     "django_htmx",
     "django.contrib.gis",
     "leaflet",
- 
     
     "profilpersonaliti",
 
@@ -169,3 +168,17 @@ IMPORT_EXPORT_USE_TRANSACTIONS = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'booking.User'
+
+
+
+LEAFLET_CONFIG = {
+        'DEFAULT_CENTER': (3.0449, 101.4456),
+        'DEFAULT_ZOOM': 11,
+        'PLUGINS': {
+            'geosearch': {
+                'css': 'https://unpkg.com/leaflet-geosearch@3.0.0/dist/geosearch.css',
+                'js': 'https://unpkg.com/leaflet-geosearch@3.0.0/dist/geosearch.umd.js',
+                'auto-include': True,
+            },
+        }
+    }

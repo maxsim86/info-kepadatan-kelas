@@ -2,6 +2,8 @@
 
 from django.contrib.gis import admin
 from .models import School
+from leaflet.admin import LeafletGeoAdmin
+
 
 @admin.register(School)
 class SchoolAdmin(admin.GISModelAdmin):
@@ -17,4 +19,5 @@ class SchoolAdmin(admin.GISModelAdmin):
 
     list_display = ('name', 'address')
     search_fields = ('name', 'address')
+    
     list_per_page = 500

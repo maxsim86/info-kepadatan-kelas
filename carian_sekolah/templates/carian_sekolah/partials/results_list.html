@@ -1,11 +1,7 @@
-<!-- 1. Semak kes khas untuk geocoding yang gagal dahulu -->
-{% if geocoding_failed and not schools %}
-    <div class="list-group-item text-warning">
-        Lokasi "{{ location_query }}" tidak dapat ditemui. Cuba guna nama bandar atau poskod yang lebih umum.
+{% if schools %}
+    <div class="list-group-item bg-light">
+        <strong>{{ schools|length }}</strong> hasil ditemui
     </div>
-
-<!-- 2. Jika tidak, semak jika ada sekolah yang ditemui -->
-{% elif schools %}
     {% for school in schools %}
     <a href="#" class="list-group-item list-group-item-action" data-school-name="{{ school.name }}">
         <strong>{{ school.name }}</strong><br>
@@ -20,9 +16,8 @@
         {% endif %}
     </a>
     {% endfor %}
-
-<!-- 3. Jika tiada sekolah ditemui (dan geocoding tidak gagal) -->
 {% else %}
-    <div class="list-group-item">Tiada sekolah ditemui sepadan dengan carian anda.</div>
+    <!-- data-no-results="true" penting untuk logik panel sisi -->
+    <div class="list-group-item" data-no-results="true">Tiada sekolah ditemui sepadan dengan carian anda.</div>
 {% endif %}
 

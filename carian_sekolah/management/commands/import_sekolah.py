@@ -1,12 +1,10 @@
-# carian_sekolah/management/commands/import_sekolah.py
-
 import csv
 from django.core.management.base import BaseCommand, CommandError
 from django.contrib.gis.geos import Point
 from carian_sekolah.models import School
 
 class Command(BaseCommand):
-    help = 'Import data sekolah dari fail CSV dan hasilkan laporan ralat.'
+    help = 'Import data sekolah dari fail CSV dan hasilkan laporan ralat yang terperinci.'
 
     def add_arguments(self, parser):
         parser.add_argument('csv_file', type=str, help='Laluan ke fail CSV')
@@ -17,20 +15,28 @@ class Command(BaseCommand):
 
         error_rows = []
         success_count = 0
+        error_file_path = 'import_errors.csv'
 
         try:
             with open(csv_file_path, mode='r', encoding='utf-8') as file:
                 reader = csv.DictReader(file)
                 
-                for row in reader:
+                # Dapatkan nama lajur asal dari pembaca CSV
+                original_fieldnames = reader.fieldnames or []
+                error_fieldnames = original_fieldnames + ['sebab_ralat']
+
+                for row_num, row in enumerate(reader, 2): # Mula dari baris 2
                     try:
-                        # Semak jika lajur penting wujud dan tidak kosong
+                        # === SEMAKAN BARU: Kesan lajur berlebihan ===
+                        if None in row:
+                            raise ValueError(f"Baris mempunyai lebih banyak lajur daripada pengepala. Data tambahan: {row[None]}")
+
                         kod_sekolah = row.get('kod_sekolah', '').strip()
                         latitude = row.get('latitude', '').strip()
                         longitude = row.get('longitude', '').strip()
 
                         if not kod_sekolah or not latitude or not longitude:
-                            raise ValueError("Kod sekolah, latitude, atau longitude kosong.")
+                            raise ValueError("Data penting (kod_sekolah, latitude, atau longitude) kosong.")
 
                         lokasi = Point(float(longitude), float(latitude), srid=4326)
                         
@@ -50,22 +56,22 @@ class Command(BaseCommand):
                         success_count += 1
 
                     except (ValueError, KeyError) as e:
-                        # Jika berlaku ralat, simpan baris dan sebabnya
-                        row['sebab_ralat'] = str(e)
-                        error_rows.append(row)
+                        error_row_data = row.copy()
+                        # Pastikan kunci 'None' tidak dimasukkan ke dalam laporan
+                        if None in error_row_data:
+                            del error_row_data[None]
+                        error_row_data['sebab_ralat'] = f"Baris {row_num}: {e}"
+                        error_rows.append(error_row_data)
                         continue
             
             self.stdout.write(self.style.SUCCESS(f"Proses selesai. {success_count} sekolah berjaya diimport/dikemas kini."))
 
-            # Jika terdapat ralat, hasilkan fail laporan
             if error_rows:
-                error_file_path = 'import_errors.csv'
                 self.stdout.write(self.style.WARNING(f"{len(error_rows)} baris gagal diimport. Laporan ralat disimpan di {error_file_path}"))
                 
                 with open(error_file_path, mode='w', encoding='utf-8', newline='') as error_file:
-                    # Ambil pengepala dari baris pertama yang ralat
-                    fieldnames = error_rows[0].keys()
-                    writer = csv.DictWriter(error_file, fieldnames=fieldnames)
+                    # Guna 'extrasaction' untuk mengabaikan lajur yang tidak dijangka
+                    writer = csv.DictWriter(error_file, fieldnames=error_fieldnames, extrasaction='ignore')
                     writer.writeheader()
                     writer.writerows(error_rows)
 

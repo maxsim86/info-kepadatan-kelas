@@ -11,6 +11,7 @@ from django.db.models import Max
 from django.template.loader import render_to_string
 
 
+
 def check_availability(request):
     form = ClassroomForm(request.GET or None)
 
