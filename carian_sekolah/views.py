@@ -1,25 +1,45 @@
 import requests
 import json
 import re
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
+from django.core.paginator import Paginator
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.db.models import Q
 from .models import School
+from .forms import ImageSubmissionForm 
 from django.contrib.gis.db.models.functions import Distance
 from django.core.cache import cache
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 
+# --- Bahagian Muat Naik Gambar (Sudah Betul) ---
+def submit_school_image(request, school_id):
+    school = get_object_or_404(School, id=school_id)
+    if request.method == 'POST':
+        form = ImageSubmissionForm(request.POST, request.FILES)
+        if form.is_valid():
+            submission = form.save(commit=False)
+            submission.school = school
+            submission.save()
+            return redirect('carian_sekolah:submission_thank_you')
+    else:
+        form = ImageSubmissionForm()
+    return render(request, 'carian_sekolah/submit_image.html', {'school': school, 'form': form})
+
+def submission_thank_you(request):
+    return render(request, 'carian_sekolah/submission_thank_you.html')
+
+# --- Bahagian Halaman & Enjin Carian (Dikemas kini) ---
 def paparan_pencari(request):
-    return render(request, 'carian_sekolah/pencari.html', {})
+    ppd_list = School.objects.order_by('ppd').values_list('ppd', flat=True).distinct()
+    context = {
+        'ppd_list': ppd_list
+    }
+    return render(request, 'carian_sekolah/pencari.html', context)
 
 def geocode_location(location_query):
-    """
-    Fungsi ini menukar teks lokasi kepada koordinat.
-    Ia kini mempunyai logik sandaran (fallback) dan caching.
-    """
     cache_key = f"geodata_{location_query.lower().replace(' ', '_')}"
     cached_location = cache.get(cache_key)
     if cached_location:
@@ -40,78 +60,128 @@ def geocode_location(location_query):
                 lat = float(geodata[0]['lat'])
                 lon = float(geodata[0]['lon'])
                 search_location = {'lat': lat, 'lon': lon}
-                cache.set(cache_key, search_location, 86400) # Simpan dalam cache selama 1 hari
+                cache.set(cache_key, search_location, 86400)
                 return search_location, query
         except (requests.RequestException, IndexError, KeyError):
             continue
             
     return None, location_query
 
+
+
+def address_autocomplete(request):
+
+    query = request.GET.get('location', '').strip()
+    suggestions = []
+    if len(query) > 3: # Hanya cari jika input lebih dari 3 aksara
+        nominatim_url = f"https://nominatim.openstreetmap.org/search?format=json&q={query}, Malaysia&limit=5"
+        try:
+            # Gunakan pustaka 'requests' yang telah diimport
+            response = requests.get(nominatim_url, headers={'User-Agent':'SchoolLocatorApp/1.0'})
+            response.raise_for_status()
+            geodata = response.json()
+            suggestions = [result['display_name'] for result in geodata]
+            
+        except (requests.RequestException, IndexError, KeyError):
+            pass # Gagal secara senyap jika API tidak dapat dihubungi
+            
+    return render(request, 'carian_sekolah/partials/autocomplete_results.html', {'suggestions': suggestions})
+
+
+
 def search_and_find_schools(request):
     location_query = request.GET.get('location', '').strip()
     school_type = request.GET.get('type', 'SEMUA').upper()
     radius_km = float(request.GET.get('radius', 3.0))
+    ppd_query = request.GET.get('ppd', '').strip()
+    page_number = request.GET.get('page', 1)
+    is_initial_search = request.GET.get('initial') == 'true'
 
-    if not location_query:
-        return HttpResponse("<div class='list-group-item text-danger'>Sila masukkan nama sekolah atau lokasi.</div>")
+    if not location_query and not ppd_query:
+        return HttpResponse("")
 
-    # 1. Carian terus berdasarkan nama, alamat, dan poskod
-    vector = SearchVector('name', 'address')
-    search_query = SearchQuery(location_query)
-    direct_matches_query = School.objects.annotate(
-        rank=SearchRank(vector, search_query)
-    ).filter(rank__gte=0.01)
-
-    # 2. Carian Geografi dengan Logik Sandaran
-    search_location, successful_query = geocode_location(location_query)
+    # Mulakan dengan QuerySet kosong untuk digabungkan kemudian
+    direct_matches_query = School.objects.none()
     geocoded_matches_query = School.objects.none()
+    ppd_matches_query = School.objects.none()
     
-    if search_location:
-        user_location_point = Point(search_location['lon'], search_location['lat'], srid=4326)
-        # Ambil semua sekolah dalam radius yang lebih besar sedikit sebagai calon awal
-        # Ini penting supaya carian teks tidak terlepas
-        geocoded_matches_query = School.objects.filter(
-            location__distance_lte=(user_location_point, D(km=radius_km + 5)) # Cth: radius + 5km
-        )
+    search_location = None
+    successful_query = None
 
-    # 3. Gabungkan hasil carian
-    combined_query = (direct_matches_query | geocoded_matches_query).distinct()
+    # 2. Lakukan carian teks jika ada input lokasi
+    if location_query:
+        vector = SearchVector('name', 'address', 'postcode')
+        search_query = SearchQuery(location_query)
+        direct_matches_query = School.objects.annotate(
+            rank=SearchRank(vector, search_query)
+        ).filter(rank__gte=0.01)
+        
+        # Lakukan juga carian geografi
+        search_location, successful_query = geocode_location(location_query)
+        if search_location:
+            user_location_point = Point(search_location['lon'], search_location['lat'], srid=4326)
+            geocoded_matches_query = School.objects.filter(
+                location__distance_lte=(user_location_point, D(km=radius_km))
+            )
+            
+    # 3. Lakukan carian PPD jika dipilih
+    if ppd_query:
+        ppd_matches_query = School.objects.filter(ppd__iexact=ppd_query)
+
+    # 4. Gabungkan hasil carian
+    # Jika ada carian lokasi, gabungkan hasil teks dan geografi
+    if location_query:
+        combined_query = (direct_matches_query | geocoded_matches_query).distinct()
+        # Jika PPD juga dipilih, tapis lagi hasil gabungan itu
+        if ppd_query:
+            combined_query = combined_query.filter(ppd__iexact=ppd_query)
+    else:
+        # Jika tiada carian lokasi, hasil carian hanyalah dari PPD
+        combined_query = ppd_matches_query
+        
+
+    # Tapis jenis sekolah pada hasil akhir
     if school_type in ['RENDAH', 'MENENGAH']:
         combined_query = combined_query.filter(school_type=school_type)
 
-    # 4. Anotasi jarak dan susun hasil
     if search_location:
         user_location_point = Point(search_location['lon'], search_location['lat'], srid=4326)
-        
-        # === PERUBAHAN UTAMA DI SINI ===
-        # Tapis sekali lagi pada hasil yang digabungkan untuk memastikan SEMUA hasil
-        # mematuhi radius yang ditetapkan oleh pengguna.
         final_query = combined_query.annotate(
             distance=Distance('location', user_location_point)
         ).filter(
             distance__lte=D(km=radius_km)
         ).order_by('distance')
-        # === TAMAT PERUBAHAN ===
     else:
-        # Jika lokasi tidak dapat dikesan, susun mengikut nama sahaja
         final_query = combined_query.order_by('name')
 
-    # 5. Sediakan data untuk frontend
+    # 6. Laksanakan Paginasi
+    paginator = Paginator(final_query, 10)
+    page_obj = paginator.get_page(page_number)
+
+    # 7. Sediakan data untuk frontend
     results_for_js = []
-    for school_obj in final_query:
-        results_for_js.append({'name': school_obj.name, 'lat': school_obj.location.y, 'lon': school_obj.location.x})
+    if is_initial_search:
+        for school_obj in final_query: 
+            photo_url = school_obj.photo.url if school_obj.photo else None
+            results_for_js.append({
+                'id': school_obj.id, 'name': school_obj.name,
+                'lat': school_obj.location.y, 'lon': school_obj.location.x,
+                'photo_url': photo_url, 'school_type': school_obj.school_type
+            })
         
     context = {
-        'schools': final_query, 
+        'page_obj': page_obj, 
         'search_location_found': bool(search_location),
-        'geocoding_failed': not bool(search_location),
+        'geocoding_failed': not bool(search_location) and bool(location_query),
         'location_query': location_query,
-        'successful_query': successful_query if not bool(search_location) and successful_query != location_query else None
+        'successful_query': successful_query if not bool(search_location) and successful_query != location_query else None,
+        'request': request
     }
     html = render_to_string('carian_sekolah/partials/results_list.html', context)
     
-    trigger_data = {'search_location': search_location, 'schools': results_for_js}
     response = HttpResponse(html)
-    response['HX-Trigger'] = json.dumps({'updateMap': trigger_data})
+    if is_initial_search:
+        trigger_data = {'search_location': search_location, 'schools': results_for_js}
+        response['HX-Trigger'] = json.dumps({'updateMap': trigger_data})
     
     return response

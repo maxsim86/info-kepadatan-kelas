@@ -1,0 +1,14 @@
+{% extends 'utama/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container my-5 text-center">
+    <div class="py-5">
+        <h1 class="display-4">Terima Kasih!</h1>
+        <p class="lead">Gambar anda telah berjaya dihantar dan akan disemak oleh pentadbir kami tidak lama lagi.</p>
+        <hr class="my-4">
+        <p>Kami amat menghargai sumbangan anda.</p>
+        <a class="btn btn-primary btn-lg" href="{% url 'carian_sekolah:paparan_pencari' %}" role="button">Kembali ke Halaman Carian</a>
+    </div>
+</div>
+{% endblock content %}

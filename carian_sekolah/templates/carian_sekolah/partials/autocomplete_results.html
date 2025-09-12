@@ -1,0 +1,8 @@
+{% for suggestion in suggestions %}
+ 
+    <div class="list-group-item list-group-item-action autocomplete-item" 
+         onclick="selectAddressSuggestion('{{ suggestion|escapejs }}')">
+        {{ suggestion }}
+    </div>
+{% endfor %}
+

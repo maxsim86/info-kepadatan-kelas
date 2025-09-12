@@ -1,23 +1,59 @@
-{% if schools %}
-    <div class="list-group-item bg-light">
-        <strong>{{ schools|length }}</strong> hasil ditemui
+<!-- 1. Semak mesej ralat atau amaran dahulu -->
+{% if geocoding_failed and not page_obj.object_list %}
+    <div class="list-group-item text-warning" data-no-results="true">
+        Lokasi "{{ location_query }}" tidak dapat ditemui. Cuba guna nama bandar atau poskod yang lebih umum.
     </div>
-    {% for school in schools %}
+{% elif successful_query %}
+    <div class="list-group-item text-info">
+        Lokasi tepat tidak ditemui. Memaparkan hasil untuk kawasan umum: <strong>"{{ successful_query }}"</strong>.
+    </div>
+{% endif %}
+
+
+<!-- 2. Paparkan senarai sekolah dari objek paginasi -->
+{% if page_obj.object_list %}
+    {% for school in page_obj %}
     <a href="#" class="list-group-item list-group-item-action" data-school-name="{{ school.name }}">
-        <strong>{{ school.name }}</strong><br>
-        <small class="text-muted">{{ school.address }}</small>
-        
-        {% if search_location_found %}
-        <div class="mt-1">
-            <span class="badge bg-primary rounded-pill">
-                Anggaran: {{ school.distance.km|floatformat:2 }} km
-            </span>
+        <div class="d-flex w-100 align-items-center">
+            
+            <!-- Bahagian Gambar Thumbnail -->
+            <div class="flex-shrink-0 me-3">
+                {% if school.photo %}
+                    <img src="{{ school.photo.url }}" alt="{{ school.name }}" class="rounded" width="80" height="60" style="object-fit: cover;">
+                {% else %}
+                    <!-- Gambar Lalai (Placeholder) -->
+                    <img src="https://placehold.co/80x60/e9ecef/6c757d?text=Tiada+Gambar" alt="Tiada Gambar" class="rounded">
+                {% endif %}
+            </div>
+
+            <!-- Bahagian Teks Maklumat -->
+            <div class="flex-grow-1">
+                <h6 class="mb-1"><strong>{{ school.name }}</strong></h6>
+                <p class="mb-1 text-muted small">{{ school.address }}</p>
+                
+                {% if search_location_found %}
+                <span class="badge bg-primary rounded-pill">
+                    Anggaran: {{ school.distance.km|floatformat:2 }} km
+                </span>
+                {% endif %}
+            </div>
         </div>
-        {% endif %}
     </a>
     {% endfor %}
-{% else %}
-    <!-- data-no-results="true" penting untuk logik panel sisi -->
+{% elif not geocoding_failed and not successful_query %}
     <div class="list-group-item" data-no-results="true">Tiada sekolah ditemui sepadan dengan carian anda.</div>
+{% endif %}
+
+
+<!-- 3. Butang "Muat Lagi" (Infinite Scroll) -->
+{% if page_obj.has_next %}
+    <a href="?{{ request.GET.urlencode }}&page={{ page_obj.next_page_number }}"
+       class="list-group-item list-group-item-action text-center text-primary"
+       hx-get="?{{ request.GET.urlencode }}&page={{ page_obj.next_page_number }}"
+       hx-target="this"
+       hx-swap="outerHTML"
+       hx-indicator="#loader">
+        Muat Lagi...
+    </a>
 {% endif %}
 

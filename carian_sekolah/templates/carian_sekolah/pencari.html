@@ -5,12 +5,10 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
     body { background-color: #f4f7f6; }
-    .search-panel { background-color: white; padding: 1.5rem; border-radius: 8px; }
-    
-    /* GAYA UNTUK PETA & PANEL SISI */
+    .search-panel { background-color: white; border-radius: 8px; }
     .map-wrapper {
         position: relative;
-        height: 65vh;
+        height: 75vh;
         width: 100%;
         border-radius: 8px;
         overflow: hidden;
@@ -19,15 +17,16 @@
     #map {
         height: 100%;
         width: 100%;
+        z-index: 500;
     }
     #results-panel {
         position: absolute;
         top: 0;
         right: 0;
-        width: 350px;
+        width: 380px;
         height: 100%;
-        background-color: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(5px);
+        background-color: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(8px);
         z-index: 1000;
         display: flex;
         flex-direction: column;
@@ -44,6 +43,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        flex-shrink: 0;
     }
     #close-sidebar-btn {
         background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6c757d;
@@ -54,58 +54,109 @@
     }
     .list-group-item { cursor: pointer; }
     .list-group-item:hover { background-color: #e9ecef; }
+    
+    .autocomplete-container {
+        position: relative;
+    }
+    #autocomplete-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 1050;
+        max-height: 250px;
+        overflow-y: auto;
+        border-top: none;
+    }
+    .autocomplete-item { cursor: pointer; }
+
+    .htmx-indicator {
+        display: none; border: 4px solid #f3f3f3; border-radius: 50%; border-top: 4px solid #3498db;
+        width: 20px; height: 20px; animation: spin 1s linear infinite;
+    }
+    .htmx-request .htmx-indicator { display: inline-block; }
+    .htmx-request .btn-text { display: none; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 </style>
 
 <div class="container my-4">
-    <!-- BORANG CARIAN -->
-    <div class="search-panel shadow-sm p-4 bg-light border rounded mb-4">
-        <form id="search-form"
-              hx-get="{% url 'carian_sekolah:api_search_and_find' %}"
-              hx-target="#results-list"
-              hx-indicator="#loader">
-            <h4 class="mb-3">Cari Sekolah</h4>
-            <div class="row g-3">
-                <div class="col-md">
-                    <label for="location-input" class="form-label">Cari Nama Sekolah atau Lokasi</label>
-                    <input type="text" name="location" id="location-input" class="form-control" placeholder="cth: SMK Kota Kemuning atau 41200 Klang">
-                </div>
-                <div class="col-md">
-                    <label for="school-type-select" class="form-label">Jenis Sekolah</label>
-                    <select id="school-type-select" name="type" class="form-select">
-                        <option value="SEMUA" selected>Semua Jenis</option>
-                        <option value="RENDAH">Sekolah Rendah</option>
-                        <option value="MENENGAH">Sekolah Menengah</option>
-                    </select>
-                </div>
-                <div class="col-md">
-                    <label for="radius-select" class="form-label">Dalam Jarak</label>
-                    <select id="radius-select" name="radius" class="form-select">
-                        <option value="1">1 km</option>
-                        <option value="3" selected>3 km</option>
-                        <option value="5">5 km</option>
-                        <option value="10.0">10 km</option>
-                    </select>
-                </div>
-            </div>
-            <div class="d-grid mt-3">
-                <button type="submit" class="btn btn-primary d-flex justify-content-center align-items-center">
-                    <span class="btn-text">Cari</span>
-                    <div id="loader" class="htmx-indicator spinner-border spinner-border-sm ms-2" role="status"></div>
-                </button>
-            </div>
-        </form>
-    </div>
+    <div class="row g-4">
+        <!-- Panel Carian (Kiri) -->
+        <div class="col-lg-4">
+            <div class="search-panel shadow-sm p-4 border rounded">
+                <h4 class="mb-3">Cari Sekolah</h4>
+                <form id="search-form"
+                      hx-get="{% url 'carian_sekolah:api_search_and_find' %}"
+                      hx-target="#results-list"
+                      hx-indicator="#loader"
+                      hx-swap="innerHTML">
+                    
+                    <input type="hidden" name="initial" value="true">
 
-    <!-- PEMBUNGKUS PETA DAN PANEL SISI -->
-    <div class="map-wrapper">
-        <div id="map"></div>
-        <div id="results-panel">
-            <div class="results-header">
-                <h5 class="mb-0">Sekolah Ditemui</h5>
-                <button id="close-sidebar-btn" title="Tutup">&times;</button>
+                    <div class="mb-3 autocomplete-container">
+                        <label for="location-input" class="form-label">Cari Nama Sekolah atau Lokasi</label>
+                        <input type="text" name="location" id="location-input" class="form-control" 
+                               placeholder="Mula menaip alamat..."
+                               hx-get="{% url 'carian_sekolah:address_autocomplete' %}"
+                               hx-trigger="keyup changed delay:500ms"
+                               hx-target="#autocomplete-results"
+                               autocomplete="off">
+                        <div id="autocomplete-results" class="list-group"></div>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label for="school-type-select" class="form-label">Jenis Sekolah</label>
+                            <select id="school-type-select" name="type" class="form-select">
+                                <option value="SEMUA" selected>Semua Jenis</option>
+                                <option value="RENDAH">Sekolah Rendah</option>
+                                <option value="MENENGAH">Sekolah Menengah</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="ppd-select" class="form-label">PPD</label>
+                            <select id="ppd-select" name="ppd" class="form-select">
+                                <option value="" selected>Semua PPD</option>
+                                {% for ppd_name in ppd_list %}
+                                    <option value="{{ ppd_name }}">{{ ppd_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="radius-select" class="form-label">Dalam Jarak</label>
+                        <select id="radius-select" name="radius" class="form-select">
+                            <option value="1">1 km</option>
+                            <option value="3" selected>3 km</option>
+                            <option value="5">5 km</option>
+                            <option value="10">10 km</option>
+                        </select>
+                    </div>
+
+                    <div class="d-grid mt-3">
+                        <button type="submit" class="btn btn-primary d-flex justify-content-center align-items-center">
+                            <span class="btn-text">Cari</span>
+                            <div id="loader" class="htmx-indicator"></div>
+                        </button>
+                    </div>
+                </form>
             </div>
-            <div id="results-list" class="list-group list-group-flush">
-                <!-- Hasil carian HTMX akan diletakkan di sini -->
+        </div>
+
+        <!-- Peta dan Panel Sisi (Kanan) -->
+        <div class="col-lg-8">
+            <div class="map-wrapper">
+                <div id="map"></div>
+                <div id="results-panel">
+                    <div class="results-header">
+                        <h5 class="mb-0">Sekolah Ditemui</h5>
+                        <button id="close-sidebar-btn" title="Tutup">&times;</button>
+                    </div>
+                    <div id="results-list" class="list-group list-group-flush">
+                        <!-- Hasil carian HTMX akan diletakkan di sini -->
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -114,115 +165,109 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/htmx.org@1.9.12"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    // 1. Inisialisasi Peta & Pembolehubah
-    const map = L.map('map').setView([3.0449, 101.4456], 12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
-
-    const schoolLayer = L.layerGroup().addTo(map);
-    let userMarker;
-    const markerReferences = {};
-    let allSchoolsData = []; // Pembolehubah untuk menyimpan data sekolah bagi fungsi hover
-
-    const resultsPanel = document.getElementById('results-panel');
-    const closeSidebarBtn = document.getElementById('close-sidebar-btn');
-    const resultsListDiv = document.getElementById('results-list');
-
-    // 2. Definisi Ikon bila user letak courser dekat nama sekolah
-    const greenIcon = L.icon({ iconUrl: '{% static "marker-red1.png" %}', iconSize: [38, 38], iconAnchor: [19, 38], popupAnchor: [0, -38] });
-    const redIcon = L.icon({ iconUrl: '{% static "marker-red1.png" %}', iconSize: [38, 38], iconAnchor: [19, 38], popupAnchor: [0, -38] });
-    const highlightIcon = L.icon({
-        iconUrl: '{% static "schoolmarker.png" %}',
-        iconSize: [46, 46],
-        iconAnchor: [23, 46],
-        popupAnchor: [0, -46]
-    });
-
-    // 3. Fungsi Bantuan
-    function fetchAllSchools() {
-        fetch("{% url 'carian_sekolah:api_search_and_find' %}") // Gunakan URL API anda
-            .then(response => response.json())
-            .then(data => {
-                allSchoolsData = data.schools; // Simpan data untuk rujukan hover
-            });
+    function selectAddressSuggestion(address) {
+        const locationInput = document.getElementById('location-input');
+        const autocompleteResults = document.getElementById('autocomplete-results');
+        const searchForm = document.getElementById('search-form');
+        locationInput.value = address;
+        autocompleteResults.innerHTML = '';
+        htmx.trigger(searchForm, 'submit');
     }
 
-    // 4. Logik untuk Kawalan Panel Sisi & Peta
-    document.body.addEventListener('htmx:afterRequest', function(evt) {
-        if (evt.detail.successful) {
-            if (resultsListDiv.querySelector('[data-school-name]')) {
-                resultsPanel.classList.add('is-visible');
-            } else {
-                resultsPanel.classList.remove('is-visible');
-            }
-        }
-    });
+    document.addEventListener('DOMContentLoaded', function () {
+        const map = L.map('map').setView([3.1390, 101.6932], 10);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
 
-    closeSidebarBtn.addEventListener('click', function() {
-        resultsPanel.classList.remove('is-visible');
-    });
+        const schoolLayer = L.layerGroup().addTo(map);
+        let userMarker;
+        const markerReferences = {};
+        let allSchoolsData = [];
 
-    document.body.addEventListener('updateMap', function(evt) {
-        const data = evt.detail;
+        const resultsPanel = document.getElementById('results-panel');
+        const closeSidebarBtn = document.getElementById('close-sidebar-btn');
+        const resultsListDiv = document.getElementById('results-list');
         
-        schoolLayer.clearLayers();
-        if (userMarker) map.removeLayer(userMarker);
+        const greenIcon = L.icon({ iconUrl: '{% static "marker_yellow.png" %}', iconSize: [38, 38], iconAnchor: [19, 38], popupAnchor: [0, -38] });
+        const redIcon = L.icon({ iconUrl: '{% static "marker_red.png" %}', iconSize: [38, 38], iconAnchor: [19, 38], popupAnchor: [0, -38] });
+        const highlightIcon = L.icon({ iconUrl: '{% static "schoolmarker.png" %}', iconSize: [46, 46], iconAnchor: [23, 46], popupAnchor: [0, -46] });
 
-        if (data.search_location) {
-            userMarker = L.marker([data.search_location.lat, data.search_location.lon]).addTo(map).bindPopup('Lokasi Carian Anda');
-            map.flyTo([data.search_location.lat, data.search_location.lon], 14);
-        }
+        document.body.addEventListener('updateMap', function(evt) {
+            const data = evt.detail;
+            allSchoolsData = data.schools;
+            
+            schoolLayer.clearLayers();
+            if (userMarker) map.removeLayer(userMarker);
 
-        if (data.schools.length > 0) {
-            allSchoolsData = data.schools; // Kemas kini data untuk rujukan hover
-            data.schools.forEach(school => {
-                const marker = L.marker([school.lat, school.lon], { icon: redIcon }).addTo(schoolLayer) // Guna ikon lalai
-                    .bindPopup(`<b>${school.name}</b>`);
-                markerReferences[school.name] = marker;
-            });
-        }
-    });
-
-    // 5. Logik Interaksi Pengguna (Klik & Hover)
-    resultsListDiv.addEventListener('click', function(e) {
-        const targetItem = e.target.closest('.list-group-item');
-        if (targetItem && targetItem.dataset.schoolName) {
-            const schoolName = targetItem.dataset.schoolName;
-            const marker = markerReferences[schoolName];
-            if (marker) {
-                map.flyTo(marker.getLatLng(), 16);
-                marker.openPopup();
+            if (data.search_location) {
+                userMarker = L.marker([data.search_location.lat, data.search_location.lon]).addTo(map).bindPopup('Lokasi Carian Anda').openPopup();
+                map.flyTo([data.search_location.lat, data.search_location.lon], 14);
             }
-        }
-    });
 
-    resultsListDiv.addEventListener('mouseover', function(e) {
-        const targetItem = e.target.closest('.list-group-item');
-        if (targetItem && targetItem.dataset.schoolName) {
-            const schoolName = targetItem.dataset.schoolName;
-            const marker = markerReferences[schoolName];
-            if (marker) {
-                marker.setIcon(highlightIcon);
-                marker.setZIndexOffset(1000);
+            if (data.schools.length > 0) {
+                data.schools.forEach(school => {
+                    const iconToUse = school.school_type === 'MENENGAH' ? redIcon : greenIcon;
+                    let popupContent = `<h6>${school.name}</h6>`;
+                    if (school.photo_url) {
+                        popupContent += `<img src="${school.photo_url}" class="img-fluid rounded my-2" alt="${school.name}">`;
+                    }
+                    popupContent += `<a href="/cari/school/${school.id}/submit-image/" class="btn btn-sm btn-secondary d-block mt-2">Sumbang Gambar</a>`;
+                    
+                    const marker = L.marker([school.lat, school.lon], {icon: iconToUse}).addTo(schoolLayer).bindPopup(popupContent, { minWidth: 200 });
+                    markerReferences[school.name] = marker;
+                });
             }
-        }
-    });
-
-    resultsListDiv.addEventListener('mouseout', function(e) {
-        const targetItem = e.target.closest('.list-group-item');
-        if (targetItem && targetItem.dataset.schoolName) {
-            const schoolName = targetItem.dataset.schoolName;
-            const marker = markerReferences[schoolName];
-            // Kembalikan semua ikon kepada keadaan asal untuk mudah
-             if (marker) {
-                marker.setIcon(redIcon); // Guna ikon lalai
-                marker.setZIndexOffset(0);
+        });
+        
+        document.body.addEventListener('htmx:afterRequest', function(evt) {
+            if (evt.detail.successful) {
+                if (resultsListDiv.querySelector('[data-school-name]')) {
+                    resultsPanel.classList.add('is-visible');
+                } else {
+                    resultsPanel.classList.remove('is-visible');
+                }
             }
-        }
-    });
+        });
 
-    // Panggil fungsi permulaan jika perlu
-    // fetchAllSchools();
-});
+        closeSidebarBtn.addEventListener('click', function() {
+            resultsPanel.classList.remove('is-visible');
+        });
+
+        resultsListDiv.addEventListener('click', function(e) {
+            const targetItem = e.target.closest('.list-group-item');
+            if (targetItem && targetItem.dataset.schoolName) {
+                const marker = markerReferences[targetItem.dataset.schoolName];
+                if (marker) {
+                    map.flyTo(marker.getLatLng(), 16);
+                    marker.openPopup();
+                }
+            }
+        });
+
+        resultsListDiv.addEventListener('mouseover', function(e) {
+            const targetItem = e.target.closest('.list-group-item');
+            if (targetItem && targetItem.dataset.schoolName) {
+                const marker = markerReferences[targetItem.dataset.schoolName];
+                if (marker) {
+                    marker.setIcon(highlightIcon);
+                    marker.setZIndexOffset(1000);
+                }
+            }
+        });
+
+        resultsListDiv.addEventListener('mouseout', function(e) {
+            const targetItem = e.target.closest('.list-group-item');
+            if (targetItem && targetItem.dataset.schoolName) {
+                const schoolName = targetItem.dataset.schoolName;
+                const marker = markerReferences[schoolName];
+                const originalSchool = allSchoolsData.find(s => s.name === schoolName);
+                if (marker && originalSchool) {
+                    const originalIcon = originalSchool.school_type === 'MENENGAH' ? redIcon : greenIcon;
+                    marker.setIcon(originalIcon);
+                    marker.setZIndexOffset(0);
+                }
+            }
+        });
+    });
 </script>
 {% endblock content %}
+
