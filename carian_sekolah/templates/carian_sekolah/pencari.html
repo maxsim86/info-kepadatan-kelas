@@ -54,7 +54,6 @@
     }
     .list-group-item { cursor: pointer; }
     .list-group-item:hover { background-color: #e9ecef; }
-    
     .autocomplete-container {
         position: relative;
     }
@@ -90,7 +89,6 @@
                       hx-target="#results-list"
                       hx-indicator="#loader"
                       hx-swap="innerHTML">
-                    
                     <input type="hidden" name="initial" value="true">
 
                     <div class="mb-3 autocomplete-container">
@@ -186,7 +184,6 @@
         const resultsPanel = document.getElementById('results-panel');
         const closeSidebarBtn = document.getElementById('close-sidebar-btn');
         const resultsListDiv = document.getElementById('results-list');
-        
         const greenIcon = L.icon({ iconUrl: '{% static "marker_yellow.png" %}', iconSize: [38, 38], iconAnchor: [19, 38], popupAnchor: [0, -38] });
         const redIcon = L.icon({ iconUrl: '{% static "marker_red.png" %}', iconSize: [38, 38], iconAnchor: [19, 38], popupAnchor: [0, -38] });
         const highlightIcon = L.icon({ iconUrl: '{% static "schoolmarker.png" %}', iconSize: [46, 46], iconAnchor: [23, 46], popupAnchor: [0, -46] });

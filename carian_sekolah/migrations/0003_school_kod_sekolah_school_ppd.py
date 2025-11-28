@@ -4,20 +4,27 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('carian_sekolah', '0002_school_school_type'),
+        ("carian_sekolah", "0002_school_school_type"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='school',
-            name='kod_sekolah',
-            field=models.CharField(blank=True, max_length=10, null=True, unique=True, verbose_name='Kod Sekolah'),
+            model_name="school",
+            name="kod_sekolah",
+            field=models.CharField(
+                blank=True,
+                max_length=10,
+                null=True,
+                unique=True,
+                verbose_name="Kod Sekolah",
+            ),
         ),
         migrations.AddField(
-            model_name='school',
-            name='ppd',
-            field=models.CharField(blank=True, max_length=100, null=True, verbose_name='PPD'),
+            model_name="school",
+            name="ppd",
+            field=models.CharField(
+                blank=True, max_length=100, null=True, verbose_name="PPD"
+            ),
         ),
     ]

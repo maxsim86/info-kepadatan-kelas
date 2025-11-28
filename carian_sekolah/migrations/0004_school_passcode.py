@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('carian_sekolah', '0003_school_kod_sekolah_school_ppd'),
+        ("carian_sekolah", "0003_school_kod_sekolah_school_ppd"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='school',
-            name='passcode',
-            field=models.CharField(blank=True, max_length=10, verbose_name='Poskod'),
+            model_name="school",
+            name="passcode",
+            field=models.CharField(blank=True, max_length=10, verbose_name="Poskod"),
         ),
     ]

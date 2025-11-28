@@ -4,15 +4,22 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('carian_sekolah', '0001_initial'),
+        ("carian_sekolah", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='school',
-            name='school_type',
-            field=models.CharField(choices=[('RENDAH', 'Sekolah Rendah'), ('MENENGAH', 'Sekolah Menengah')], default='RENDAH', max_length=10, verbose_name='Jenis Sekolah'),
+            model_name="school",
+            name="school_type",
+            field=models.CharField(
+                choices=[
+                    ("RENDAH", "Sekolah Rendah"),
+                    ("MENENGAH", "Sekolah Menengah"),
+                ],
+                default="RENDAH",
+                max_length=10,
+                verbose_name="Jenis Sekolah",
+            ),
         ),
     ]

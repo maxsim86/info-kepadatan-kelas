@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("utama", "0008_rename_longtitude_classroom_longitude"),
     ]

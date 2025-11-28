@@ -5,24 +5,35 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='School',
+            name="School",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255, verbose_name='Nama Sekolah')),
-                ('address', models.TextField(blank=True, verbose_name='Alamat Penuh')),
-                ('location', django.contrib.gis.db.models.fields.PointField(srid=4326, verbose_name='Koordinat Lokasi')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255, verbose_name="Nama Sekolah")),
+                ("address", models.TextField(blank=True, verbose_name="Alamat Penuh")),
+                (
+                    "location",
+                    django.contrib.gis.db.models.fields.PointField(
+                        srid=4326, verbose_name="Koordinat Lokasi"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Sekolah',
-                'verbose_name_plural': 'Senarai Sekolah',
+                "verbose_name": "Sekolah",
+                "verbose_name_plural": "Senarai Sekolah",
             },
         ),
     ]

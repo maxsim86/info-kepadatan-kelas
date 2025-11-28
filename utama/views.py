@@ -11,7 +11,6 @@ from django.db.models import Max
 from django.template.loader import render_to_string
 
 
-
 def check_availability(request):
     form = ClassroomForm(request.GET or None)
 
@@ -38,15 +37,14 @@ def check_availability(request):
         "selected_school": selected_school,
     }
     if "HX-Request" in request.headers:
-        html = render_to_string("utama/partials/classroom_list.html", context, request=request)
+        html = render_to_string(
+            "utama/partials/classroom_list.html", context, request=request
+        )
         response = HttpResponse(html)
-        response['HX-Trigger'] = 'openModal'
+        response["HX-Trigger"] = "openModal"
         return response
-    
-    
+
     return render(request, "utama/check_availability.html", context)
-
-
 
 
 def school_data_json(request):
@@ -60,19 +58,14 @@ def school_data_json(request):
 
     if selected_year:
         schools_data = queryset.filter(year=selected_year).values(
-            "id","school", "latitude", "longitude", "average", "photo"
+            "id", "school", "latitude", "longitude", "average", "photo"
         )
     else:
         schools_data = queryset.values(
             "school", "latitude", "longitude", "photo"
-        ).annotate(
-            average=Max("average"),
-            id=Max("id")
-            )
+        ).annotate(average=Max("average"), id=Max("id"))
 
     return JsonResponse(list(schools_data), safe=False)
-
-
 
 
 @login_required

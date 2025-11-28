@@ -9,7 +9,6 @@ from django.db.models import Sum
 # Register your models here.
 
 
-
 class ChoiceInline(admin.TabularInline):
     model = Choice
     extra = 1
@@ -18,7 +17,7 @@ class ChoiceInline(admin.TabularInline):
 class QuestionDashboardAdmin(ImportExportModelAdmin):
     inlines = [ChoiceInline]
     list_filter = ("quiz",)
-    ordering = ('question_number',)
+    ordering = ("question_number",)
 
 
 # class UserResponseAdmin(admin.ModelAdmin):
@@ -47,6 +46,6 @@ class QuestionDashboardAdmin(ImportExportModelAdmin):
 #         return total if total is not None else 0
 
 
-#admin.site.register(UserResponse, UserResponseAdmin)
+# admin.site.register(UserResponse, UserResponseAdmin)
 admin.site.register(Quiz)
 admin.site.register(Question, QuestionDashboardAdmin)

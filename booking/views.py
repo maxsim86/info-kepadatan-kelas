@@ -164,7 +164,6 @@ def bookRoom(request, p_date, pk):
     return render(request, "booking/book_room.html", context) """
 
 
-
 @login_required(redirect_field_name="/signin")
 def bookRoom(request, p_date, pk):
     f_date = datetime.strptime(p_date, "%Y%m%d").date().strftime("%Y-%m-%d")
@@ -185,30 +184,57 @@ def bookRoom(request, p_date, pk):
         message = "ALREADY YOU"
     elif time_slot.booked == True:
         message = "ALREADY"
-    elif (picked_date_obj.day - today_date_obj.day >= days) and (time_slot.booked == False):
+    elif (picked_date_obj.day - today_date_obj.day >= days) and (
+        time_slot.booked == False
+    ):
         # Check for conflicts with full-day booking
-        if time_slot.check_in_time == datetime.strptime("08:00", "%H:%M").time() and time_slot.check_out_time == datetime.strptime("17:00", "%H:%M").time():
+        if (
+            time_slot.check_in_time == datetime.strptime("08:00", "%H:%M").time()
+            and time_slot.check_out_time == datetime.strptime("17:00", "%H:%M").time()
+        ):
             # If full-day is booked, block other slots
             conflicting_slots = TimeSlot.objects.filter(room=room, booked=True)
             for conflicting_slot in conflicting_slots:
                 try:
-                    conflicting_booking = Booking.objects.get(time_slot = conflicting_slot)
+                    conflicting_booking = Booking.objects.get(
+                        time_slot=conflicting_slot
+                    )
                     if str(conflicting_booking.date) == f_date:
                         message = "FULL_DAY_CONFLICT"
-                        context = {"user": user, "time_slot": time_slot, "message": message, "days": days}
+                        context = {
+                            "user": user,
+                            "time_slot": time_slot,
+                            "message": message,
+                            "days": days,
+                        }
                         return render(request, "booking/book_room.html", context)
                 except Booking.DoesNotExist:
                     pass
 
         # Check for conflicts with half-day bookings
-        if time_slot.check_in_time == datetime.strptime("08:00", "%H:%M").time() and time_slot.check_out_time == datetime.strptime("12:00", "%H:%M").time() or time_slot.check_in_time == datetime.strptime("14:00", "%H:%M").time() and time_slot.check_out_time == datetime.strptime("17:00", "%H:%M").time():
-            full_day_slot = TimeSlot.objects.filter(room=room, check_in_time=datetime.strptime("08:00", "%H:%M").time(), check_out_time=datetime.strptime("17:00", "%H:%M").time(), booked=True)
+        if (
+            time_slot.check_in_time == datetime.strptime("08:00", "%H:%M").time()
+            and time_slot.check_out_time == datetime.strptime("12:00", "%H:%M").time()
+            or time_slot.check_in_time == datetime.strptime("14:00", "%H:%M").time()
+            and time_slot.check_out_time == datetime.strptime("17:00", "%H:%M").time()
+        ):
+            full_day_slot = TimeSlot.objects.filter(
+                room=room,
+                check_in_time=datetime.strptime("08:00", "%H:%M").time(),
+                check_out_time=datetime.strptime("17:00", "%H:%M").time(),
+                booked=True,
+            )
             if full_day_slot.exists():
                 try:
-                    full_day_booking = Booking.objects.get(time_slot = full_day_slot[0])
+                    full_day_booking = Booking.objects.get(time_slot=full_day_slot[0])
                     if str(full_day_booking.date) == f_date:
                         message = "HALF_DAY_CONFLICT"
-                        context = {"user": user, "time_slot": time_slot, "message": message, "days": days}
+                        context = {
+                            "user": user,
+                            "time_slot": time_slot,
+                            "message": message,
+                            "days": days,
+                        }
                         return render(request, "booking/book_room.html", context)
                 except Booking.DoesNotExist:
                     pass
@@ -228,7 +254,6 @@ def bookRoom(request, p_date, pk):
 
     context = {"user": user, "time_slot": time_slot, "message": message, "days": days}
     return render(request, "booking/book_room.html", context)
-
 
 
 # cancel booking page view
@@ -375,4 +400,3 @@ def userBookings(request):
     context = {"user": user, "bookings": bookings}
 
     return render(request, "booking/user_bookings.html", context)
-

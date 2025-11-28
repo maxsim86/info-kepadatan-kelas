@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("carian_sekolah", "0011_schoolimagesubmission"),
     ]

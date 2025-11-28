@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
+
 from pathlib import Path
 import os
 
@@ -41,7 +42,6 @@ INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
     "utama",
     "carian_sekolah",
-    
     "import_export",
     "api.apps.ApiConfig",
     "rest_framework",
@@ -49,9 +49,7 @@ INSTALLED_APPS = [
     "django_htmx",
     "django.contrib.gis",
     "leaflet",
-    
     "profilpersonaliti",
-
 ]
 
 MIDDLEWARE = [
@@ -77,7 +75,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, 'templates')],
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -100,12 +98,12 @@ DATABASES = {
     "default": {
         # "ENGINE": "django.db.backends.sqlite3",
         # "NAME": BASE_DIR / "db.sqlite3",
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'carian_sekolah',         
-        'USER': 'esiar',
-        'PASSWORD': 'admin',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        "ENGINE": "django.contrib.gis.db.backends.postgis",
+        "NAME": "carian_sekolah",
+        "USER": "esiar",
+        "PASSWORD": "admin",
+        "HOST": "localhost",
+        "PORT": "5432",
     }
 }
 
@@ -160,25 +158,24 @@ LOGIN_REDIRECT_URL = "/kuiz"
 LOGOUT_REDIRECT_URL = "/kuiz"
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = BASE_DIR / "media"
 
-#MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "media")
+# MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "media")
 
 IMPORT_EXPORT_USE_TRANSACTIONS = True
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-AUTH_USER_MODEL = 'booking.User'
-
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+AUTH_USER_MODEL = "booking.User"
 
 
 LEAFLET_CONFIG = {
-        'DEFAULT_CENTER': (3.0449, 101.4456),
-        'DEFAULT_ZOOM': 11,
-        'PLUGINS': {
-            'geosearch': {
-                'css': 'https://unpkg.com/leaflet-geosearch@3.0.0/dist/geosearch.css',
-                'js': 'https://unpkg.com/leaflet-geosearch@3.0.0/dist/geosearch.umd.js',
-                'auto-include': True,
-            },
-        }
-    }
+    "DEFAULT_CENTER": (3.0449, 101.4456),
+    "DEFAULT_ZOOM": 11,
+    "PLUGINS": {
+        "geosearch": {
+            "css": "https://unpkg.com/leaflet-geosearch@3.0.0/dist/geosearch.css",
+            "js": "https://unpkg.com/leaflet-geosearch@3.0.0/dist/geosearch.umd.js",
+            "auto-include": True,
+        },
+    },
+}

@@ -11,7 +11,8 @@ class RegisterForm(forms.ModelForm):
     """
     The default
     """
-# password pertama
+
+    # password pertama
     password = forms.CharField(
         widget=forms.PasswordInput(
             attrs={
@@ -54,7 +55,6 @@ class RegisterForm(forms.ModelForm):
             raise forms.ValidationError("Email sudah diambil")
         return email
 
-
     def clean(self):
         """
         Verify both passwords match.
@@ -64,7 +64,7 @@ class RegisterForm(forms.ModelForm):
         password_2 = cleaned_data.get("password_2")
         if password is not None and password != password_2:
             self.add_error("password_2", "Your passwords must match")
-             
+
         return cleaned_data
 
     def save(self, commit=True):
