@@ -3,7 +3,7 @@ from django.db import models
 
 class Classroom(models.Model):
     SCHOOL_CHOICES = [
-        ("SK KLANG ", "SK KLANG"),
+        ("SK KLANG", "SK KLANG"),
         ("SK TELOK GADONG", "SK TELOK GADONG"),
         ("SK PELABUHAN KELANG", "SK PELABUHAN KELANG"),
         ("SK TELOK MENEGON", "SK TELOK MENEGON"),

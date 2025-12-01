@@ -79,3 +79,5 @@ class SchoolImageSubmission(models.Model):
 
     def __str__(self):
         return f"Serahan untuk {self.school.name} ({self.status})"
+
+
