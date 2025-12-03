@@ -40,7 +40,6 @@ class Classroom(models.Model):
         ("SK BUKIT RIMAU ", "SK BUKIT RIMAU"),
         ("SK BUKIT CERAKAH ", "SK BUKIT CERAKAH"),
         ("SK METHODIST ACS", "SK METHODIST ACS"),
-        ("SK (1) JALAN BATU TIGA ", "SK (1) JALAN BATU TIGA "),
         ("SK (1) JALAN BATU TIGA", "SK (1) JALAN BATU TIGA "),
         ("SK CONVENT (1) (M)", "SK CONVENT (1) (M) "),
         ("SK CONVENT (2) (M)  ", "SK CONVENT (2) (M)"),
