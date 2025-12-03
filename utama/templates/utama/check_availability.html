@@ -125,7 +125,7 @@
     <!-- 2. Kotak Cadangan -->
     <div id="suggestion-box">
         <div class="text-center text-muted py-5">
-            <i class="bi bi-info-circle" style="font-size: 2rem;"></i><br><br>
+            <i class="Nota: Terdapat sedikit pertindihan dalam nombor yang anda berikan (<38 dan 36-39). Saya telah menyusunnya semula supaya logiknya tidak bertembung:bi bi-info-circle" style="font-size: 2rem;"></i><br><br>
             Pilih mana-mana sekolah di atas untuk melihat senarai sekolah berdekatan yang masih mempunyai kekosongan.
         </div>
     </div>
@@ -160,12 +160,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const markerReferences = {}; 
     let allSchoolsData = [];
 
-    // 3. Ikon
-    const greenIcon = L.icon({ iconUrl: '{% static "marker-green.png" %}', shadowUrl: '{% static "leaf-shadow.png" %}', iconSize: [38, 95], shadowSize:   [50, 64], iconAnchor:   [22, 94], shadowAnchor: [4, 62], popupAnchor:  [-3, -76] });
-    const redIcon = L.icon({ iconUrl: '{% static "marker-red.png" %}',shadowUrl: '{% static "leaf-shadow.png" %}', iconSize: [38, 95], shadowSize:   [50, 64], iconAnchor:   [22, 94], shadowAnchor: [4, 62], popupAnchor:  [-3, -76] });
+    // === 3. DEFINISI IKON (HIJAU, KUNING, MERAH) ===
+    const greenIcon = L.icon({ iconUrl: '{% static "marker_green.png" %}', iconSize: [30, 30], iconAnchor: [15, 30], popupAnchor: [0, -30] });
+    // Pastikan anda sudah simpan marker-yellow.png
+    const yellowIcon = L.icon({ iconUrl: '{% static "marker_yellow.png" %}', iconSize: [30, 30], iconAnchor: [15, 30], popupAnchor: [0, -30] });
+    const redIcon = L.icon({ iconUrl: '{% static "marker_red.png" %}', iconSize: [30, 30], iconAnchor: [15, 30], popupAnchor: [0, -30] });
 
-
-    
     const createClusterIcon = function (cluster) {
         var count = cluster.getChildCount();
         var className = 'marker-cluster marker-cluster-' + (count < 10 ? 'small' : (count < 100 ? 'medium' : 'large'));
@@ -176,7 +176,17 @@ document.addEventListener('DOMContentLoaded', function () {
     // 4. Fetch Data
     function fetchAllSchools() {
         let apiUrl = "{% url 'school_data_json' %}";
+        // Fallback untuk mengelakkan ralat syntax dalam JS jika tag template tidak diproses
         if (apiUrl.includes("{%")) apiUrl = "/api/data-sekolah/";
+
+        // Kendalikan selected_year
+        let selectedYear = "{{ selected_year|default:'' }}";
+        if (selectedYear.includes("{{")) selectedYear = "";
+
+        if (selectedYear) {
+            const separator = apiUrl.includes('?') ? '&' : '?';
+            apiUrl += separator + "year=" + encodeURIComponent(selectedYear);
+        }
 
         fetch(apiUrl)
             .then(response => response.json())
@@ -190,10 +200,31 @@ document.addEventListener('DOMContentLoaded', function () {
     function renderMapMarkers() {
         markerCluster.clearLayers();
         allSchoolsData.forEach(school => {
-            const iconToUse = school.average < 39 ? greenIcon : redIcon;
-            const statusText = school.average < 39 ? "<span style='color:green'>KOSONG</span>" : "<span style='color:red'>PENUH</span>";
             
-            let popupContent = `<b>${school.school}</b><br>Status: ${statusText}`;
+            // === PERUBAHAN BARU: LOGIK 3 WARNA ===
+            let iconToUse;
+            let statusText;
+            const avg = school.average;
+
+            if (avg < 36) {
+                // Hijau: Bawah 36
+                iconToUse = greenIcon;
+                statusText = "<span style='color:green; font-weight:bold;'>MASIH KOSONG</span>";
+            } else if (avg >= 36 && avg <= 39) {
+                // Kuning: 36 hingga 39
+                iconToUse = yellowIcon;
+                statusText = "<span style='color:#e67e22; font-weight:bold;'>SEPARA PENUH</span>";
+            } else {
+                // Merah: 40 ke atas
+                iconToUse = redIcon;
+                statusText = "<span style='color:red; font-weight:bold;'>PENUH</span>";
+            }
+            // ======================================
+            
+            let popupContent = `<b>${school.school}</b><br>Purata: ${avg}<br>Status: ${statusText}`;
+            if (school.photo) {
+                popupContent += `<br><img src="/media/${school.photo}" style="width:100%; margin-top:5px; border-radius:4px;">`;
+            }
             popupContent += `<div class="direction-buttons">
                 <a href="https://www.google.com/maps/dir/?api=1&destination=${school.latitude},${school.longitude}" target="_blank" class="direction-btn google">Google Maps</a>
                 <a href="https://www.waze.com/ul?ll=${school.latitude},${school.longitude}&navigate=yes" target="_blank" class="direction-btn waze">Waze</a>
@@ -208,7 +239,7 @@ document.addEventListener('DOMContentLoaded', function () {
         map.addLayer(markerCluster);
     }
 
-    // 5. Update Suggestions (Sidebar Kanan)
+    // 5. Update Suggestions
     function updateSuggestions(selectedSchoolName) {
         if (!selectedSchoolName) {
             suggestionBox.innerHTML = '<div class="text-center text-muted py-5">Pilih sekolah untuk melihat cadangan.</div>';
@@ -220,33 +251,37 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const selectedLatLng = L.latLng(selectedSchool.latitude, selectedSchool.longitude);
 
-        // Tapis & Kira Jarak
-        const greenSchools = allSchoolsData.filter(s => s.average < 39 && s.school !== selectedSchoolName);
-        greenSchools.forEach(s => {
+        // === PERUBAHAN: Tapis sekolah yang < 40 (Hijau DAN Kuning dimasukkan dalam cadangan) ===
+        const recommendedSchools = allSchoolsData.filter(s => s.average < 40 && s.school !== selectedSchoolName);
+
+        recommendedSchools.forEach(s => {
             s.distance = selectedLatLng.distanceTo(L.latLng(s.latitude, s.longitude)) / 1000;
         });
-        greenSchools.sort((a, b) => a.distance - b.distance);
+        recommendedSchools.sort((a, b) => a.distance - b.distance);
 
-        // Bina HTML
-        let html = `<h5 class="mb-3 text-success">Sekolah Berdekatan (Kosong)</h5>`;
+        let html = `<h5 class="mb-3 text-success">Sekolah Berdekatan (< 40 Murid)</h5>`;
         html += `<p class="text-muted small">Berhampiran: <b>${selectedSchoolName}</b></p>`;
         
-        if (greenSchools.length > 0) {
-            greenSchools.slice(0, 8).forEach(s => { // Papar 8 teratas kerana ruang menegak lebih banyak
+        if (recommendedSchools.length > 0) {
+            recommendedSchools.slice(0, 8).forEach(s => {
+                // Tentukan warna badge dalam senarai cadangan
+                let badgeClass = s.average < 36 ? "bg-success" : "bg-warning text-dark";
+                let statusLabel = s.average < 36 ? "KOSONG" : "SEPARA";
+
                 html += `
                 <div class="suggestion-item" data-school="${s.school}">
                     <strong>${s.school}</strong><br>
                     <div class="d-flex justify-content-between mt-1">
                         <small class="text-muted">${s.distance.toFixed(2)} km</small>
-                        <span class="badge bg-success" style="font-size:0.7em">KOSONG</span>
+                        <span class="badge ${badgeClass}" style="font-size:0.7em">${statusLabel} (${s.average})</span>
                     </div>
                 </div>`;
             });
         } else {
-            html += `<div class="alert alert-warning">Tiada sekolah kosong dalam jarak dekat.</div>`;
+            html += `<div class="alert alert-warning">Tiada sekolah kosong atau separa penuh dalam jarak dekat.</div>`;
         }
         suggestionBox.innerHTML = html;
-        suggestionBox.scrollTop = 0; // Scroll ke atas
+        suggestionBox.scrollTop = 0;
     }
 
     // 6. Main Handler
@@ -272,7 +307,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // 7. Event Listeners
-    schoolInput.addEventListener('input', handleSelectionChange);
+    schoolInput.addEventListener('change', handleSelectionChange); // Guna change untuk elak refresh terlalu kerap
     yearSelect.addEventListener('change', handleSelectionChange);
 
     suggestionBox.addEventListener('click', function(e) {
