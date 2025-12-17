@@ -155,7 +155,7 @@ class Classroom(models.Model):
     ]
 
     school = models.CharField(
-        max_length=100, choices=SCHOOL_CHOICES, verbose_name="Senarai Sekolah"
+        max_length=255, choices=SCHOOL_CHOICES, verbose_name="Senarai Sekolah"
     )
     year = models.CharField(
         max_length=50, choices=YEAR_CHOICES, verbose_name="Masukkan tahun kelas"
