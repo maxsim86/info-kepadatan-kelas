@@ -13,7 +13,7 @@ from django.contrib.gis.db.models.functions import Distance
 from django.core.cache import cache
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 
-#ntuk muat naik gambar
+#untuk muat naik gambar
 def submit_school_image(request, school_id):
     school = get_object_or_404(School, id=school_id)
     if request.method == "POST":

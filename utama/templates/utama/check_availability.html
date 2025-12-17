@@ -9,323 +9,400 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.1/dist/MarkerCluster.css" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.1/dist/MarkerCluster.Default.css" />
 <script src="https://unpkg.com/leaflet.markercluster@1.5.1/dist/leaflet.markercluster.js"></script>
+<!-- HTMX -->
+<script src="https://unpkg.com/htmx.org@1.9.12"></script>
 
 <style>
-    /* === SUSUN ATUR PETA & CADANGAN (SIDE-BY-SIDE) === */
-    .map-container {
-        display: grid;
-        grid-template-columns: 3fr 1fr; /* Peta (3 bahagian) | Cadangan (1 bahagian) */
-        gap: 20px;
-        margin-top: 20px;
-        align-items: start; /* Pastikan kotak bermula dari atas */
-    }
+    /* === SUSUN ATUR GRID === */
+    .map-container { display: grid; grid-template-columns: 3fr 1fr; gap: 20px; margin-top: 20px; align-items: start; }
+    #map { height: 600px; width: 100%; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    #suggestion-box { height: 600px; overflow-y: auto; background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 8px; padding: 1rem; }
+    @media (max-width: 992px) { .map-container { grid-template-columns: 1fr; } #map, #suggestion-box { height: 400px; } }
 
-    #map { 
-        height: 600px; /* Tinggikan sedikit peta */
-        width: 100%;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
+    /* === TAB NAVIGASI === */
+    .search-tabs { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
+    .tab-btn { padding: 10px 30px; border-radius: 50px; border: 1px solid #dee2e6; background-color: #f8f9fa; color: #6c757d; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+    .tab-btn.active { background-color: #0d6efd; color: white; border-color: #0d6efd; box-shadow: 0 4px 6px rgba(13, 110, 253, 0.3); }
 
-    #suggestion-box {
-        height: 600px; /* Samakan tinggi dengan peta */
-        overflow-y: auto; /* Boleh skrol jika senarai panjang */
-        background-color: #ffffff;
-        border: 1px solid #dee2e6;
-        border-radius: 8px;
-        padding: 1rem;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    }
-
-    /* Responsif untuk Mobile (Stack ke bawah) */
-    @media (max-width: 992px) {
-        .map-container {
-            grid-template-columns: 1fr; /* Satu lajur sahaja */
-        }
-        #map, #suggestion-box {
-            height: 400px; /* Kurangkan tinggi pada mobile */
-        }
-    }
-
-    /* Gaya Item Cadangan */
-    .suggestion-item {
-        padding: 12px;
-        border-bottom: 1px solid #eee;
-        cursor: pointer;
-        transition: all 0.2s;
-        border-radius: 4px;
-    }
-    .suggestion-item:hover { 
-        background-color: #f0f8ff; 
-        transform: translateX(5px); /* Efek gerak sedikit bila hover */
-    }
-    .suggestion-item strong { color: #2c3e50; display: block; margin-bottom: 4px;}
+    /* === LOADER === */
+    .htmx-indicator { display: none; margin-left: 10px; width: 1rem; height: 1rem; }
+    .htmx-request .htmx-indicator { display: inline-block; }
     
-    /* Butang Arah dalam Popup */
+    /* === STYLE LAIN === */
     .direction-buttons { margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
     .direction-btn { padding: 6px; color: white !important; text-align: center; border-radius: 4px; font-size: 0.8em; text-decoration: none; }
     .direction-btn.google { background-color: #4285F4; }
     .direction-btn.waze { background-color: #33ccff; }
+    .suggestion-item { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; transition: background-color 0.2s; border-radius: 4px; }
+    .suggestion-item:hover { background-color: #f0f8ff; transform: translateX(5px); }
 </style>
 
-<div class="mb-4 p-4 border rounded bg-light shadow-sm">
-    <!-- Borang Carian -->
-    <form id="search-form" 
-          hx-get="{% url 'check_availability' %}" 
-          hx-target="#modal-results" 
-          hx-indicator=".htmx-indicator">
-          
-        <h4 class="mb-3 text-primary">Carian Status Sekolah</h4>
-        <div class="row g-3">
-            <div class="col-md-6">
-                <label for="school_input" class="form-label fw-bold">Pilihan Sekolah</label>
-                
-                <!-- Input Autocomplete -->
-                <input class="form-control" 
-                       list="schoolOptions" 
-                       id="school_input" 
-                       name="school" 
-                       placeholder="Mula menaip nama sekolah..." 
-                       autocomplete="off"
-                       value="{{ form.school.value|default:'' }}">
-
-                <datalist id="schoolOptions">
-                    {% for value, label in form.fields.school.choices %}
-                        {% if value %}<option value="{{ value }}">{% endif %}
-                    {% endfor %}
-                </datalist>
-            </div>
-            
-            <div class="col-md-4">
-                <label for="year" class="form-label fw-bold">Pilihan Tahun</label>
-                <select name="year" id="year" class="form-select">
-                    <option value="">Pilih Tahun...</option>
-                    <option value="PPKI" {% if selected_year == 'PPKI' %}selected{% endif %}>PPKI</option>
-                    <option value="TAHUN SATU" {% if selected_year == 'TAHUN SATU' %}selected{% endif %}>Tahun 1</option>
-                    <option value="TAHUN DUA" {% if selected_year == 'TAHUN DUA' %}selected{% endif %}>Tahun 2</option>
-                    <option value="TAHUN TIGA" {% if selected_year == 'TAHUN TIGA' %}selected{% endif %}>Tahun 3</option>
-                    <option value="TAHUN EMPAT" {% if selected_year == 'TAHUN EMPAT' %}selected{% endif %}>Tahun 4</option>
-                    <option value="TAHUN LIMA" {% if selected_year == 'TAHUN LIMA' %}selected{% endif %}>Tahun 5</option>
-                    <option value="TAHUN ENAM" {% if selected_year == 'TAHUN ENAM' %}selected{% endif %}>Tahun 6</option>
-                </select>
-            </div>
-            
-            <div class="col-md-2 d-flex align-items-end">
-                 <a href="{% url 'check_availability' %}" class="btn btn-outline-secondary w-100">Reset</a>
-            </div>
-        </div>
-    </form>
-</div>
-
-<!-- CONTAINER UTAMA: PETA (KIRI) & CADANGAN (KANAN) -->
-<div class="map-container">
-    <!-- 1. Peta -->
-    <div id="map"></div>
+<div class="container mt-4">
     
-    <!-- 2. Kotak Cadangan -->
-    <div id="suggestion-box">
-        <div class="text-center text-muted py-5">
-            <i class="Nota: Terdapat sedikit pertindihan dalam nombor yang anda berikan (<38 dan 36-39). Saya telah menyusunnya semula supaya logiknya tidak bertembung:bi bi-info-circle" style="font-size: 2rem;"></i><br><br>
-            Pilih mana-mana sekolah di atas untuk melihat senarai sekolah berdekatan yang masih mempunyai kekosongan.
+    <!-- 1. PILIHAN MOD (TAB) -->
+    <div class="search-tabs">
+        <button class="tab-btn active" onclick="switchMode('status')" id="btn-mode-status">
+            <i class="bi bi-bar-chart-fill me-2"></i>Status & Kepadatan
+        </button>
+        <button class="tab-btn" onclick="switchMode('proximity')" id="btn-mode-proximity">
+            <i class="bi bi-geo-alt-fill me-2"></i>Carian Berdekatan (GPS)
+        </button>
+    </div>
+
+    <div class="mb-4 p-4 border rounded bg-light shadow-sm">
+        
+        <!-- 2. BORANG A: STATUS (Data Selangor Sahaja - Hijau/Merah) -->
+        <div id="form-status" style="display: block;">
+            <h5 class="mb-3 text-primary border-bottom pb-2">Analisis Kepadatan Sekolah (Selangor)</h5>
+            <form id="search-form-status" 
+                  hx-get="{% url 'check_availability' %}" 
+                  hx-target="#modal-results" 
+                  hx-indicator="#loader-status">
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Nama Sekolah</label>
+                        <input class="form-control" list="schoolOptions" id="school_input" name="school" placeholder="Mula menaip..." autocomplete="off">
+                        <datalist id="schoolOptions">
+                            {% for value, label in form.fields.school.choices %}
+                                {% if value %}<option value="{{ value }}">{% endif %}
+                            {% endfor %}
+                        </datalist>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Pilihan Tahun</label>
+                        <select name="year" id="year" class="form-select">
+                            <option value="">-- Papar Semua --</option>
+                            <option value="PPKI" {% if selected_year == 'PPKI' %}selected{% endif %}>PPKI</option>
+                            <option value="TAHUN SATU" {% if selected_year == 'TAHUN SATU' %}selected{% endif %}>Tahun 1</option>
+                            <option value="TAHUN DUA" {% if selected_year == 'TAHUN DUA' %}selected{% endif %}>Tahun 2</option>
+                            <option value="TAHUN TIGA" {% if selected_year == 'TAHUN TIGA' %}selected{% endif %}>Tahun 3</option>
+                            <option value="TAHUN EMPAT" {% if selected_year == 'TAHUN EMPAT' %}selected{% endif %}>Tahun 4</option>
+                            <option value="TAHUN LIMA" {% if selected_year == 'TAHUN LIMA' %}selected{% endif %}>Tahun 5</option>
+                            <option value="TAHUN ENAM" {% if selected_year == 'TAHUN ENAM' %}selected{% endif %}>Tahun 6</option>
+
+                           
+                            <option value="TINGKATAN 1" {% if selected_year == 'TINGKATAN 1' %}selected{% endif %}>Tingkatan 1</option>
+                            <option value="TINGKATAN 2" {% if selected_year == 'TINGKATAN 2' %}selected{% endif %}>Tingkatan 2</option>
+                            <option value="TINGKATAN 3" {% if selected_year == 'TINGKATAN 3' %}selected{% endif %}>Tingkatan 3</option>
+                            <option value="TINGKATAN 4" {% if selected_year == 'TINGKATAN 4' %}selected{% endif %}>Tingkatan 4</option>
+                            <option value="TINGKATAN 5" {% if selected_year == 'TINGKATAN 5' %}selected{% endif %}>Tingkatan 5</option>
+                            <option value="TINGKATAN 6 ATAS" {% if selected_year == 'TINGKATAN 6 ATAS' %}selected{% endif %}>Tingkatan 6 Atas</option>
+                            <option value="TINGKATAN 6 BAWAH" {% if selected_year == 'TINGKATAN 6 BAWAH' %}selected{% endif %}>Tingkatan 6 Bawah</option>
+                            <option value="PERALIHAN" {% if selected_year == 'PERALIHAN' %}selected{% endif %}>Peralihan</option>
+
+
+                            <option value="TAHUN 1 KOLEJ VOKASIONAL" {% if selected_year == 'TAHUN 1 KOLEJ VOKASIONAL' %}selected{% endif %}>Tahun 1 Kolej Vokasional</option>
+                            <option value="TAHUN 2 KOLEJ VOKASIONAL" {% if selected_year == 'TAHUN 2 KOLEJ VOKASIONAL' %}selected{% endif %}>Tahun 2 Kolej Vokasional</option>
+                            <option value="TAHUN 3 KOLEJ VOKASIONAL" {% if selected_year == 'TAHUN 3 KOLEJ VOKASIONAL' %}selected{% endif %}>Tahun 3 Kolej Vokasional</option>
+                            <option value="TAHUN 4 KOLEJ VOKASIONAL" {% if selected_year == 'TAHUN 4 KOLEJ VOKASIONAL' %}selected{% endif %}>Tahun 4 Kolej Vokasional</option>
+
+
+
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <a href="{% url 'check_availability' %}" class="btn btn-outline-secondary w-100">Reset</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- 3. BORANG B: CARIAN BERDEKATAN (Data Seluruh Malaysia - Biru) -->
+        <div id="form-proximity" style="display: none;">
+            <h5 class="mb-3 text-success border-bottom pb-2">Cari Sekolah (Seluruh Malaysia)</h5>
+            
+            <!-- Gunakan HTMX untuk hantar request ke Backend PostGIS -->
+            <form hx-get="{% url 'carian_sekolah:api_search_and_find' %}" 
+                  hx-target="#suggestion-box" 
+                  hx-indicator="#loader-proximity"
+                  id="proximity-htmx-form">
+                
+                <!-- Parameter tambahan untuk API -->
+                <input type="hidden" name="initial" value="true">
+                <input type="hidden" name="type" value="SEMUA">
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Lokasi / Alamat</label>
+                        <div class="input-group">
+                            <input type="text" name="location" class="form-control" id="user_address" placeholder="Cth: 41200 atau Jalan Meru" required>
+                            <button class="btn btn-outline-success" type="button" id="btn-locate-me" title="Guna GPS">
+                                <i class="bi bi-geo-fill"></i> GPS
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Jarak Radius</label>
+                        <select name="radius" class="form-select" id="search_radius">
+                            <option value="3">3 KM</option>
+                            <option value="5" selected>5 KM</option>
+                            <option value="10">10 KM</option>
+                            <option value="20">20 KM</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <!-- Type submit untuk trigger HTMX -->
+                        <button type="submit" class="btn btn-success w-100">
+                            Cari <div id="loader-proximity" class="spinner-border spinner-border-sm htmx-indicator" role="status"></div>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+    <!-- PETA DAN SIDEBAR -->
+    <div class="map-container">
+        <div id="map"></div>
+        
+        <!-- Sidebar: Kandungan berubah ikut mod -->
+        <div id="suggestion-box">
+            <div class="text-center text-muted py-5">
+                <div class="spinner-border text-primary" role="status" id="initial-loading"></div>
+                <p class="mt-2">Sedang memuatkan data...</p>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Modal Keputusan HTMX -->
+<!-- Modal Status -->
 <div id="search-modal" class="modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
     <div class="modal-content" style="background-color:#fff; padding:20px; border-radius:8px; width:80%; max-width:600px; position:relative;">
         <span class="close-modal" style="position:absolute; top:10px; right:20px; cursor:pointer; font-size:24px;">&times;</span>
-        <h4 class="mb-3">Keputusan Carian</h4>
+        <h4 class="mb-3 border-bottom pb-2">Maklumat Terperinci</h4>
         <div id="modal-results"></div>
     </div>
 </div>
 
 <script>
+let map, markerCluster;
+let allStatusData = []; // Data untuk Tab Status (Utama)
+let markerReferences = {};
+let currentMode = 'status'; 
+let userHomeMarker;
+
+// Ikon
+let greenIcon, yellowIcon, redIcon, greyIcon, blueIcon;
+
 document.addEventListener('DOMContentLoaded', function () {
     
-    // 1. Inisialisasi Peta
-    const map = L.map('map').setView([3.0449, 101.4456], 12);
+    // 1. SETUP PETA
+    map = L.map('map').setView([3.0449, 101.4456], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
-    
     if (L.control.locate) L.control.locate().addTo(map);
 
-    // 2. Pembolehubah
-    const form = document.getElementById('search-form');
-    const schoolInput = document.getElementById('school_input');
-    const yearSelect = document.getElementById('year');
-    const suggestionBox = document.getElementById('suggestion-box');
-    const modal = document.getElementById('search-modal');
-    const closeModalBtn = document.querySelector('.close-modal');
-    
-    const markerReferences = {}; 
-    let allSchoolsData = [];
-
-    // === 3. DEFINISI IKON (HIJAU, KUNING, MERAH) ===
-    const greenIcon = L.icon({ iconUrl: '{% static "marker_green.png" %}', iconSize: [30, 30], iconAnchor: [15, 30], popupAnchor: [0, -30] });
-    // Pastikan anda sudah simpan marker-yellow.png
-    const yellowIcon = L.icon({ iconUrl: '{% static "marker_yellow.png" %}', iconSize: [30, 30], iconAnchor: [15, 30], popupAnchor: [0, -30] });
-    const redIcon = L.icon({ iconUrl: '{% static "marker_red.png" %}', iconSize: [30, 30], iconAnchor: [15, 30], popupAnchor: [0, -30] });
+    // 2. SETUP IKON
+    greenIcon = L.icon({ iconUrl: '{% static "marker_green.png" %}', iconSize: [30, 30], iconAnchor: [15, 30], popupAnchor: [0, -30] });
+    yellowIcon = L.icon({ iconUrl: '{% static "marker_yellow.png" %}', iconSize: [30, 30], iconAnchor: [15, 30], popupAnchor: [0, -30] });
+    redIcon = L.icon({ iconUrl: '{% static "marker_red.png" %}', iconSize: [30, 30], iconAnchor: [15, 30], popupAnchor: [0, -30] });
+    greyIcon = L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-grey.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] });
+    blueIcon = L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] });
 
     const createClusterIcon = function (cluster) {
         var count = cluster.getChildCount();
         var className = 'marker-cluster marker-cluster-' + (count < 10 ? 'small' : (count < 100 ? 'medium' : 'large'));
         return L.divIcon({ html: '<div><span>' + count + '</span></div>', className: className, iconSize: L.point(40, 40) });
     };
-    const markerCluster = L.markerClusterGroup({ iconCreateFunction: createClusterIcon });
+    markerCluster = L.markerClusterGroup({ iconCreateFunction: createClusterIcon });
 
-    // 4. Fetch Data
-    function fetchAllSchools() {
-        let apiUrl = "{% url 'school_data_json' %}";
-        // Fallback untuk mengelakkan ralat syntax dalam JS jika tag template tidak diproses
-        if (apiUrl.includes("{%")) apiUrl = "/api/data-sekolah/";
+    // 3. AMBIL DATA AWAL (Hanya untuk Tab Status)
+    let initialYear = "{{ selected_year|default:'' }}";
+    if (initialYear.includes("{{")) initialYear = ""; 
+    fetchStatusData(initialYear);
 
-        // Kendalikan selected_year
-        let selectedYear = "{{ selected_year|default:'' }}";
-        if (selectedYear.includes("{{")) selectedYear = "";
+    // 4. EVENT LISTENERS
+    
+    // a. Input Sekolah (Tab Status)
+    document.getElementById('school_input').addEventListener('input', function() {
+        const val = this.value;
+        const matchedSchool = allStatusData.find(s => s.school === val);
+        if (matchedSchool) onSchoolSelected(val);
+    });
+    
+    // b. Dropdown Tahun (Tab Status)
+    document.getElementById('year').addEventListener('change', function() {
+        fetchStatusData(this.value); 
+    });
 
-        if (selectedYear) {
-            const separator = apiUrl.includes('?') ? '&' : '?';
-            apiUrl += separator + "year=" + encodeURIComponent(selectedYear);
-        }
-
-        fetch(apiUrl)
-            .then(response => response.json())
-            .then(data => {
-                allSchoolsData = data.filter(s => s.latitude && s.longitude);
-                renderMapMarkers();
-            })
-            .catch(err => console.error("Ralat ambil data:", err));
-    }
-
-    function renderMapMarkers() {
-        markerCluster.clearLayers();
-        allSchoolsData.forEach(school => {
-            
-            // === PERUBAHAN BARU: LOGIK 3 WARNA ===
-            let iconToUse;
-            let statusText;
-            const avg = school.average;
-
-            if (avg < 36) {
-                // Hijau: Bawah 36
-                iconToUse = greenIcon;
-                statusText = "<span style='color:green; font-weight:bold;'>MASIH KOSONG</span>";
-            } else if (avg >= 36 && avg <= 39) {
-                // Kuning: 36 hingga 39
-                iconToUse = yellowIcon;
-                statusText = "<span style='color:#e67e22; font-weight:bold;'>SEPARA PENUH</span>";
-            } else {
-                // Merah: 40 ke atas
-                iconToUse = redIcon;
-                statusText = "<span style='color:red; font-weight:bold;'>PENUH</span>";
-            }
-            // ======================================
-            
-            let popupContent = `<b>${school.school}</b><br>Purata: ${avg}<br>Status: ${statusText}`;
-            if (school.photo) {
-                popupContent += `<br><img src="/media/${school.photo}" style="width:100%; margin-top:5px; border-radius:4px;">`;
-            }
-            popupContent += `<div class="direction-buttons">
-                <a href="https://www.google.com/maps/dir/?api=1&destination=${school.latitude},${school.longitude}" target="_blank" class="direction-btn google">Google Maps</a>
-                <a href="https://www.waze.com/ul?ll=${school.latitude},${school.longitude}&navigate=yes" target="_blank" class="direction-btn waze">Waze</a>
-            </div>`;
-
-            const marker = L.marker([school.latitude, school.longitude], {icon: iconToUse});
-            marker.bindPopup(popupContent, {minWidth: 200});
-            
-            markerReferences[school.school] = marker;
-            markerCluster.addLayer(marker);
-        });
-        map.addLayer(markerCluster);
-    }
-
-    // 5. Update Suggestions
-    function updateSuggestions(selectedSchoolName) {
-        if (!selectedSchoolName) {
-            suggestionBox.innerHTML = '<div class="text-center text-muted py-5">Pilih sekolah untuk melihat cadangan.</div>';
-            return;
-        }
-
-        const selectedSchool = allSchoolsData.find(s => s.school === selectedSchoolName);
-        if (!selectedSchool) return;
-
-        const selectedLatLng = L.latLng(selectedSchool.latitude, selectedSchool.longitude);
-
-        // === PERUBAHAN: Tapis sekolah yang < 40 (Hijau DAN Kuning dimasukkan dalam cadangan) ===
-        const recommendedSchools = allSchoolsData.filter(s => s.average < 40 && s.school !== selectedSchoolName);
-
-        recommendedSchools.forEach(s => {
-            s.distance = selectedLatLng.distanceTo(L.latLng(s.latitude, s.longitude)) / 1000;
-        });
-        recommendedSchools.sort((a, b) => a.distance - b.distance);
-
-        let html = `<h5 class="mb-3 text-success">Sekolah Berdekatan (< 40 Murid)</h5>`;
-        html += `<p class="text-muted small">Berhampiran: <b>${selectedSchoolName}</b></p>`;
+    // c. Butang GPS (Tab Proximity) - Hanya dapatkan alamat, biar HTMX buat carian
+    document.getElementById('btn-locate-me').addEventListener('click', function() {
+        if (!navigator.geolocation) { alert("Tiada sokongan GPS."); return; }
+        const btn = this;
+        const oriText = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
         
-        if (recommendedSchools.length > 0) {
-            recommendedSchools.slice(0, 8).forEach(s => {
-                // Tentukan warna badge dalam senarai cadangan
-                let badgeClass = s.average < 36 ? "bg-success" : "bg-warning text-dark";
-                let statusLabel = s.average < 36 ? "KOSONG" : "SEPARA";
+        navigator.geolocation.getCurrentPosition(pos => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            
+            // Reverse Geocode untuk dapatkan alamat cantik
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+                .then(r => r.json())
+                .then(d => {
+                    const address = d.display_name || `${lat}, ${lon}`;
+                    document.getElementById('user_address').value = address;
+                    btn.innerHTML = oriText;
+                });
+        }, () => {
+            alert("Gagal dapat lokasi.");
+            btn.innerHTML = oriText;
+        });
+    });
 
-                html += `
-                <div class="suggestion-item" data-school="${s.school}">
-                    <strong>${s.school}</strong><br>
-                    <div class="d-flex justify-content-between mt-1">
-                        <small class="text-muted">${s.distance.toFixed(2)} km</small>
-                        <span class="badge ${badgeClass}" style="font-size:0.7em">${statusLabel} (${s.average})</span>
-                    </div>
+    // d. Dengar Event 'updateMap' dari HTMX (Datang dari API carian_sekolah)
+    document.body.addEventListener('updateMap', function(evt) {
+        const data = evt.detail; 
+        
+        // Safety check
+        if (!data || !data.search_location) return;
+
+        // Bersihkan peta & lukis semula untuk mod proximity
+        markerCluster.clearLayers();
+        if (userHomeMarker) map.removeLayer(userHomeMarker);
+
+        // 1. Marker User
+        const userLat = data.search_location.lat;
+        const userLon = data.search_location.lon;
+        userHomeMarker = L.marker([userLat, userLon])
+            .addTo(map).bindPopup("<b>Lokasi Anda</b>").openPopup();
+        
+        // 2. Marker Sekolah
+        if (data.schools && data.schools.length > 0) {
+            const bounds = L.latLngBounds([[userLat, userLon]]);
+            
+            data.schools.forEach(school => {
+                let popupContent = `<b>${school.name}</b>`;
+                if(school.photo_url) popupContent += `<br><img src="${school.photo_url}" width="100%">`;
+                
+                popupContent += `<div class="mt-2 text-center">
+                    <a href="https://www.waze.com/ul?ll=${school.lat},${school.lon}&navigate=yes" target="_blank" class="btn btn-sm btn-info text-white">Waze</a>
                 </div>`;
+
+                const marker = L.marker([school.lat, school.lon], {icon: blueIcon})
+                    .bindPopup(popupContent, {minWidth:200});
+                
+                markerCluster.addLayer(marker);
+                bounds.extend([school.lat, school.lon]);
             });
+            map.addLayer(markerCluster);
+            map.fitBounds(bounds.pad(0.1));
         } else {
-            html += `<div class="alert alert-warning">Tiada sekolah kosong atau separa penuh dalam jarak dekat.</div>`;
-        }
-        suggestionBox.innerHTML = html;
-        suggestionBox.scrollTop = 0;
-    }
-
-    // 6. Main Handler
-    function handleSelectionChange() {
-        const schoolName = schoolInput.value;
-        const yearValue = yearSelect.value;
-
-        if (schoolName) {
-            const marker = markerReferences[schoolName];
-            if (marker) {
-                markerCluster.zoomToShowLayer(marker, () => marker.openPopup());
-            }
-            updateSuggestions(schoolName);
-        }
-
-        if (schoolName && yearValue) {
-            htmx.ajax('GET', form.getAttribute('hx-get'), {
-                target: '#modal-results',
-                values: { school: schoolName, year: yearValue },
-                indicator: '.htmx-indicator'
-            });
-        }
-    }
-
-    // 7. Event Listeners
-    schoolInput.addEventListener('change', handleSelectionChange); // Guna change untuk elak refresh terlalu kerap
-    yearSelect.addEventListener('change', handleSelectionChange);
-
-    suggestionBox.addEventListener('click', function(e) {
-        const item = e.target.closest('.suggestion-item');
-        if (item) {
-            const name = item.dataset.school;
-            const marker = markerReferences[name];
-            if (marker) {
-                markerCluster.zoomToShowLayer(marker, () => marker.openPopup());
-            }
+            map.setView([userLat, userLon], 14);
+            // Alert sudah dikendalikan oleh HTMX di sidebar
         }
     });
 
+    const modal = document.getElementById('search-modal');
+    const closeModalBtn = document.querySelector('.close-modal');
     document.body.addEventListener('openModal', () => modal.style.display = 'flex');
     closeModalBtn.addEventListener('click', () => modal.style.display = 'none');
     window.addEventListener('click', (e) => { if (e.target == modal) modal.style.display = 'none'; });
-
-    fetchAllSchools();
 });
+
+// --- FUNGSI TUKAR MOD ---
+function switchMode(mode) {
+    currentMode = mode;
+    document.getElementById('btn-mode-status').classList.toggle('active', mode === 'status');
+    document.getElementById('btn-mode-proximity').classList.toggle('active', mode === 'proximity');
+    document.getElementById('form-status').style.display = mode === 'status' ? 'block' : 'none';
+    document.getElementById('form-proximity').style.display = mode === 'proximity' ? 'block' : 'none';
+
+    markerCluster.clearLayers();
+    if (userHomeMarker) map.removeLayer(userHomeMarker);
+
+    if (mode === 'status') {
+        renderStatusMap(document.getElementById('year').value);
+        document.getElementById('suggestion-box').innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-hand-index"></i><br>Pilih sekolah untuk melihat cadangan sekolah berdekatan yang masih kosong.</div>';
+    } else {
+        // Kosongkan peta untuk persediaan carian baru
+        map.setView([3.0449, 101.4456], 12);
+        document.getElementById('suggestion-box').innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-search"></i><br>Masukkan alamat dan klik Cari.<br><small>Menggunakan Enjin PostGIS (Seluruh Malaysia)</small></div>';
+    }
+}
+
+// --- LOGIK MOD 1 (STATUS) ---
+function fetchStatusData(yearFilter = "") {
+    let apiUrl = "{% url 'school_data_json' %}";
+    if (apiUrl.includes("{%")) apiUrl = "/api/data-sekolah/"; 
+    if (yearFilter) apiUrl += "?year=" + encodeURIComponent(yearFilter);
+
+    fetch(apiUrl)
+        .then(res => res.json())
+        .then(data => {
+            allStatusData = data.filter(s => s.latitude && s.longitude);
+            if (currentMode === 'status') renderStatusMap(yearFilter);
+        });
+}
+
+function renderStatusMap(yearLabel) {
+    markerCluster.clearLayers();
+    markerReferences = {}; 
+    const yearDisplay = yearLabel ? `(${yearLabel})` : "(Keseluruhan)";
+
+    allStatusData.forEach(school => {
+        let iconToUse, statusText;
+        const avg = school.average;
+
+        if (avg === null) {
+            iconToUse = greyIcon;
+            statusText = "<span style='color:grey'>TIADA DATA KEPADATAN</span>";
+        } else {
+            const numAvg = Number(avg);
+            if (numAvg < 36) { iconToUse = greenIcon; statusText = "<span style='color:green'>KOSONG</span>"; }
+            else if (numAvg >= 36 && numAvg <= 39) { iconToUse = yellowIcon; statusText = "<span style='color:orange'>SEPARA</span>"; }
+            else { iconToUse = redIcon; statusText = "<span style='color:red'>PENUH</span>"; }
+        }
+
+        let popup = `<b>${school.school}</b><br>Tahun: ${yearDisplay}<br>Purata: ${avg!==null?avg:'-'}<br>${statusText}`;
+        const marker = L.marker([school.latitude, school.longitude], {icon: iconToUse}).bindPopup(popup);
+        markerReferences[school.school] = marker;
+        markerCluster.addLayer(marker);
+    });
+    map.addLayer(markerCluster);
+}
+
+function onSchoolSelected(schoolName) {
+    const marker = markerReferences[schoolName];
+    if (marker) {
+        markerCluster.zoomToShowLayer(marker, () => marker.openPopup());
+        updateStatusSidebar(schoolName);
+        document.getElementById('school_input').value = schoolName;
+        
+        const yearVal = document.getElementById('year').value;
+        if (yearVal) {
+            htmx.ajax('GET', document.getElementById('search-form-status').getAttribute('hx-get'), {
+                target: '#modal-results', values: { school: schoolName, year: yearVal }, indicator: '.htmx-indicator'
+            });
+        }
+    }
+}
+
+function updateStatusSidebar(selectedName) {
+    const selectedSchool = allStatusData.find(s => s.school === selectedName);
+    if (!selectedSchool) return;
+    
+    const loc = L.latLng(selectedSchool.latitude, selectedSchool.longitude);
+    const nearby = allStatusData.filter(s => s.average !== null && Number(s.average) < 40 && s.school !== selectedName);
+    
+    nearby.forEach(s => s.distance = loc.distanceTo(L.latLng(s.latitude, s.longitude))/1000);
+    nearby.sort((a,b) => a.distance - b.distance);
+    
+    let html = `<h5 class="mb-3 text-primary">Cadangan Sekolah Kosong</h5><p class="small text-muted">Berhampiran: <b>${selectedName}</b></p>`;
+    
+    if (nearby.length > 0) {
+        nearby.slice(0, 10).forEach(s => {
+            let badge = Number(s.average) < 36 ? "bg-success" : "bg-warning text-dark";
+            html += `<div class="suggestion-item" onclick="onSchoolSelected('${s.school}')">
+                <strong>${s.school}</strong>
+                <div class="d-flex justify-content-between mt-1"><small>${s.distance.toFixed(2)} km</small><span class="badge ${badge}">${s.average}</span></div>
+            </div>`;
+        });
+    } else {
+        html += `<div class="alert alert-warning">Tiada sekolah kosong berdekatan.</div>`;
+    }
+    document.getElementById('suggestion-box').innerHTML = html;
+}
 </script>
 {% endblock content %}

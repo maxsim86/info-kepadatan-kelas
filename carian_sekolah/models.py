@@ -10,7 +10,6 @@ class Name(models.Model):
         max_length=10, unique=True, verbose_name="kod sekolah", null=True, blank=True
     )
 
-
 class School(models.Model):
     class SchoolType(models.TextChoices):
         RENDAH = "RENDAH", "Sekolah Rendah"
