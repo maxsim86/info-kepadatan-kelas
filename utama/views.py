@@ -9,6 +9,7 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.db.models import Max
 from django.template.loader import render_to_string
+from django.views.decorators.cache import cache_page
 
 
 def check_availability(request):
@@ -46,7 +47,7 @@ def check_availability(request):
 
     return render(request, "utama/check_availability.html", context)
 
-
+@cache_page(60 * 15)
 def school_data_json(request):
     """
     View ini menyediakan data sekolah dalam format JSON.
