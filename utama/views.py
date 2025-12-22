@@ -9,7 +9,6 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.db.models import Max
 from django.template.loader import render_to_string
-from django.views.decorators.cache import cache_page
 
 
 def check_availability(request):

@@ -30,7 +30,6 @@ class School(models.Model):
         default=SchoolType.RENDAH,
         verbose_name="Jenis Sekolah",
     )
-    db_index = True
 
     #hanya mencari satu lokasi sahaja
     location = gis_models.PointField(verbose_name="Koordinat Lokasi")
