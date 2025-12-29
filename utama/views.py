@@ -46,7 +46,6 @@ def check_availability(request):
 
     return render(request, "utama/check_availability.html", context)
 
-@cache_page(60 * 15)
 def school_data_json(request):
     """
     View ini menyediakan data sekolah dalam format JSON.
