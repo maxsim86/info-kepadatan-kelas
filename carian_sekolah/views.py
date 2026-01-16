@@ -7,11 +7,12 @@ from django.contrib.gis.db.models.functions import Distance
 from django.http import HttpResponse, JsonResponse
 from django.template.loader import render_to_string
 from django.core.cache import cache
+from django.db.models import Q
 from .models import School
 from .forms import ImageSubmissionForm 
 
-# Konfigurasi Google Maps API (Jika anda ada API Key pada masa depan)
-GOOGLE_API_KEY = None  # Letak API Key anda di sini: 'AIzaSy...'
+# Konfigurasi Google Maps API (Jika ada)
+GOOGLE_API_KEY = None 
 
 def paparan_pencari(request):
     """
@@ -19,42 +20,53 @@ def paparan_pencari(request):
     """
     return render(request, 'carian_sekolah/pencari.html', {})
 
+def find_school_in_db(query):
+    """
+    Cuba cari sekolah dalam DB berdasarkan nama.
+    Pulangkan lat/lon jika jumpa.
+    """
+    # Cari sekolah yang namanya hampir sama (case-insensitive)
+    school = School.objects.filter(name__icontains=query).first()
+    if school and school.location:
+        return school.location.y, school.location.x, school.name
+    return None, None, None
+
 def get_coordinates(query):
     """
-    Fungsi pembantu untuk mendapatkan koordinat.
-    Boleh ditukar antara Nominatim, Photon, atau Google Maps.
+    Fungsi pembantu untuk mendapatkan koordinat (Geocoding).
+    Prioriti: DB (Nama Sekolah) -> Cache -> Google -> Photon -> Nominatim.
     """
-    # Opsyen 1: Google Maps (Paling Tepat - Jika ada Key)
+    # 1. Semak jika input adalah nama sekolah dalam DB (Paling Pantas)
+    lat, lon, name = find_school_in_db(query)
+    if lat and lon:
+        return lat, lon, name
+
+    # 2. Opsyen Google Maps
     if GOOGLE_API_KEY:
         try:
             url = f"https://maps.googleapis.com/maps/api/geocode/json?address={query},+Malaysia&key={GOOGLE_API_KEY}"
-            response = requests.get(url, timeout=5)
+            response = requests.get(url, timeout=3)
             data = response.json()
             if data['status'] == 'OK':
                 loc = data['results'][0]['geometry']['location']
                 return float(loc['lat']), float(loc['lng']), data['results'][0]['formatted_address']
         except Exception:
-            pass # Fallback ke provider lain jika gagal
+            pass
 
-    # Opsyen 2: Photon (Komoot) - Lebih pantas & lenient untuk carian teks bebas
+    # 3. Opsyen Photon (Komoot) - Pantas & Percuma
     try:
-        # Photon fokus pada carian lokasi, sangat pantas
-        url = f"https://photon.komoot.io/api/?q={query}&limit=1"
-        response = requests.get(url, timeout=5)
+        url = f"https://photon.komoot.io/api/?q={query}&limit=1&lang=en"
+        response = requests.get(url, timeout=3)
         data = response.json()
         if data['features']:
             coords = data['features'][0]['geometry']['coordinates']
             props = data['features'][0]['properties']
-            
-            # Bina nama paparan ringkas
             display_name = f"{props.get('name', '')} {props.get('street', '')}, {props.get('city', '')}"
-            
-            # Photon memulangkan [lon, lat]
             return float(coords[1]), float(coords[0]), display_name
     except Exception:
         pass
 
-    # Opsyen 3: Nominatim (Fallback Asal) - Bagus untuk alamat berstruktur
+    # 4. Opsyen Nominatim (Fallback Terakhir)
     try:
         headers = {'User-Agent': 'SchoolLocatorApp/1.0'}
         url = f"https://nominatim.openstreetmap.org/search?format=json&q={query}, Malaysia&limit=1"
@@ -72,7 +84,10 @@ def search_and_find_schools(request):
     API endpoint untuk carian HTMX.
     """
     location_query = request.GET.get('location', '').strip()
-    radius_km = float(request.GET.get('radius', 5.0))
+    try:
+        radius_km = float(request.GET.get('radius', 5.0))
+    except ValueError:
+        radius_km = 5.0
     
     # 1. Semak jika Lat/Lon dihantar terus (Dari butang GPS atau Autocomplete)
     param_lat = request.GET.get('lat')
@@ -88,12 +103,13 @@ def search_and_find_schools(request):
         except ValueError:
             pass 
 
-    # 2. Jika tiada Lat/Lon, lakukan Geocoding (Guna fungsi pembantu baru)
+    # 2. Jika tiada Lat/Lon, lakukan Geocoding Pintar
     if user_lat is None or user_lon is None:
         if not location_query:
             return HttpResponse("<div class='alert alert-warning'>Sila masukkan lokasi atau pilih dari senarai.</div>")
 
-        cache_key = f"geo_{location_query.lower().replace(' ', '')}"
+        # Cuba cache
+        cache_key = f"geo_v2_{location_query.lower().replace(' ', '')}"
         cached_coords = cache.get(cache_key)
 
         if cached_coords:
@@ -104,12 +120,14 @@ def search_and_find_schools(request):
             if user_lat is None:
                 return HttpResponse(f"<div class='alert alert-danger'>Lokasi '{location_query}' tidak ditemui. Cuba poskod.</div>")
             
-            # Simpan dalam cache
+            # Simpan cache 24 jam
             cache.set(cache_key, (user_lat, user_lon), 60 * 60 * 24)
 
     # --- 3. Carian GeoDjango (Proximity Search) ---
     user_point = Point(user_lon, user_lat, srid=4326)
 
+    # Optimasi: Guna .defer() untuk tidak memuatkan field berat jika tidak perlu
+    # atau .only() untuk ambil yang perlu sahaja.
     nearby_schools = School.objects.filter(
         location__distance_lte=(user_point, D(km=radius_km))
     ).annotate(
@@ -118,9 +136,11 @@ def search_and_find_schools(request):
 
     # --- 4. Sediakan Data JSON untuk Peta ---
     map_data_schools = []
+    # Kita iterate queryset sekali sahaja untuk template DAN map data
+    # (Django querysets are lazy/cached once evaluated)
+    
     for school in nearby_schools:
         photo_url = school.photo.url if school.photo else None
-        
         map_data_schools.append({
             'name': school.name,
             'lat': school.location.y,
@@ -136,7 +156,7 @@ def search_and_find_schools(request):
 
     context = {
         'schools': nearby_schools,
-        'search_location': location_query or "Koordinat Dipilih",
+        'search_location': location_query or "Lokasi GPS",
         'radius': radius_km
     }
     html = render_to_string('carian_sekolah/partials/results_list.html', context)
@@ -148,55 +168,52 @@ def search_and_find_schools(request):
 
 def address_autocomplete(request):
     """
-    API Autocomplete menggunakan Photon (Komoot) yang lebih pantas dan fleksibel.
+    API Autocomplete menggunakan Photon.
     """
     query = request.GET.get("location", "").strip()
     suggestions = []
     
-    if len(query) > 2:  # Photon boleh proses seawal 3 aksara
+    if len(query) > 2:
         cache_key = f"auto_photon_{query.lower().replace(' ', '')}"
         suggestions = cache.get(cache_key)
 
         if not suggestions:
-            # Guna Photon API untuk autocomplete (Percuma & Tiada had ketat seperti Nominatim)
-            # Kita tambah bias lokasi Malaysia (box approximate) atau lang code
-            url = f"https://photon.komoot.io/api/?q={query}&limit=5&lang=en"
+            suggestions = []  # Initialize as empty list if cache miss
             
-            try:
-                response = requests.get(url, timeout=3)
-                response.raise_for_status()
-                data = response.json()
-                
-                suggestions = []
-                for feature in data['features']:
-                    props = feature['properties']
-                    
-                    # Tapis supaya logik sikit (utamakan yang ada bandar/negeri)
-                    # Photon cari seluruh dunia, jadi kita cuba tapis jika boleh, 
-                    # atau terima sahaja dan biar user pilih.
-                    
-                    # Format nama: Nama, Jalan, Bandar, Negara
-                    parts = [
-                        props.get('name'),
-                        props.get('street'),
-                        props.get('city') or props.get('town'),
-                        props.get('state'),
-                        props.get('country')
-                    ]
-                    display_name = ", ".join([p for p in parts if p])
-                    
-                    # Simpan koordinat supaya frontend tak perlu geocode lagi!
-                    coords = feature['geometry']['coordinates'] # [lon, lat]
-                    
+            # 1. Cari Sekolah dalam DB dulu (Supaya user boleh cari nama sekolah terus)
+            db_schools = School.objects.filter(name__icontains=query)[:3]
+            for school in db_schools:
+                if school.location:
                     suggestions.append({
-                        "display_name": display_name,
-                        "lat": coords[1],
-                        "lon": coords[0]
+                        "display_name": f"{school.name} (Sekolah)",
+                        "lat": school.location.y,
+                        "lon": school.location.x
                     })
-                
-                cache.set(cache_key, suggestions, 60 * 60)
 
-            except (requests.RequestException, IndexError, KeyError):
+            # 2. Cari Alamat guna Photon
+            url = f"https://photon.komoot.io/api/?q={query}&limit=5&lang=en"
+            try:
+                response = requests.get(url, timeout=2)
+                if response.status_code == 200:
+                    data = response.json()
+                    for feature in data['features']:
+                        props = feature['properties']
+                        parts = [
+                            props.get('name'), props.get('street'),
+                            props.get('city'), props.get('state')
+                        ]
+                        display_name = ", ".join([p for p in parts if p])
+                        coords = feature['geometry']['coordinates']
+                        
+                        suggestions.append({
+                            "display_name": display_name,
+                            "lat": coords[1],
+                            "lon": coords[0]
+                        })
+                
+                if suggestions: # Only cache if we found something
+                    cache.set(cache_key, suggestions, 60 * 60) # Cache 1 jam
+            except Exception:
                 pass
 
     return render(

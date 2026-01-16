@@ -11,54 +11,369 @@
 <script src="https://unpkg.com/leaflet.markercluster@1.5.1/dist/leaflet.markercluster.js"></script>
 <!-- HTMX -->
 <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+<!-- Google Fonts (Inter) -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-    /* === SUSUN ATUR GRID === */
-    .map-container { display: grid; grid-template-columns: 3fr 1fr; gap: 20px; margin-top: 20px; align-items: start; }
-    #map { height: 600px; width: 100%; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    #suggestion-box { height: 600px; overflow-y: auto; background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 8px; padding: 1rem; }
-    
-    @media (max-width: 992px) { 
-        .map-container { grid-template-columns: 1fr; } 
-        #map, #suggestion-box { height: 400px; } 
+    /* === TEMA & PEMBOLEHUBAH CSS === */
+    :root {
+        --primary: #2563eb;       /* Biru Diraja */
+        --primary-hover: #1d4ed8;
+        --secondary: #64748b;     /* Kelabu Kebiruan */
+        --success: #10b981;       /* Hijau Emerald */
+        --warning: #f59e0b;       /* Kuning Amber */
+        --danger: #ef4444;        /* Merah */
+        --bg-body: #f8fafc;       /* Putih Kebiruan Lembut */
+        --bg-card: #ffffff;
+        --text-main: #1e293b;
+        --text-muted: #64748b;
+        --border-color: #e2e8f0;
+        --radius-lg: 16px;
+        --radius-md: 12px;
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+        --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
     }
 
-    /* === TAB NAVIGASI === */
-    .search-tabs { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
-    .tab-btn { padding: 10px 30px; border-radius: 50px; border: 1px solid #dee2e6; background-color: #f8f9fa; color: #6c757d; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
-    .tab-btn.active { background-color: #0d6efd; color: white; border-color: #0d6efd; box-shadow: 0 4px 6px rgba(13, 110, 253, 0.3); }
+    body {
+        background-color: var(--bg-body);
+        color: var(--text-main);
+        font-family: 'Inter', sans-serif;
+    }
 
-    /* === LOADER === */
-    .htmx-indicator { display: none; margin-left: 10px; width: 1rem; height: 1rem; }
-    .htmx-request .htmx-indicator { display: inline-block; }
+    /* === NAVIGASI TAB === */
+    .search-tabs-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+
+    .search-tabs {
+        background: white;
+        padding: 6px;
+        border-radius: 50px;
+        box-shadow: var(--shadow-sm);
+        display: inline-flex;
+        border: 1px solid var(--border-color);
+    }
+
+    .tab-btn {
+        padding: 10px 32px;
+        border-radius: 40px;
+        border: none;
+        background: transparent;
+        font-weight: 600;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .tab-btn.active {
+        background-color: var(--primary);
+        color: white;
+        box-shadow: var(--shadow-md);
+    }
+
+    .tab-btn:hover:not(.active) {
+        background-color: #f1f5f9;
+        color: var(--text-main);
+    }
+
+    /* === KAD CARIAN === */
+    .search-card {
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--border-color);
+        margin-bottom: 2rem;
+    }
+
+    /* === BORANG & INPUT === */
+    .form-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+    }
+
+    .form-control, .form-select {
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-color);
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        background-color: #f8fafc;
+        transition: all 0.2s;
+    }
+
+    .input-group .input-group-text {
+        border-top-left-radius: var(--radius-md);
+        border-bottom-left-radius: var(--radius-md);
+        border: 1px solid var(--border-color);
+        border-right: none;
+        background-color: #f8fafc;
+        padding-left: 1rem;
+        padding-right: 0.75rem;
+    }
+
+    .input-group .form-control {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border-left: none;
+    }
     
-    /* === GAYA ITEM === */
-    .suggestion-item { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; transition: background-color 0.2s; border-radius: 4px; }
-    .suggestion-item:hover { background-color: #f0f8ff; transform: translateX(5px); }
+    .input-group:focus-within .input-group-text {
+        border-color: var(--primary);
+        background-color: white;
+    }
     
-    .direction-buttons { margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
-    .direction-btn { padding: 6px; color: white !important; text-align: center; border-radius: 4px; font-size: 0.8em; text-decoration: none; }
-    .direction-btn.google { background-color: #4285F4; }
-    .direction-btn.waze { background-color: #33ccff; }
+    .form-control:focus, .form-select:focus {
+        background-color: white;
+        border-color: var(--primary);
+        box-shadow: none;
+        outline: none;
+    }
+    
+    .input-group:focus-within {
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        border-radius: var(--radius-md);
+    }
+
+    /* === BUTANG === */
+    .btn-action {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        width: 100%;
+        transition: all 0.2s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-action:hover {
+        background-color: var(--primary-hover);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn-reset {
+        background-color: white;
+        border: 1px solid var(--border-color);
+        color: var(--text-muted);
+        border-radius: var(--radius-md);
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        width: 100%;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: block;
+        text-align: center;
+    }
+
+    .btn-reset:hover {
+        background-color: #f1f5f9;
+        color: var(--text-main);
+        border-color: #cbd5e1;
+    }
+    
+    .btn-locate {
+        border-top-left-radius: 0 !important;
+        border-bottom-left-radius: 0 !important;
+        border-top-right-radius: var(--radius-md) !important;
+        border-bottom-right-radius: var(--radius-md) !important;
+        background-color: white;
+        border: 1px solid var(--border-color);
+        border-left: 1px solid var(--border-color);
+        color: var(--primary);
+        z-index: 5;
+    }
+    .btn-locate:hover { background-color: #eff6ff; }
+
+    /* === PETA & SIDEBAR === */
+    .map-wrapper {
+        display: grid;
+        grid-template-columns: 3fr 1.2fr;
+        gap: 1.5rem;
+        height: 650px;
+    }
+
+    .map-container {
+        background: white;
+        padding: 8px;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--border-color);
+        height: 100%;
+    }
+
+    #map {
+        height: 100%;
+        width: 100%;
+        border-radius: 12px;
+        z-index: 1;
+    }
+
+    .sidebar-container {
+        background: white;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .sidebar-header {
+        padding: 1.25rem;
+        background: white;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .sidebar-header h6 {
+        margin: 0;
+        font-weight: 700;
+        color: var(--text-main);
+        font-size: 0.9rem;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    #suggestion-box {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem;
+        background-color: #f8fafc;
+    }
+
+    /* === ITEM SENARAI (KAD MINI) === */
+    .school-card {
+        background: white;
+        padding: 1rem;
+        border-radius: 12px;
+        margin-bottom: 0.75rem;
+        border: 1px solid var(--border-color);
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+    }
+
+    .school-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--primary);
+    }
+
+    .school-card .school-name {
+        font-weight: 600;
+        color: var(--text-main);
+        margin-bottom: 0.25rem;
+        display: block;
+    }
+
+    .school-card .school-info {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 0.5rem;
+    }
+
+    .status-badge {
+        font-size: 0.7rem;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    
+    .bg-success-soft { background-color: #d1fae5; color: #065f46; }
+    .bg-warning-soft { background-color: #fef3c7; color: #92400e; }
+    .bg-danger-soft { background-color: #fee2e2; color: #991b1b; }
+    .bg-secondary-soft { background-color: #e2e8f0; color: #475569; }
+
+    /* === DROPDOWN AUTOCOMPLETE === */
+    #address-suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: white;
+        border: 1px solid var(--border-color);
+        border-top: none;
+        border-radius: 0 0 var(--radius-md) var(--radius-md);
+        box-shadow: var(--shadow-md);
+        z-index: 1050;
+        max-height: 250px;
+        overflow-y: auto;
+    }
+
+    .suggestion-result {
+        padding: 10px 15px;
+        cursor: pointer;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.9rem;
+        color: var(--text-main);
+    }
+    .suggestion-result:hover { background-color: #f8fafc; color: var(--primary); }
+    .suggestion-result:last-child { border-bottom: none; }
+
+    /* === LOADER HTMX === */
+    .loader-spinner {
+        display: none;
+        width: 1.2rem;
+        height: 1.2rem;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 0.8s linear infinite;
+    }
+    .htmx-request .loader-spinner { display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 992px) {
+        .map-wrapper { grid-template-columns: 1fr; height: auto; }
+        .map-container { height: 400px; margin-bottom: 1rem; }
+        .sidebar-container { height: 500px; }
+        .search-tabs { width: 100%; justify-content: space-between; }
+        .tab-btn { padding: 10px 15px; font-size: 0.85rem; width: 50%; justify-content: center; }
+    }
 </style>
 
-<div class="container mt-4">
+<div class="container mt-5 mb-5">
     
-    <!-- 1. PILIHAN MOD (TAB) -->
-    <div class="search-tabs">
-        <button class="tab-btn active" onclick="switchMode('status')" id="btn-mode-status">
-            <i class="bi bi-bar-chart-fill me-2"></i>Status & Kepadatan
-        </button>
-        <button class="tab-btn" onclick="switchMode('proximity')" id="btn-mode-proximity">
-            <i class="bi bi-geo-alt-fill me-2"></i>Carian Berdekatan
-        </button>
+    <!-- 1. TAB NAVIGASI -->
+    <div class="search-tabs-container">
+        <div class="search-tabs">
+            <button class="tab-btn active" onclick="switchMode('status')" id="btn-mode-status">
+                <i class="bi bi-bar-chart-fill"></i> Status
+            </button>
+            <button class="tab-btn" onclick="switchMode('proximity')" id="btn-mode-proximity">
+                <i class="bi bi-geo-alt-fill"></i> Berdekatan
+            </button>
+        </div>
     </div>
 
-    <div class="mb-4 p-4 border rounded bg-light shadow-sm">
+    <!-- 2. BORANG CARIAN -->
+    <div class="search-card">
         
-        <!-- 2. BORANG A: STATUS (Data Selangor Sahaja - Hijau/Merah) -->
+        <!-- BORANG A: STATUS -->
         <div id="form-status" style="display: block;">
-            <h5 class="mb-3 text-primary border-bottom pb-2">Analisis Kepadatan Sekolah (Selangor)</h5>
+            <div class="search-header">
+                <h5>Analisis Kepadatan Sekolah (Selangor)</h5>
+            </div>
             <form id="search-form-status" 
                   hx-get="{% url 'check_availability' %}" 
                   hx-target="#modal-results" 
@@ -66,8 +381,11 @@
                 
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label class="form-label fw-bold">Nama Sekolah</label>
-                        <input class="form-control" list="schoolOptions" id="school_input" name="school" placeholder="Mula menaip..." autocomplete="off">
+                        <label class="form-label">Nama Sekolah</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                            <input class="form-control border-start-0 ps-0" list="schoolOptions" id="school_input" name="school" placeholder="Mula menaip nama sekolah..." autocomplete="off">
+                        </div>
                         <datalist id="schoolOptions">
                             {% for value, label in form.fields.school.choices %}
                                 {% if value %}<option value="{{ value }}">{% endif %}
@@ -75,7 +393,7 @@
                         </datalist>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label fw-bold">Pilihan Tahun</label>
+                        <label class="form-label">Tahun</label>
                         <select name="year" id="year" class="form-select">
                             <option value="">-- Papar Semua --</option>
                             <option value="PPKI" {% if selected_year == 'PPKI' %}selected{% endif %}>PPKI</option>
@@ -88,49 +406,53 @@
                         </select>
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
-                        <a href="{% url 'check_availability' %}" class="btn btn-outline-secondary w-100">Reset</a>
+                        <a href="{% url 'check_availability' %}" class="btn-reset">
+                            <i class="bi bi-arrow-counterclockwise me-2"></i>Reset
+                        </a>
                     </div>
                 </div>
             </form>
         </div>
 
-        <!-- 3. BORANG B: CARIAN BERDEKATAN (Data Seluruh Malaysia - Biru) -->
+        <!-- BORANG B: CARIAN BERDEKATAN (HTMX Enabled) -->
         <div id="form-proximity" style="display: none;">
-            <h5 class="mb-3 text-success border-bottom pb-2">Cari Sekolah (Seluruh Malaysia)</h5>
+            <div class="search-header">
+                <h5 style="color: var(--success); border-color: var(--success);">Cari Sekolah Terdekat (Seluruh Malaysia)</h5>
+            </div>
             
             <form hx-get="{% url 'carian_sekolah:api_search_and_find' %}" 
                   hx-target="#suggestion-box" 
-                  hx-indicator="#loader-proximity"
+                  hx-indicator="#btn-proximity-submit"
                   id="proximity-htmx-form">
                 
                 <input type="hidden" name="initial" value="true">
                 <input type="hidden" name="type" value="SEMUA">
 
                 <div class="row g-3">
-                    
-                    <!-- === INPUT AUTOCOMPLETE DIKEMBALIKAN === -->
                     <div class="col-md-6 position-relative">
-                        <label class="form-label fw-bold">Lokasi / Alamat</label>
-                        
-                        <!-- Input dengan Autocomplete HTMX -->
-                        <input type="text" 
-                               name="location" 
-                               class="form-control" 
-                               id="user_address" 
-                               placeholder="Cth: Jalan Meru, Klang" 
-                               autocomplete="off"
-                               hx-get="{% url 'carian_sekolah:address_autocomplete' %}"
-                               hx-trigger="keyup changed delay:300ms"
-                               hx-target="#address-suggestions"
-                               required>
-                        
-                        <!-- Bekas untuk senarai cadangan alamat -->
-                        <div id="address-suggestions" class="position-absolute w-100 shadow-sm" style="z-index: 1050; top: 100%; background:white; border-radius:0 0 5px 5px;"></div>
+                        <label class="form-label">Lokasi / Alamat</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i class="bi bi-geo-alt text-muted"></i></span>
+                            <input type="text" 
+                                   name="location" 
+                                   class="form-control border-start-0 ps-0" 
+                                   id="user_address" 
+                                   placeholder="Contoh: Jalan Meru, Klang" 
+                                   autocomplete="off"
+                                   hx-get="{% url 'carian_sekolah:address_autocomplete' %}"
+                                   hx-trigger="keyup changed delay:300ms"
+                                   hx-target="#address-suggestions"
+                                   required>
+                            <button class="btn btn-locate" type="button" id="btn-locate-me" title="Guna Lokasi Semasa">
+                                <i class="bi bi-crosshair"></i>
+                            </button>
+                        </div>
+                        <!-- Container Autocomplete -->
+                        <div id="address-suggestions"></div>
                     </div>
-                    <!-- ======================================= -->
 
                     <div class="col-md-4">
-                        <label class="form-label fw-bold">Jarak Radius</label>
+                        <label class="form-label">Jarak Radius</label>
                         <select name="radius" class="form-select" id="search_radius">
                             <option value="3">3 KM</option>
                             <option value="5" selected>5 KM</option>
@@ -139,46 +461,54 @@
                         </select>
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
-                        <button type="submit" class="btn btn-success w-100">
-                            Cari <div id="loader-proximity" class="spinner-border spinner-border-sm htmx-indicator" role="status"></div>
+                        <button type="submit" class="btn-action" id="btn-proximity-submit">
+                            <span>Cari</span>
+                            <div class="loader-spinner"></div>
                         </button>
                     </div>
                 </div>
             </form>
         </div>
-
     </div>
 
-    <!-- PETA DAN SIDEBAR -->
-    <div class="map-container">
-        <div id="map"></div>
-        <div id="suggestion-box">
-            <div class="text-center text-muted py-5">
-                <div class="spinner-border text-primary" role="status" id="initial-loading"></div>
-                <p class="mt-2">Sedang memuatkan data sekolah...</p>
+    <!-- 3. PAPARAN UTAMA (PETA & SIDEBAR) -->
+    <div class="map-wrapper">
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+        
+        <div class="sidebar-container">
+            <div class="sidebar-header">
+                <h6>Senarai Sekolah</h6>
+            </div>
+            <div id="suggestion-box">
+                <!-- Kandungan akan dimuatkan di sini -->
+                <div class="text-center text-muted py-5">
+                    <div class="spinner-border text-primary spinner-border-sm mb-3" role="status" id="initial-loading"></div>
+                    <p class="small fw-bold">Memuatkan data...</p>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal Status -->
-<div id="search-modal" class="modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
-    <div class="modal-content" style="background-color:#fff; padding:20px; border-radius:8px; width:80%; max-width:600px; position:relative;">
-        <span class="close-modal" style="position:absolute; top:10px; right:20px; cursor:pointer; font-size:24px;">&times;</span>
-        <h4 class="mb-3 border-bottom pb-2">Maklumat Terperinci</h4>
+<!-- Modal -->
+<div id="search-modal" class="modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); justify-content:center; align-items:center; backdrop-filter: blur(4px);">
+    <div class="modal-content" style="background-color:#fff; padding:25px; border-radius:16px; width:90%; max-width:600px; position:relative; box-shadow: 0 20px 50px rgba(0,0,0,0.2);">
+        <span class="close-modal" style="position:absolute; top:15px; right:20px; cursor:pointer; font-size:24px; color:#aaa;">&times;</span>
+        <h4 class="mb-4 border-bottom pb-3">Maklumat Terperinci</h4>
         <div id="modal-results"></div>
     </div>
 </div>
 
 <script>
-// --- PEMBOLEHUBAH GLOBAL ---
 let map, markerCluster;
 let allStatusData = []; 
 let markerReferences = {};
 let currentMode = 'status'; 
 let userHomeMarker;
 
-// Ikon
+// Ikon Peta (Custom)
 const iconSize = [30, 30], iconAnchor = [15, 30], popupAnchor = [0, -30];
 const greenIcon = L.icon({ iconUrl: '{% static "imej/marker-green.png" %}', iconSize, iconAnchor, popupAnchor });
 const yellowIcon = L.icon({ iconUrl: '{% static "imej/marker-yellow.png" %}', iconSize, iconAnchor, popupAnchor });
@@ -196,11 +526,10 @@ const blueIcon = L.icon({
 
 document.addEventListener('DOMContentLoaded', function () {
     
-    // 1. SETUP PETA (OPTIMASI: preferCanvas)
+    // 1. SETUP PETA (Optimization: Canvas renderer)
     map = L.map('map', { preferCanvas: true }).setView([3.0449, 101.4456], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
     
-    // Setup Marker Cluster
     const createClusterIcon = function (cluster) {
         var count = cluster.getChildCount();
         var className = 'marker-cluster marker-cluster-' + (count < 10 ? 'small' : (count < 100 ? 'medium' : 'large'));
@@ -208,7 +537,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
     markerCluster = L.markerClusterGroup({ iconCreateFunction: createClusterIcon });
 
-    // 2. AMBIL DATA AWAL (Tab Status)
+    // 2. AMBIL DATA AWAL
     let initialYear = "{{ selected_year|default:'' }}";
     if (initialYear.includes("{{")) initialYear = ""; 
     fetchStatusData(initialYear);
@@ -224,7 +553,30 @@ document.addEventListener('DOMContentLoaded', function () {
         fetchStatusData(this.value); 
     });
 
-    // Dengar Event dari carian_sekolah API
+    // Butang GPS
+    document.getElementById('btn-locate-me').addEventListener('click', function() {
+        if (!navigator.geolocation) { alert("Tiada sokongan GPS."); return; }
+        const btnIcon = this.querySelector('i');
+        const oriClass = btnIcon.className;
+        btnIcon.className = "spinner-border spinner-border-sm text-primary";
+        
+        navigator.geolocation.getCurrentPosition(pos => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+                .then(r => r.json())
+                .then(d => {
+                    document.getElementById('user_address').value = d.display_name || `${lat}, ${lon}`;
+                    btnIcon.className = "bi bi-check-lg text-success";
+                    setTimeout(() => btnIcon.className = oriClass, 2000);
+                });
+        }, () => {
+            alert("Gagal dapat lokasi.");
+            btnIcon.className = oriClass;
+        });
+    });
+
+    // HTMX Update Map Event
     document.body.addEventListener('updateMap', function(evt) {
         const data = evt.detail;
         if (!data || !data.search_location) return;
@@ -238,25 +590,26 @@ document.addEventListener('DOMContentLoaded', function () {
         
         if (data.schools && data.schools.length > 0) {
             const bounds = L.latLngBounds([[userLat, userLon]]);
-            
-            // OPTIMASI: Kumpul marker dalam array untuk 'bulk add'
             const markersToAdd = [];
             data.schools.forEach(school => {
-                let popupContent = `<b>${school.name}</b>`;
-                const marker = L.marker([school.lat, school.lon], {icon: blueIcon}).bindPopup(popupContent, {minWidth:200});
+                let popupContent = `
+                    <div class='text-center'>
+                        <h6>${school.name}</h6>
+                        <div class='mt-2'><a href='https://www.waze.com/ul?ll=${school.lat},${school.lon}&navigate=yes' target='_blank' class='btn btn-sm btn-primary w-100'>Waze</a></div>
+                    </div>`;
+                const marker = L.marker([school.lat, school.lon], {icon: blueIcon}).bindPopup(popupContent, {minWidth:180});
                 markersToAdd.push(marker);
                 bounds.extend([school.lat, school.lon]);
             });
-            
-            markerCluster.addLayers(markersToAdd); // Bulk add lebih laju
+            markerCluster.addLayers(markersToAdd);
             map.addLayer(markerCluster);
             map.fitBounds(bounds.pad(0.1));
         } else {
             map.setView([userLat, userLon], 14);
         }
     });
-    
-    // === AUTOCOMPLETE LISTENER: Tutup jika klik di luar ===
+
+    // Autocomplete Close
     document.addEventListener('click', function(e) {
         const container = document.getElementById('address-suggestions');
         const input = document.getElementById('user_address');
@@ -265,6 +618,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // Modal
     const modal = document.getElementById('search-modal');
     const closeModalBtn = document.querySelector('.close-modal');
     document.body.addEventListener('openModal', () => modal.style.display = 'flex');
@@ -272,13 +626,11 @@ document.addEventListener('DOMContentLoaded', function () {
     window.addEventListener('click', (e) => { if (e.target == modal) modal.style.display = 'none'; });
 });
 
-// === FUNGSI AUTOCOMPLETE SELECT (Dipanggil dari HTML partial) ===
 function selectAddress(address, lat, lon) {
     document.getElementById('user_address').value = address;
-    document.getElementById('address-suggestions').innerHTML = ''; // Tutup cadangan
+    document.getElementById('address-suggestions').innerHTML = '';
 }
 
-// --- FUNGSI TUKAR MOD ---
 function switchMode(mode) {
     currentMode = mode;
     document.getElementById('btn-mode-status').classList.toggle('active', mode === 'status');
@@ -291,14 +643,13 @@ function switchMode(mode) {
 
     if (mode === 'status') {
         renderStatusMap(document.getElementById('year').value);
-        document.getElementById('suggestion-box').innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-hand-index"></i><br>Pilih sekolah untuk melihat cadangan sekolah berdekatan yang masih kosong.</div>';
+        document.getElementById('suggestion-box').innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-hand-index fs-1 mb-2"></i><br>Pilih sekolah untuk melihat cadangan.</div>';
     } else {
         map.setView([3.0449, 101.4456], 12);
-        document.getElementById('suggestion-box').innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-search"></i><br>Masukkan alamat dan klik Cari.<br><small>Menggunakan Enjin PostGIS (Seluruh Malaysia)</small></div>';
+        document.getElementById('suggestion-box').innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-search fs-1 mb-2"></i><br>Masukkan alamat dan klik Cari.</div>';
     }
 }
 
-// --- LOGIK MOD 1 (STATUS) ---
 function fetchStatusData(yearFilter = "") {
     let apiUrl = "{% url 'school_data_json' %}";
     if (apiUrl.includes("{%")) apiUrl = "/api/data-sekolah/"; 
@@ -309,6 +660,10 @@ function fetchStatusData(yearFilter = "") {
         .then(data => {
             allStatusData = data.filter(s => s.latitude && s.longitude);
             if (currentMode === 'status') renderStatusMap(yearFilter);
+        })
+        .catch(err => {
+            console.error(err);
+            document.getElementById('suggestion-box').innerHTML = '<div class="p-3 text-center text-danger">Gagal memuatkan data.</div>';
         });
 }
 
@@ -316,47 +671,38 @@ function renderStatusMap(yearLabel) {
     markerCluster.clearLayers();
     markerReferences = {}; 
     const yearDisplay = yearLabel ? `(${yearLabel})` : "(Keseluruhan)";
-    
-    // OPTIMASI: Guna array untuk bulk add
     const markersToAdd = [];
 
     allStatusData.forEach(school => {
-        let iconToUse, statusText;
+        let iconToUse, statusText, badgeClass;
         const avg = school.average;
 
         if (avg === null) {
             iconToUse = greyIcon;
-            statusText = "<span style='color:grey; font-weight:bold'>TIADA DATA KEPADATAN</span>";
+            statusText = "<span class='text-muted fw-bold'>TIADA DATA</span>";
+            badgeClass = "bg-secondary-soft";
         } else {
             const numAvg = Number(avg);
-            if (numAvg < 36) { 
-                iconToUse = greenIcon; statusText = "<span style='color:green; font-weight:bold'>MASIH KOSONG</span>"; 
-            } else if (numAvg >= 36 && numAvg <= 39) { 
-                iconToUse = yellowIcon; statusText = "<span style='color:orange'>SEPARA</span>"; 
-            } else { 
-                iconToUse = redIcon; statusText = "<span style='color:red; font-weight:bold'>PENUH</span>"; 
-            }
+            if (numAvg < 36) { iconToUse = greenIcon; statusText = "<span class='text-success fw-bold'>KOSONG</span>"; badgeClass = "bg-success-soft"; }
+            else if (numAvg >= 36 && numAvg <= 39) { iconToUse = yellowIcon; statusText = "<span class='text-warning fw-bold'>SEPARA</span>"; badgeClass = "bg-warning-soft"; }
+            else { iconToUse = redIcon; statusText = "<span class='text-danger fw-bold'>PENUH</span>"; badgeClass = "bg-danger-soft"; }
         }
 
-        let popup = `
-            <div style="text-align:center">
-                <h6>${school.school}</h6>
-                <p class="mb-1 text-muted small">${school.address || ''}</p>
-                <hr class="my-1">
-                <p class="mb-1">Tahun: <b>${yearDisplay}</b></p>
-                <p class="mb-1">Purata: <b>${avg !== null ? avg : '-'}</b></p>
-                ${statusText}
-            </div>`;
-        
-        popup += `<div class="d-grid gap-1 mt-2">
-            <button class="btn btn-sm btn-outline-primary" onclick="onSchoolSelected('${school.school}')">Lihat Info & Cadangan</button>
-            <div class="direction-buttons">
-                <a href="https://www.google.com/maps/dir/?api=1&destination=${school.latitude},${school.longitude}" target="_blank" class="direction-btn google">Google</a>
-                <a href="https://www.waze.com/ul?ll=${school.latitude},${school.longitude}&navigate=yes" target="_blank" class="direction-btn waze">Waze</a>
-            </div>
-        </div>`;
+        school.uiBadgeClass = badgeClass; // Simpan untuk sidebar
+        school.uiStatusText = avg === null ? 'N/A' : (Number(avg) < 36 ? 'KOSONG' : 'PENUH');
 
-        const marker = L.marker([school.latitude, school.longitude], {icon: iconToUse}).bindPopup(popup, {minWidth: 230});
+        let popup = `
+            <div class='text-center'>
+                <h6 class='fw-bold mb-1'>${school.school}</h6>
+                <div class='badge bg-light text-dark border mb-2'>${yearDisplay}</div>
+                <div class='mb-2 small'>${statusText} (${avg !== null ? avg : '-'})</div>
+                <div class='d-grid gap-1'>
+                    <button class='btn btn-xs btn-outline-primary' onclick="onSchoolSelected('${school.school}')">Info Lanjut</button>
+                    <a href='https://www.waze.com/ul?ll=${school.latitude},${school.longitude}&navigate=yes' target='_blank' class='btn btn-xs btn-info text-white'>Waze</a>
+                </div>
+            </div>`;
+
+        const marker = L.marker([school.latitude, school.longitude], {icon: iconToUse}).bindPopup(popup, {minWidth: 200});
         markerReferences[school.school] = marker;
         markersToAdd.push(marker);
     });
@@ -391,19 +737,26 @@ function updateStatusSidebar(selectedName) {
     nearby.forEach(s => s.distance = loc.distanceTo(L.latLng(s.latitude, s.longitude))/1000);
     nearby.sort((a,b) => a.distance - b.distance);
     
-    let html = `<h5 class="mb-3 text-primary">Cadangan Sekolah Kosong</h5><p class="small text-muted">Berhampiran: <b>${selectedName}</b></p>`;
+    let html = `<div class="p-3 bg-white border-bottom sticky-top">
+        <small class="text-uppercase text-muted fw-bold" style="font-size:0.7rem">Sekolah Dipilih</small>
+        <h6 class="text-primary m-0">${selectedName}</h6>
+    </div><div class="p-2">`;
     
     if (nearby.length > 0) {
         nearby.slice(0, 10).forEach(s => {
-            let badge = Number(s.average) < 36 ? "bg-success" : "bg-warning text-dark";
-            html += `<div class="suggestion-item" onclick="onSchoolSelected('${s.school}')">
-                <strong>${s.school}</strong>
-                <div class="d-flex justify-content-between mt-1"><small>${s.distance.toFixed(2)} km</small><span class="badge ${badge}">${s.average}</span></div>
+            html += `
+            <div class="school-card" onclick="onSchoolSelected('${s.school}')">
+                <span class="school-name">${s.school}</span>
+                <div class="school-info">
+                    <span><i class="bi bi-geo-alt me-1"></i>${s.distance.toFixed(2)} km</span>
+                    <span class="status-badge ${s.uiBadgeClass}">${s.uiStatusText} (${s.average})</span>
+                </div>
             </div>`;
         });
     } else {
-        html += `<div class="alert alert-warning">Tiada sekolah kosong berdekatan (dalam data Selangor).</div>`;
+        html += `<div class="text-center p-4 text-muted small">Tiada sekolah kosong berdekatan.</div>`;
     }
+    html += `</div>`;
     document.getElementById('suggestion-box').innerHTML = html;
 }
 </script>
