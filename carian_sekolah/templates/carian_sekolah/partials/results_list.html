@@ -1,59 +1,39 @@
-<!-- 1. Semak mesej ralat atau amaran dahulu -->
-{% if geocoding_failed and not page_obj.object_list %}
-    <div class="list-group-item text-warning" data-no-results="true">
-        Lokasi "{{ location_query }}" tidak dapat ditemui. Cuba guna nama bandar atau poskod yang lebih umum.
-    </div>
-{% elif successful_query %}
-    <div class="list-group-item text-info">
-        Lokasi tepat tidak ditemui. Memaparkan hasil untuk kawasan umum: <strong>"{{ successful_query }}"</strong>.
-    </div>
-{% endif %}
+<div class="mb-3 border-bottom pb-2">
+    <h5 class="text-success mb-1">Hasil Carian</h5>
+    <p class="text-muted small mb-0">
+        {{ schools|length }} sekolah ditemui dalam radius {{ radius }}km dari "<b>{{ search_location }}</b>"
+    </p>
+</div>
 
-
-<!-- 2. Paparkan senarai sekolah dari objek paginasi -->
-{% if page_obj.object_list %}
-    {% for school in page_obj %}
-    <a href="#" class="list-group-item list-group-item-action" data-school-name="{{ school.name }}">
-        <div class="d-flex w-100 align-items-center">
+{% if schools %}
+    <div class="list-group list-group-flush">
+        {% for school in schools %}
+        <div class="suggestion-item p-3 border-bottom list-group-item-action" 
+             style="cursor: pointer;"
+             onclick="onSchoolSelectedInProximity('{{ school.name|escapejs }}')">
             
-            <!-- Bahagian Gambar Thumbnail -->
-            <div class="flex-shrink-0 me-3">
-                {% if school.photo %}
-                    <img src="{{ school.photo.url }}" alt="{{ school.name }}" class="rounded" width="80" height="60" style="object-fit: cover;">
-                {% else %}
-                    <!-- Gambar Lalai (Placeholder) -->
-                    <img src="https://placehold.co/80x60/e9ecef/6c757d?text=Tiada+Gambar" alt="Tiada Gambar" class="rounded">
-                {% endif %}
-            </div>
-
-            <!-- Bahagian Teks Maklumat -->
-            <div class="flex-grow-1">
-                <h6 class="mb-1"><strong>{{ school.name }}</strong></h6>
-                <p class="mb-1 text-muted small">{{ school.address }}</p>
-                
-                {% if search_location_found %}
+            <div class="d-flex justify-content-between align-items-start">
+                <strong class="text-dark">{{ school.name }}</strong>
                 <span class="badge bg-primary rounded-pill">
-                    Anggaran: {{ school.distance.km|floatformat:2 }} km
+                    {{ school.distance.km|floatformat:2 }} km
                 </span>
-                {% endif %}
+            </div>
+            
+            <p class="mb-1 small text-muted text-truncate" style="max-width: 90%;">
+                <i class="bi bi-geo-alt"></i> {{ school.address|default:"Alamat tidak tersedia" }}
+            </p>
+            
+            <div class="mt-2">
+                <small class="text-info">
+                    <i class="bi bi-arrow-right-circle"></i> Lihat di Peta
+                </small>
             </div>
         </div>
-    </a>
-    {% endfor %}
-{% elif not geocoding_failed and not successful_query %}
-    <div class="list-group-item" data-no-results="true">Tiada sekolah ditemui sepadan dengan carian anda.</div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="text-center py-4 text-muted">
+        <i class="bi bi-emoji-frown display-4"></i>
+        <p class="mt-3">Tiada sekolah ditemui dalam kawasan ini.<br>Cuba besarkan jarak radius.</p>
+    </div>
 {% endif %}
-
-
-<!-- 3. Butang "Muat Lagi" (Infinite Scroll) -->
-{% if page_obj.has_next %}
-    <a href="?{{ request.GET.urlencode }}&page={{ page_obj.next_page_number }}"
-       class="list-group-item list-group-item-action text-center text-primary"
-       hx-get="?{{ request.GET.urlencode }}&page={{ page_obj.next_page_number }}"
-       hx-target="this"
-       hx-swap="outerHTML"
-       hx-indicator="#loader">
-        Muat Lagi...
-    </a>
-{% endif %}
-

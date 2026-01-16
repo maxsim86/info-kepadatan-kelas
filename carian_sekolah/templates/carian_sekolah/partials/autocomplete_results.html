@@ -1,8 +1,12 @@
-{% for suggestion in suggestions %}
- 
-    <div class="list-group-item list-group-item-action autocomplete-item" 
-         onclick="selectAddressSuggestion('{{ suggestion|escapejs }}')">
-        {{ suggestion }}
+{% if suggestions %}
+    <div class="list-group shadow-sm">
+        {% for item in suggestions %}
+        <!-- Apabila diklik, panggil fungsi JavaScript selectAddress -->
+        <button type="button" 
+                class="list-group-item list-group-item-action text-start" 
+                onclick="selectAddress('{{ item.display_name|escapejs }}', {{ item.lat }}, {{ item.lon }})">
+            <i class="bi bi-geo-alt me-2 text-muted"></i>{{ item.display_name }}
+        </button>
+        {% endfor %}
     </div>
-{% endfor %}
-
+{% endif %}
