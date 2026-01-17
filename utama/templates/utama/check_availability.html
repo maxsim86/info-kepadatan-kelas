@@ -91,6 +91,19 @@
         border: 1px solid var(--border-color);
         margin-bottom: 2rem;
     }
+    
+    .search-header {
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 1rem;
+    }
+    
+    .search-header h5 {
+        margin: 0;
+        font-weight: 700;
+        color: var(--primary);
+        font-size: 1.1rem;
+    }
 
     /* === BORANG & INPUT === */
     .form-label {
@@ -518,6 +531,8 @@ let allStatusData = [];
 let markerReferences = {};
 let currentMode = 'status'; 
 let userHomeMarker;
+let searchCircle; 
+
 
 // Ikon Peta (Custom)
 const iconSize = [30, 30], iconAnchor = [15, 30], popupAnchor = [0, -30];
@@ -604,6 +619,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         markerCluster.clearLayers();
         if (userHomeMarker) map.removeLayer(userHomeMarker);
+        if (searchCircle) map.removeLayer(searchCircle); // Buang bulatan lama
 
         const userLat = data.search_location.lat;
         const userLon = data.search_location.lon;
@@ -613,6 +629,18 @@ document.addEventListener('DOMContentLoaded', function () {
             .addTo(map)
             .bindPopup("<b>Lokasi Carian Anda</b>")
             .openPopup();
+
+        // PENAMBAHAN: Lukis Bulatan Radius
+        const radiusElem = document.getElementById('search_radius');
+        const radiusKm = radiusElem ? parseFloat(radiusElem.value) : 3;
+        
+        searchCircle = L.circle([userLat, userLon], {
+            color: '#2563eb',       
+            fillColor: '#2563eb',   
+            fillOpacity: 0.1,       
+            radius: radiusKm * 1000 
+        }).addTo(map);
+
         
         if (data.schools && data.schools.length > 0) {
             const bounds = L.latLngBounds([[userLat, userLon]]);
@@ -635,6 +663,10 @@ document.addEventListener('DOMContentLoaded', function () {
             map.fitBounds(bounds.pad(0.1));
         } else {
             map.setView([userLat, userLon], 14);
+            // Fit bounds supaya bulatan radius nampak penuh
+            if (searchCircle) {
+                map.fitBounds(searchCircle.getBounds());
+            }
         }
     });
 
