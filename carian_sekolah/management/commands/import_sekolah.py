@@ -5,7 +5,7 @@ from django.contrib.gis.geos import Point
 from carian_sekolah.models import School
 
 class Command(BaseCommand):
-    help = "Import data sekolah dan auto-esan Poskod/Bandar jika tiada."
+    help = "Import data sekolah dari fail CSV (Versi Pembaikan Ralat)"
 
     def add_arguments(self, parser):
         parser.add_argument("csv_file", type=str, help="Laluan ke fail CSV")
@@ -18,37 +18,31 @@ class Command(BaseCommand):
         error_count = 0
 
         try:
-            # Gunakan utf-8-sig untuk handle BOM
+            # Gunakan utf-8-sig untuk membuang BOM
             with open(csv_file_path, mode="r", encoding="utf-8-sig") as file:
                 reader = csv.DictReader(file)
                 
-                # 1. NORMALISASI HEADER: Tukar semua header ke huruf kecil & buang jarak
-                # Ini selesaikan masalah jika header anda "Bandar" atau " BANDAR "
+                # Bersihkan header: lower case, strip space
                 reader.fieldnames = [name.strip().lower() for name in reader.fieldnames]
-                
-                # Debug: Tunjukkan header yang dikesan
-                self.stdout.write(f"Lajur dikesan: {reader.fieldnames}")
+                self.stdout.write(f"Header dikesan: {reader.fieldnames}")
 
                 for row_num, row in enumerate(reader, 2):
+                    kod_sekolah = row.get("kod_sekolah", "").strip()
+                    
                     try:
-                        # Ambil data wajib
-                        kod_sekolah = row.get("kod_sekolah", "").strip()
-                        nama_sekolah = row.get("name", "").strip()
-                        alamat = row.get("address", "").strip()
-                        
-                        # --- LOGIK KOORDINAT ---
+                        # --- 1. VALIDASI LATITUD & LONGITUD ---
                         raw_lat = row.get("latitude", "").strip()
                         raw_lon = row.get("longitude", "").strip()
 
-                        if not raw_lat or not raw_lon:
-                            # Cuba cari column 'location' jika lat/lon tak jumpa
-                            self.stdout.write(self.style.WARNING(f"Baris {row_num}: Tiada koordinat. Skip."))
-                            continue
+                        # Debug: Jika nilai nampak pelik (bukan nombor), cetak ralat jelas
+                        if not self.is_valid_coordinate(raw_lat) or not self.is_valid_coordinate(raw_lon):
+                            raise ValueError(f"Koordinat tidak sah. Lat: '{raw_lat}', Lon: '{raw_lon}'")
 
                         val_1 = float(raw_lat)
                         val_2 = float(raw_lon)
 
-                        # Pastikan Lat/Lon betul (Malaysia: Lat ~1-7, Lon ~100-119)
+                        # --- 2. LOGIK PINTAR: TENTUKAN LAT vs LON ---
+                        # Malaysia: Longitud (X) > 90, Latitud (Y) < 10
                         if val_1 > 90: 
                             lon = val_1
                             lat = val_2
@@ -56,41 +50,33 @@ class Command(BaseCommand):
                             lat = val_1
                             lon = val_2
                         
+                        # Pastikan Latitud dalam julat Malaysia (lebih kurang)
+                        if not (0 < lat < 10):
+                             self.stdout.write(self.style.WARNING(f"Amaran Baris {row_num}: Latitud {lat} mungkin di luar Malaysia?"))
+
                         lokasi = Point(lon, lat, srid=4326)
 
-                        # --- LOGIK POSKOD & BANDAR ---
-                        # 1. Cuba ambil dari CSV dulu (sokong 'postcode' atau 'poskod')
+                        # --- 3. PROSES DATA LAIN ---
+                        # Auto-extract poskod jika lajur kosong
                         postcode = row.get("postcode", row.get("poskod", "")).strip()
+                        alamat = row.get("address", "").strip()
                         
-                        # 2. Cuba ambil dari CSV (sokong 'bandar' atau 'city')
-                        bandar = row.get("bandar", row.get("city", "")).strip()
-
-                        # 3. AUTO-EXTRACT: Jika kosong, cuba teka dari Alamat
                         if not postcode and alamat:
                             match = re.search(r'\b\d{5}\b', alamat)
                             if match:
                                 postcode = match.group(0)
-                        
-                        if not bandar and alamat and postcode:
-                            # Cuba ambil perkataan selepas poskod sebagai bandar
-                            # Cth: "... 41200 KLANG ..." -> Ambil KLANG
-                            parts = alamat.split(postcode)
-                            if len(parts) > 1:
-                                # Ambil bahagian selepas poskod, buang koma, ambil perkataan pertama/kedua
-                                after_postcode = parts[1].strip(" ,.")
-                                # Ambil bandar (biasanya huruf besar semua atau dipisahkan koma)
-                                bandar_parts = after_postcode.split(",")[0]
-                                bandar = bandar_parts.strip()
 
-                        # --- SIMPAN KE DB ---
+                        bandar = row.get("city", row.get("bandar", "")).strip()
+
+                        # --- 4. SIMPAN KE DB ---
                         School.objects.update_or_create(
                             kod_sekolah=kod_sekolah,
                             defaults={
-                                "name": nama_sekolah,
+                                "name": row.get("name", "").strip(),
                                 "address": alamat,
-                                "postcode": postcode,
-                                "city": bandar,
                                 "ppd": row.get("ppd", "").strip(),
+                                "city": bandar,
+                                "postcode": postcode,
                                 "school_type": row.get("school_type", "RENDAH").strip(),
                                 "location": lokasi,
                             }
@@ -106,3 +92,11 @@ class Command(BaseCommand):
 
         except FileNotFoundError:
             raise CommandError(f'Fail "{csv_file_path}" tidak ditemui.')
+
+    def is_valid_coordinate(self, value):
+        """Helper untuk semak jika string boleh ditukar jadi float"""
+        try:
+            float(value)
+            return True
+        except ValueError:
+            return False

@@ -11,8 +11,12 @@ class School(models.Model):
         SJKT = "SJK(T)", "SJK Tamil"
         SMK = "SMK", "Sekolah Menengah Kebangsaan"
         SMJK = "SMJK", "Sekolah Menengah Jenis Kebangsaan"
-        SABK = "SABK", "Sekolah Agama Bantuan Kerajaan"
-        KOLEJ = "KOLEJ", "Kolej / Tingkatan 6"
+        SABK = "SM Agama (SABK)", "SM Agama (SABK)"
+        SMK_Agama = "SMK Agama", "Sekolah Menengah Kebangsaan Agama MAAHAD"
+        KOLEJ = "Kolej Tingkatan 6", "Kolej Tingkatan 6"
+        KV = "KV", "Kolej Vokasional"
+        SMBP = "SMBP", "SM Berasrama Penuh"
+        SK_ASLI ="SK (Asli)","SK Asli"
         LAIN = "LAIN", "Lain-lain"
 
     kod_sekolah = models.CharField(
