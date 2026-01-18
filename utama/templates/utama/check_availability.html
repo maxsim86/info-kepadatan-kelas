@@ -23,6 +23,7 @@
         --success: #10b981;       /* Hijau Emerald */
         --warning: #f59e0b;       /* Kuning Amber */
         --danger: #ef4444;        /* Merah */
+        --info: #9333ea;          /* Ungu untuk Carian Berdekatan */
         --bg-body: #f8fafc;       /* Putih Kebiruan Lembut */
         --bg-card: #ffffff;
         --text-main: #1e293b;
@@ -90,19 +91,6 @@
         box-shadow: var(--shadow-md);
         border: 1px solid var(--border-color);
         margin-bottom: 2rem;
-    }
-    
-    .search-header {
-        margin-bottom: 1.5rem;
-        border-bottom: 1px solid var(--border-color);
-        padding-bottom: 1rem;
-    }
-    
-    .search-header h5 {
-        margin: 0;
-        font-weight: 700;
-        color: var(--primary);
-        font-size: 1.1rem;
     }
 
     /* === BORANG & INPUT === */
@@ -449,7 +437,7 @@
                                    name="location" 
                                    class="form-control border-start-0 ps-0" 
                                    id="user_address" 
-                                   placeholder="Contoh: Jalan Meru, Klang" 
+                                   placeholder="Taip alamat rumah..." 
                                    autocomplete="off"
                                    hx-get="{% url 'carian_sekolah:address_autocomplete' %}"
                                    hx-trigger="keyup changed delay:300ms"
@@ -532,6 +520,7 @@ let markerReferences = {};
 let currentMode = 'status'; 
 let userHomeMarker;
 let searchCircle; 
+let currentHoveredSchool = null;
 
 
 // Ikon Peta (Custom)
@@ -544,13 +533,17 @@ const greyIcon = L.icon({
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
     iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] 
 });
-const blueIcon = L.icon({ 
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', 
+// Guna ikon ungu (violet) untuk carian berdekatan
+const violetIcon = L.icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-violet.png',
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-    iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] 
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
 });
 
-// Ikon Lokasi Pengguna (Merah) - Untuk membezakan dari sekolah (Biru)
+// Ikon Lokasi Pengguna (Merah) - Untuk membezakan dari sekolah
 const userLocationIcon = L.icon({
     iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -589,6 +582,42 @@ document.addEventListener('DOMContentLoaded', function () {
         fetchStatusData(this.value); 
     });
 
+    // === HOVER LISTENER UNTUK SIDEBAR ===
+    // Menggunakan 'delegate' pattern pada container sidebar
+    const suggestionBox = document.getElementById('suggestion-box');
+    
+    suggestionBox.addEventListener('mouseover', function(e) {
+        // Cari elemen kad terdekat yang mempunyai data sekolah
+        // Termasuk .school-card (Mod Status) dan .list-group-item (Mod Proximity)
+        const item = e.target.closest('.school-card, .list-group-item, .suggestion-item');
+        
+        if (item) {
+            // Ambil nama sekolah dari atribut data
+            const schoolName = item.dataset.school || item.dataset.schoolName;
+            
+            if (schoolName) {
+                // Elak proses berulang jika masih di sekolah yang sama
+                if (schoolName === currentHoveredSchool) return;
+                currentHoveredSchool = schoolName;
+
+                const marker = markerReferences[schoolName];
+                if (marker) {
+                    // Jika marker berada dalam cluster, zoom untuk tunjukkan
+                    // Jika tidak, hanya buka popup
+                    markerCluster.zoomToShowLayer(marker, function() {
+                        marker.openPopup();
+                    });
+                }
+            }
+        }
+    });
+
+    // Reset currentHoveredSchool bila mouse keluar dari kotak
+    suggestionBox.addEventListener('mouseleave', function() {
+        currentHoveredSchool = null;
+        map.closePopup(); // Tutup popup bila tetikus keluar (Pilihan)
+    });
+
     // Butang GPS
     document.getElementById('btn-locate-me').addEventListener('click', function() {
         if (!navigator.geolocation) { alert("Tiada sokongan GPS."); return; }
@@ -618,8 +647,10 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!data || !data.search_location) return;
 
         markerCluster.clearLayers();
+        markerReferences = {}; // PENTING: Reset rujukan marker
+
         if (userHomeMarker) map.removeLayer(userHomeMarker);
-        if (searchCircle) map.removeLayer(searchCircle); // Buang bulatan lama
+        if (searchCircle) map.removeLayer(searchCircle);
 
         const userLat = data.search_location.lat;
         const userLon = data.search_location.lon;
@@ -630,14 +661,14 @@ document.addEventListener('DOMContentLoaded', function () {
             .bindPopup("<b>Lokasi Carian Anda</b>")
             .openPopup();
 
-        // PENAMBAHAN: Lukis Bulatan Radius
+        // Lukis Bulatan Radius
         const radiusElem = document.getElementById('search_radius');
         const radiusKm = radiusElem ? parseFloat(radiusElem.value) : 3;
         
         searchCircle = L.circle([userLat, userLon], {
-            color: '#2563eb',       
-            fillColor: '#2563eb',   
-            fillOpacity: 0.1,       
+            color: '#9333ea',       // Warna garisan ungu
+            fillColor: '#9333ea',   // Warna isi ungu
+            fillOpacity: 0.1,       // Lutsinar
             radius: radiusKm * 1000 
         }).addTo(map);
 
@@ -647,14 +678,22 @@ document.addEventListener('DOMContentLoaded', function () {
             const markersToAdd = [];
             data.schools.forEach(school => {
                 let popupContent = `
-                    <div class='text-center'>
-                        <h6>${school.name}</h6>
-                        <span class="badge bg-primary mb-2">${school.distance} KM</span>
-                        <br>
-                        <small class="text-muted">${school.address || ''}</small>
-                        <div class='mt-2'><a href='https://www.waze.com/ul?ll=${school.lat},${school.lon}&navigate=yes' target='_blank' class='btn btn-sm btn-primary w-100'>Waze</a></div>
+                    <div class="text-center p-2">
+                        <h6 class="fw-bold text-dark mb-1">${school.name}</h6>
+                        <div class="badge bg-primary mb-2"><i class="bi bi-geo-alt-fill me-1"></i>${school.distance} KM</div>
+                        <p class="small text-muted mb-2 lh-sm">${school.address || 'Alamat tidak tersedia'}</p>
+                        <div class="d-grid gap-2 mt-2">
+                            <a href="https://www.waze.com/ul?ll=${school.lat},${school.lon}&navigate=yes" target="_blank" class="btn btn-sm btn-info text-white"><i class="bi bi-cursor-fill me-1"></i>Waze</a>
+                            <a href="https://www.google.com/maps/dir/?api=1&destination=${school.lat},${school.lon}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="bi bi-map-fill me-1"></i>Google Maps</a>
+                        </div>
                     </div>`;
-                const marker = L.marker([school.lat, school.lon], {icon: blueIcon}).bindPopup(popupContent, {minWidth:180});
+                
+                // Gunakan ikon violet
+                const marker = L.marker([school.lat, school.lon], {icon: violetIcon}).bindPopup(popupContent, {minWidth:220});
+                
+                // Simpan rujukan marker untuk hover (PENTING untuk Proximity)
+                markerReferences[school.name] = marker;
+                
                 markersToAdd.push(marker);
                 bounds.extend([school.lat, school.lon]);
             });
@@ -663,7 +702,6 @@ document.addEventListener('DOMContentLoaded', function () {
             map.fitBounds(bounds.pad(0.1));
         } else {
             map.setView([userLat, userLon], 14);
-            // Fit bounds supaya bulatan radius nampak penuh
             if (searchCircle) {
                 map.fitBounds(searchCircle.getBounds());
             }
@@ -806,7 +844,7 @@ function updateStatusSidebar(selectedName) {
     if (nearby.length > 0) {
         nearby.slice(0, 10).forEach(s => {
             html += `
-            <div class="school-card" onclick="onSchoolSelected('${s.school}')">
+            <div class="school-card" data-school="${s.school}" onclick="onSchoolSelected('${s.school}')">
                 <span class="school-name">${s.school}</span>
                 <div class="school-info">
                     <span><i class="bi bi-geo-alt me-1"></i>${s.distance.toFixed(2)} km</span>
@@ -819,6 +857,14 @@ function updateStatusSidebar(selectedName) {
     }
     html += `</div>`;
     document.getElementById('suggestion-box').innerHTML = html;
+}
+
+// Tambah fungsi ini untuk tab proximity
+function onSchoolSelectedInProximity(schoolName) {
+    const marker = markerReferences[schoolName];
+    if (marker) {
+        markerCluster.zoomToShowLayer(marker, () => marker.openPopup());
+    }
 }
 </script>
 {% endblock content %}
